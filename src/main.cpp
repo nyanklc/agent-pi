@@ -1,4 +1,5 @@
 #include "../include/stream_getter.h"
+#include "../include/globals.h"
 
 #include <iostream>
 
