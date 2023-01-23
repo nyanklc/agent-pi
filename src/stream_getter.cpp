@@ -1,9 +1,9 @@
 #include "../include/stream_getter.h"
+#include <chrono>
 #include <ctime>
+#include <mutex>
 #include <opencv2/core/utility.hpp>
 #include <thread>
-
-std::mutex gStreamMutex;
 
 StreamGetter::StreamGetter(const std::string src) {
   mCap = cv::VideoCapture(src);
@@ -34,30 +34,44 @@ bool StreamGetter::startStream() {
 }
 
 void StreamGetter::getStream() {
-  if (!mStopped) {
+  while (!mStopped) {
+    // wait before locking the mutex to not hog the members
+    std::this_thread::sleep_for(std::chrono::microseconds(100));
+
     // abort if previous frame was not retrieved
     if (!mRetrieved) {
       std::cerr << "Couldn't retrieve frame.\n";
       stopStream();
       return;
     }
+
     // read frame from stream
     auto start = cv::getTickCount();
-    std::lock_guard<std::mutex> lock(gStreamMutex);
+    std::lock_guard<std::mutex> lock(mStreamMutex);
+
     mRetrieved = mCap.read(mFrame);
-    std::cout << std::this_thread::get_id() << " || stream_getter fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
+    // std::cout << std::this_thread::get_id() << " || stream_getter fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
+    mReady = true;
   }
 }
 
 void StreamGetter::stopStream() {
   mStopped = true;
+  std::cout << "before join\n";
   mTh.join();
+  std::cout << "after join\n";
   mCap.release();
 }
 
+bool StreamGetter::isReady() {
+  return mReady;
+}
+
 cv::Mat StreamGetter::getFrame() {
-  std::lock_guard<std::mutex> lock(gStreamMutex);
-  return mFrame;
+  cv::Mat ret;
+  std::lock_guard<std::mutex> lock(mStreamMutex);
+  ret = mFrame;
+  return ret;
 }
 
 bool StreamGetter::getRetrieved() {

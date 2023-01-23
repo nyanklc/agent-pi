@@ -19,6 +19,8 @@ public:
 
   void stopStream();
 
+  bool isReady();
+
   cv::Mat getFrame();
 
   bool getRetrieved();
@@ -31,6 +33,9 @@ private:
   cv::Mat mFrame;
   bool mStopped;
   std::thread mTh;
+  bool mReady;
+  std::mutex mStreamMutex;
+
 };
 
 #endif
