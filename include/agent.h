@@ -18,15 +18,17 @@ class Agent {
 public:
   Agent();
 
+  ~Agent();
+
   bool process(cv::Mat &frame);
 
   Controls generateControls();
 
   double getFocalLength();
 
-  void setFocalLength();
+  void setFocalLength(double f);
 
-  void initFocalLengthCalibration(cv::Mat frame);
+  bool initFocalLengthCalibration(cv::Mat &frame);
 
   bool isCalibrated();
 
@@ -36,7 +38,9 @@ private:
   CameraCalibrator mCameraCalibrator;
   FeatureMatcher mFeatureMatcher;
   double mTurnTolerance;
-  std::shared_ptr<MasterObject> mObjData;
+  std::shared_ptr<MasterObject> mObj;
+
+  FeatureMatcher *mFMPointer;
 };
 
 #endif

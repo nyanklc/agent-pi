@@ -10,9 +10,14 @@
 class FeatureMatcher {
   // TODO:
 public:
+  FeatureMatcher();
+
   bool findObject(cv::Mat &frame);
 
-  std::shared_ptr<MasterObject> getObjData();
+  void setObj(std::shared_ptr<MasterObject> m);
+
+private:
+  std::shared_ptr<MasterObject> mObj;
 };
 
 #endif
