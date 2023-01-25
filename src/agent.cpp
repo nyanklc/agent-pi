@@ -7,9 +7,10 @@ Agent::Agent() {
 
   mCameraCalibrator = CameraCalibrator();
 
-  // When agent is created, it calls the default constructor of mFeatureMatcher,
-  // in order to "give" it the same object, I'm just setting it after creation.
+  // When agent is created, it calls the default constructor of mFeatureMatcher.
+  // I'm setting necessary stuff later on with init etc.
   mFeatureMatcher = FeatureMatcher();
+  mFeatureMatcher.init(REFERENCE_IMG_PATH, KNN_K);
   mFeatureMatcher.setObj(mObj);
 
   mCalibrated = false;

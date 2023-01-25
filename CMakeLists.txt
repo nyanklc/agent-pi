@@ -29,3 +29,7 @@ target_link_libraries(controls ${OpenCV_LIBS})
 
 add_library(master_object src/master_object.cpp)
 target_link_libraries(master_object ${OpenCV_LIBS})
+
+#########################TESTS###########################
+add_executable(knn_test test/knn/knn_test.cpp)
+target_link_libraries(knn_test ${OpenCV_LIBS} feature_matcher)

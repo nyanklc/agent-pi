@@ -19,6 +19,8 @@
 #define QR_LENGTH                       16.5
 #define OBJ_LENGTH                      19
 
+#define KNN_K                           2
+
 #define FPS_ON                          true
 #define NO_FRAME_FPS_ON                 false
 
