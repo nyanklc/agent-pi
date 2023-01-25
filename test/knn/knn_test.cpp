@@ -9,7 +9,7 @@ const std::string ref_img_path =
 "/home/nyn/Desktop/means/agent-pi/test/knn/ref_img.jpeg";
 
 const std::string test_img_path = 
-"/home/nyn/Desktop/means/agent-pi/test/knn/test7.jpeg";
+"/home/nyn/Desktop/means/agent-pi/test/knn/test9.jpeg";
 
 int main(int argc, char **argv) {
     FeatureMatcher fm;
@@ -34,10 +34,10 @@ int main(int argc, char **argv) {
     cv::resize(out, out, cv::Size(), 0.25, 0.25);
     cv::imshow("good matches", out);
 
-
-    
+    std::vector<double> counts = fm.getMatchCounts();
+    std::cout << "match count: " << counts[0] << std::endl;
+    std::cout << "good match count: " << counts[1] << std::endl;
     cv::waitKey();
-    
-    
+
     return 0;
 }

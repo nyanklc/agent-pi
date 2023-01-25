@@ -34,6 +34,8 @@ public:
 
   cv::Mat drawGoodMatches(cv::Mat img1, cv::Mat img2);
 
+  std::vector<double> getMatchCounts();
+
   void filter();
 
 private:

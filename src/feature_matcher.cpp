@@ -6,7 +6,7 @@ FeatureMatcher::FeatureMatcher() {
 void FeatureMatcher::init(std::string ref_img_path, int knn_k) {
   mDetector = cv::ORB::create();
   mExtractor = cv::ORB::create();
-
+  
   // parameters taken from https://stackoverflow.com/questions/43830849/opencv-use-flann-with-orb-descriptors-to-match-features
   // there could be better values for these
   mMatcher = cv::FlannBasedMatcher(cv::makePtr<cv::flann::LshIndexParams>(12, 20, 2));
@@ -82,10 +82,14 @@ bool FeatureMatcher::findObject(cv::Mat &frame) {
     match(mDummyDes, KNN_K);
     filter();
 
-    std::cout << "matches: " << mDummyMatches.size() << "\n";
-    std::cout << "good matches: " << mDummyGoodMatches.size() << "\n";
-
     return true;
+}
+
+std::vector<double> FeatureMatcher::getMatchCounts() {
+  std::vector<double> counts;
+  counts.push_back(mDummyMatches.size());
+  counts.push_back(mDummyGoodMatches.size());
+  return counts;
 }
 
 // may delete later
