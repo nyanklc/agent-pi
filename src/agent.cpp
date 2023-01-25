@@ -25,6 +25,9 @@ bool Agent::process(cv::Mat &frame) {
   // the last frame. Use the latest data ??  
   // And make sure mObj is not accessed by detector and agent at
   // the same time. Maybe use a mutex and lock.
+  // This is already a single thread process, and there is no need for
+  // that right now. But we may want to take the feature matching to a
+  // separate process.
 
 
   double obj_dist = 0;

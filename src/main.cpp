@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
     if (!stream_getter.getRetrieved())
       break;
 
-    cv::Mat frame = stream_getter.getFrame();
+    cv::Mat frame = stream_getter.getFrameGray();
     if (frame.empty())
       break;
     cv::imshow("frame", frame);

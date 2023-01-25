@@ -23,6 +23,8 @@ public:
 
   cv::Mat getFrame();
 
+  cv::Mat getFrameGray();
+
   bool getRetrieved();
 
 private:
@@ -31,6 +33,7 @@ private:
   cv::VideoCapture mCap;
   bool mRetrieved;
   cv::Mat mFrame;
+  cv::Mat mFrameGray;
   bool mStopped;
   std::thread mTh;
   bool mReady;

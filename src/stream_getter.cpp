@@ -50,6 +50,7 @@ void StreamGetter::getStream() {
     std::lock_guard<std::mutex> lock(mStreamMutex);
 
     mRetrieved = mCap.read(mFrame);
+    cv::cvtColor(mFrame, mFrameGray, cv::COLOR_BGR2GRAY);
     // std::cout << std::this_thread::get_id() << " || stream_getter fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
     mReady = true;
   }
@@ -71,6 +72,13 @@ cv::Mat StreamGetter::getFrame() {
   cv::Mat ret;
   std::lock_guard<std::mutex> lock(mStreamMutex);
   ret = mFrame;
+  return ret;
+}
+
+cv::Mat StreamGetter::getFrameGray() {
+  cv::Mat ret;
+  std::lock_guard<std::mutex> lock(mStreamMutex);
+  ret = mFrameGray;
   return ret;
 }
 
