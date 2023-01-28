@@ -6,6 +6,7 @@
 #include "feature_matcher.h"
 #include "master_object.h"
 #include "controls.h"
+#include "april_tag_detector.h"
 
 #include <opencv2/opencv.hpp>
 
@@ -17,8 +18,6 @@
 class Agent {
 public:
   Agent();
-
-  ~Agent();
 
   bool process(cv::Mat &frame);
 
@@ -37,6 +36,7 @@ private:
   double mFocalLength;
   CameraCalibrator mCameraCalibrator;
   FeatureMatcher mFeatureMatcher;
+  AprilTagDetector mApriltagDetector;
   double mTurnTolerance;
   std::shared_ptr<MasterObject> mObj;
 

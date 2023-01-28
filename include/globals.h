@@ -24,5 +24,8 @@
 #define FPS_ON                          true
 #define NO_FRAME_FPS_ON                 false
 
+#define APRILTAG_THREAD_COUNT           4
+#define APRILTAG_FAMILY_BIT_COUNT       3
+
 
 #endif

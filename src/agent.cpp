@@ -13,11 +13,9 @@ Agent::Agent() {
   mFeatureMatcher.init(REFERENCE_IMG_PATH, KNN_K);
   mFeatureMatcher.setObj(mObj);
 
-  mCalibrated = false;
-}
+  mApriltagDetector = AprilTagDetector();
 
-Agent::~Agent() {
-  delete mFMPointer;
+  mCalibrated = false;
 }
 
 bool Agent::process(cv::Mat &frame) {
