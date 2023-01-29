@@ -21,6 +21,8 @@ public:
 
   bool process(cv::Mat &frame);
 
+  void drawDetections(cv::Mat &frame);
+
   Controls generateControls();
 
   double getFocalLength();
@@ -36,7 +38,7 @@ private:
   double mFocalLength;
   CameraCalibrator mCameraCalibrator;
   FeatureMatcher mFeatureMatcher;
-  AprilTagDetector mApriltagDetector;
+  std::shared_ptr<AprilTagDetector> mApriltagDetector;
   double mTurnTolerance;
   std::shared_ptr<MasterObject> mObj;
 

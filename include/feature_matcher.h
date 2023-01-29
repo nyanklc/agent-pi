@@ -30,6 +30,8 @@ public:
 
   void setObj(std::shared_ptr<MasterObject> m);
 
+  void drawDetections(cv::Mat &frame);
+
   cv::Mat drawMatches(cv::Mat img1, cv::Mat img2);
 
   cv::Mat drawGoodMatches(cv::Mat img1, cv::Mat img2);

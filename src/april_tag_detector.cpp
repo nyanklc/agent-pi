@@ -1,6 +1,9 @@
 #include "../include/april_tag_detector.h"
 
 AprilTagDetector::AprilTagDetector() {
+}
+
+void AprilTagDetector::init(std::shared_ptr<MasterObject> master_obj) {
   mFamily = tagStandard41h12_create(); 
   mDetector = apriltag_detector_create();
 
@@ -22,6 +25,8 @@ AprilTagDetector::AprilTagDetector() {
     mDetector->debug = true;
   else
     mDetector->debug = false;
+
+  mObj = master_obj;
 }
 
 AprilTagDetector::~AprilTagDetector() {

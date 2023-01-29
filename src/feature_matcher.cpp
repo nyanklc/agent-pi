@@ -69,6 +69,10 @@ cv::Mat FeatureMatcher::drawGoodMatches(cv::Mat img1, cv::Mat img2) {
   return out_img;
 }
 
+void FeatureMatcher::drawDetections(cv::Mat &frame) {
+  // TODO:
+}
+
 bool FeatureMatcher::findObject(cv::Mat &frame) {
     // I can use dummy member descriptors and keypoints here
     // so that we don't need to allocate each time.

@@ -13,9 +13,18 @@ Agent::Agent() {
   mFeatureMatcher.init(REFERENCE_IMG_PATH, KNN_K);
   mFeatureMatcher.setObj(mObj);
 
-  mApriltagDetector = AprilTagDetector();
+  mApriltagDetector = std::make_shared<AprilTagDetector>();
+  mApriltagDetector->init(mObj);
 
   mCalibrated = false;
+}
+
+void Agent::drawDetections(cv::Mat &frame) {
+  if (APRILTAG_ENABLED) {
+    mApriltagDetector->drawDetections(frame);
+  } else if (KNN_ENABLED) {
+    mFeatureMatcher.drawDetections(frame);
+  }
 }
 
 bool Agent::process(cv::Mat &frame) {
@@ -28,17 +37,17 @@ bool Agent::process(cv::Mat &frame) {
   // that right now. But we may want to take the feature matching to a
   // separate process.
 
-
-  double obj_dist = 0;
-
-  if (!mFeatureMatcher.findObject(frame)) {
-    std::cout << "Agent couldn't find the object.";
+  if (KNN_ENABLED) {
+    if (mFeatureMatcher.findObject(frame))
+      return true;
     return false;
   }
 
-  // TODO:
-
-  return true;
+  if (APRILTAG_ENABLED) {
+    if (mApriltagDetector->findObject(frame))
+      return true;
+    return false;
+  }
 }
 
 Controls Agent::generateControls() {
