@@ -13,6 +13,7 @@
 #define TURN_TOLERANCE                  50
 #define REFERENCE_IMG_PATH              "ref_img/sekil_ref.jpg"
 
+
 #define FOCAL_LENGTH                    491.54655888988026
 #define CALIBRATE_MODE                  false
 #define CALIBRATE_MODE_TRIAL_COUNT      10
@@ -24,8 +25,12 @@
 #define FPS_ON                          true
 #define NO_FRAME_FPS_ON                 false
 
-#define APRILTAG_THREAD_COUNT           4
-#define APRILTAG_FAMILY_BIT_COUNT       3
+#define APRILTAG_THREAD_COUNT           1
+#define APRILTAG_FAMILY_BIT_COUNT       2
+#define APRILTAG_DEBUG_ON               true
+#define APRILTAG_QUAD_DECIMATE          2.0
+#define APRILTAG_QUAD_SIGMA             0.0
+#define APRILTAG_REFINE_EDGES           1
 
 
 #endif

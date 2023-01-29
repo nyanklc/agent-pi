@@ -4,6 +4,7 @@
 #include "globals.h"
 
 #include <string>
+#include <iostream>
 
 #include <opencv2/opencv.hpp>
 
@@ -22,6 +23,8 @@ public:
     ~AprilTagDetector();
 
     bool findObject(cv::Mat &frame);
+
+    zarray *getDetections();
 
     void drawDetections(cv::Mat &frame);
 

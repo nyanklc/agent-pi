@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.1)
 project(means)
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread") # ??
+# SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread") # ??
+
+# threads ?
+find_package(Threads REQUIRED)
 
 # cv
 find_package(OpenCV REQUIRED)
@@ -37,7 +40,7 @@ add_library(master_object src/master_object.cpp)
 target_link_libraries(master_object ${OpenCV_LIBS})
 
 add_library(april_tag_detector src/april_tag_detector.cpp)
-target_link_libraries(april_tag_detector ${OpenCV_LIBS} master_object apriltag)
+target_link_libraries(april_tag_detector ${OpenCV_LIBS} master_object apriltag Threads::Threads m)
 
 #########################TESTS###########################
 add_executable(knn_test test/knn/knn_test.cpp)
