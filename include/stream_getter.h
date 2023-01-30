@@ -24,6 +24,8 @@ public:
 
   bool isReady();
 
+  bool isUpdated();
+
   cv::Mat getFrame();
 
   cv::Mat getFrameGray();
@@ -41,6 +43,7 @@ private:
   std::thread mTh;
   bool mReady;
   std::mutex mStreamMutex;
+  bool mUpdated;
 };
 
 #endif

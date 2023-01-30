@@ -67,6 +67,7 @@ void StreamGetter::getStream()
       cv::resize(mFrame, mFrame, cv::Size(), 0.5, 0.5);
     // std::cout << std::this_thread::get_id() << " || stream_getter fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
     mReady = true;
+    mUpdated = true;
   }
 }
 
@@ -85,6 +86,11 @@ bool StreamGetter::isReady()
   return mReady;
 }
 
+bool StreamGetter::isUpdated()
+{
+  return mUpdated;
+}
+
 cv::Mat StreamGetter::getFrame()
 {
   // auto start = cv::getTickCount();
@@ -92,6 +98,7 @@ cv::Mat StreamGetter::getFrame()
   std::lock_guard<std::mutex> lock(mStreamMutex);
   ret = mFrame;
   // std::cout << "getting frame fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
+  mUpdated = false;
   return ret;
 }
 
@@ -102,6 +109,7 @@ cv::Mat StreamGetter::getFrameGray()
   std::lock_guard<std::mutex> lock(mStreamMutex);
   ret = mFrameGray;
   // std::cout << "getting frame fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
+  mUpdated = false;
   return ret;
 }
 

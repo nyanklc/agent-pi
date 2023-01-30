@@ -86,6 +86,10 @@ int main(int argc, char **argv)
   bool first_run = true;
   while (1)
   {
+    // do not process the same frame again
+    if (!stream_getter.isUpdated())
+      continue;
+
     if (!stream_getter.getRetrieved())
       break;
 
@@ -96,8 +100,6 @@ int main(int argc, char **argv)
     if (frame.empty())
       break;
 
-    // TODO: do not process the same frame again
-    
     // process
     if (agent.process(frame) && GUI_ON)
     {
