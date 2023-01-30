@@ -1,6 +1,7 @@
 #include "../include/agent.h"
 
-Agent::Agent() {
+Agent::Agent()
+{
   mTurnTolerance = TURN_TOLERANCE;
 
   mObj = std::make_shared<MasterObject>();
@@ -19,52 +20,87 @@ Agent::Agent() {
   mCalibrated = false;
 }
 
-void Agent::drawDetections(cv::Mat &frame) {
-  if (APRILTAG_ENABLED) {
+void Agent::drawDetections(cv::Mat &frame)
+{
+  if (!GUI_ON)
+    return;
+
+  if (APRILTAG_ENABLED)
+  {
     mApriltagDetector->drawDetections(frame);
-  } else if (KNN_ENABLED) {
+  }
+  else if (KNN_ENABLED)
+  {
     mFeatureMatcher.drawDetections(frame);
   }
 }
 
-bool Agent::process(cv::Mat &frame) {
+void Agent::printDetections()
+{
+  std::vector<cv::Point> detectedPoints = mApriltagDetector->getDetectionPoints();
+  for (int i = 0; i < detectedPoints.size(); i++)
+    std::cout << "x" << i + 1 << ": " << detectedPoints[i].x << ", y" << i + 1 << ": " << detectedPoints[i].y << "\n";
+}
+
+bool Agent::process(cv::Mat &frame)
+{
+  auto start = cv::getTickCount();
   // TODO: Maybe just used the shared master object,
   // and don't even check whether an object was detected in
-  // the last frame. Use the latest data ??  
+  // the last frame. Use the latest data ??
   // And make sure mObj is not accessed by detector and agent at
   // the same time. Maybe use a mutex and lock.
   // This is already a single thread process, and there is no need for
   // that right now. But we may want to take the feature matching to a
   // separate process.
 
-  if (KNN_ENABLED) {
+  if (KNN_ENABLED)
+  {
     if (mFeatureMatcher.findObject(frame))
+    {
+      std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
       return true;
+    }
+    std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
     return false;
   }
 
-  if (APRILTAG_ENABLED) {
+  if (APRILTAG_ENABLED)
+  {
     if (mApriltagDetector->findObject(frame))
+    {
+      std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
       return true;
+    }
+    std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
     return false;
   }
 }
 
-Controls Agent::generateControls() {
+Controls Agent::generateControls()
+{
   Controls controls;
   // TODO:
   return controls;
 }
 
-double Agent::getFocalLength() {
+double Agent::getFocalLength()
+{
   return mFocalLength;
 }
 
-void Agent::setFocalLength(double f) {
-  mFocalLength = f; 
+void Agent::setFocalLength(double f)
+{
+  mFocalLength = f;
 }
 
-bool Agent::initFocalLengthCalibration(cv::Mat &frame) {
+bool Agent::isCalibrated()
+{
+  return mCalibrated;
+}
+
+bool Agent::initFocalLengthCalibration(cv::Mat &frame)
+{
   double measured_distance;
   double real_width;
   double width_in_rf_image;
@@ -76,12 +112,13 @@ bool Agent::initFocalLengthCalibration(cv::Mat &frame) {
   std::cout << "input real width of the object (long line): ";
   std::cin >> real_width;
 
-  if (!mFeatureMatcher.findObject(frame)) {
+  if (!mFeatureMatcher.findObject(frame))
+  {
     std::cout << "object not detected\n";
     return false;
   }
   width_in_rf_image = mObj->width;
-  
+
   mFocalLength = mCameraCalibrator.calculateFocalLength(measured_distance, real_width, width_in_rf_image);
   // TODO: get complete camera parameters
 

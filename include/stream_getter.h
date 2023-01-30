@@ -1,6 +1,8 @@
 #ifndef __STREAM_GETTER_H
 #define __STREAM_GETTER_H
 
+#include "globals.h"
+
 #include <iostream>
 #include <mutex>
 #include <string>
@@ -9,7 +11,8 @@
 
 #include <opencv2/opencv.hpp>
 
-class StreamGetter {
+class StreamGetter
+{
 public:
   StreamGetter(const std::string src);
 
@@ -38,7 +41,6 @@ private:
   std::thread mTh;
   bool mReady;
   std::mutex mStreamMutex;
-
 };
 
 #endif

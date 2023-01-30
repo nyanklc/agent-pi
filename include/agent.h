@@ -15,13 +15,16 @@
 
 // TODO: implement
 
-class Agent {
+class Agent
+{
 public:
   Agent();
 
   bool process(cv::Mat &frame);
 
   void drawDetections(cv::Mat &frame);
+
+  void printDetections();
 
   Controls generateControls();
 

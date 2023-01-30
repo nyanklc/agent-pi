@@ -3,8 +3,9 @@
 
 #include <iostream>
 
-class CameraCalibrator {
-// TODO: 
+class CameraCalibrator
+{
+    // TODO:
 public:
     double calculateFocalLength(double measured_distance,
                                 double real_width,

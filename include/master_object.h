@@ -4,7 +4,8 @@
 // idk if units should be meters or centimeters
 // we may try and find out which one performs better
 // (RPi 4 has hardware floating-point support)
-struct Pose {
+struct Pose
+{
   double x;
   double y;
   double yaw;
@@ -12,7 +13,8 @@ struct Pose {
 
 // struct that holds position, orientation and velocity data of
 // the master.
-struct MasterObject {
+struct MasterObject
+{
   MasterObject();
   // TODO: may not even be necessary
   // Check if the compiler generates a reasonable copy constructor

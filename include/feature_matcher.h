@@ -9,12 +9,14 @@
 
 #include <opencv2/opencv.hpp>
 
-struct FrameData {
+struct FrameData
+{
   std::vector<cv::KeyPoint> kp;
   cv::Mat des;
 };
 
-class FeatureMatcher {
+class FeatureMatcher
+{
   // TODO:
 public:
   FeatureMatcher();
@@ -42,7 +44,7 @@ public:
 
 private:
   int mKNN_K;
-  
+
   std::shared_ptr<MasterObject> mObj;
   FrameData mReferenceFrameData;
 

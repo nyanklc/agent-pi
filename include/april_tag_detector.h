@@ -7,10 +7,12 @@
 #include <string>
 #include <iostream>
 #include <memory>
+#include <vector>
 
 #include <opencv2/opencv.hpp>
 
-extern "C" {
+extern "C"
+{
 #include <apriltag/apriltag.h>
 #include <apriltag/tagStandard41h12.h>
 #include <apriltag/common/getopt.h>
@@ -18,7 +20,8 @@ extern "C" {
 #include <apriltag/apriltag_pose.h>
 }
 
-class AprilTagDetector {
+class AprilTagDetector
+{
 public:
     AprilTagDetector();
 
@@ -32,12 +35,13 @@ public:
 
     void drawDetections(cv::Mat &frame);
 
+    std::vector<cv::Point> getDetectionPoints();
+
 private:
     apriltag_family_t *mFamily;
     apriltag_detector_t *mDetector;
     zarray_t *mDetections;
     std::shared_ptr<MasterObject> mObj;
 };
-
 
 #endif
