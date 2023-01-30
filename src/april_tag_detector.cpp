@@ -97,11 +97,12 @@ std::vector<cv::Point> AprilTagDetector::getDetectionPoints()
 
 void AprilTagDetector::drawDetections(cv::Mat &frame)
 {
-  // Draw detection outlines
+  // Draw detection outlines and midpoint
   for (int i = 0; i < zarray_size(mDetections); i++)
   {
     apriltag_detection_t *det;
     zarray_get(mDetections, i, &det);
+    cv::circle(frame, cv::Point(det->c[0], det->c[1]), 1, cv::Scalar(255, 0, 0));
     cv::Point p1(det->p[0][0], det->p[0][1]);
     cv::Point p2(det->p[1][0], det->p[1][1]);
     cv::Point p3(det->p[2][0], det->p[2][1]);
