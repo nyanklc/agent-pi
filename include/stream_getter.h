@@ -1,49 +1,47 @@
 #ifndef __STREAM_GETTER_H
 #define __STREAM_GETTER_H
 
-#include "globals.h"
-
+#include <chrono>
 #include <iostream>
 #include <mutex>
+#include <opencv2/opencv.hpp>
 #include <string>
 #include <thread>
-#include <chrono>
 
-#include <opencv2/opencv.hpp>
+#include "globals.h"
 
-class StreamGetter
-{
-public:
-  StreamGetter(const std::string src);
+class StreamGetter {
+   public:
+    StreamGetter(const std::string src);
 
-  StreamGetter(const int src);
+    StreamGetter(const int src);
 
-  bool startStream();
+    bool startStream();
 
-  void stopStream();
+    void stopStream();
 
-  bool isReady();
+    bool isReady();
 
-  bool isUpdated();
+    bool isUpdated();
 
-  cv::Mat getFrame();
+    cv::Mat getFrame();
 
-  cv::Mat getFrameGray();
+    cv::Mat getFrameGray();
 
-  bool getRetrieved();
+    bool getRetrieved();
 
-private:
-  void getStream();
+   private:
+    void getStream();
 
-  cv::VideoCapture mCap;
-  bool mRetrieved;
-  cv::Mat mFrame;
-  cv::Mat mFrameGray;
-  bool mStopped;
-  std::thread mTh;
-  bool mReady;
-  std::mutex mStreamMutex;
-  bool mUpdated;
+    cv::VideoCapture mCap;
+    bool mRetrieved;
+    cv::Mat mFrame;
+    cv::Mat mFrameGray;
+    bool mStopped;
+    std::thread mTh;
+    bool mReady;
+    std::mutex mStreamMutex;
+    bool mUpdated;
 };
 
 #endif

@@ -1,61 +1,58 @@
 #ifndef __FEATURE_MATCHER_H
 #define __FEATURE_MATCHER_H
 
-#include "master_object.h"
-#include "globals.h"
-
 #include <memory>
+#include <opencv2/opencv.hpp>
 #include <vector>
 
-#include <opencv2/opencv.hpp>
+#include "globals.h"
+#include "master_object.h"
 
-struct FrameData
-{
-  std::vector<cv::KeyPoint> kp;
-  cv::Mat des;
+struct FrameData {
+    std::vector<cv::KeyPoint> kp;
+    cv::Mat des;
 };
 
-class FeatureMatcher
-{
-public:
-  FeatureMatcher();
+class FeatureMatcher {
+   public:
+    FeatureMatcher();
 
-  // virtual const.
-  void init(std::string ref_img_path, int knn_k);
+    // virtual const.
+    void init(std::string ref_img_path, int knn_k);
 
-  void getReferenceFrame(std::string img_path);
+    void getReferenceFrame(std::string img_path);
 
-  bool findObject(cv::Mat &frame);
+    bool findObject(cv::Mat &frame);
 
-  void match(cv::Mat &des, int k);
+    void match(cv::Mat &des, int k);
 
-  void setObj(std::shared_ptr<MasterObject> m);
+    void setObj(std::shared_ptr<MasterObject> m);
 
-  void drawDetections(cv::Mat &frame);
+    void drawDetections(cv::Mat &frame);
 
-  cv::Mat drawMatches(cv::Mat img1, cv::Mat img2);
+    cv::Mat drawMatches(cv::Mat img1, cv::Mat img2);
 
-  cv::Mat drawGoodMatches(cv::Mat img1, cv::Mat img2);
+    cv::Mat drawGoodMatches(cv::Mat img1, cv::Mat img2);
 
-  std::vector<double> getMatchCounts();
+    std::vector<double> getMatchCounts();
 
-  void filter();
+    void filter();
 
-private:
-  int mKNN_K;
+   private:
+    int mKNN_K;
 
-  std::shared_ptr<MasterObject> mObj;
-  FrameData mReferenceFrameData;
+    std::shared_ptr<MasterObject> mObj;
+    FrameData mReferenceFrameData;
 
-  cv::Ptr<cv::FeatureDetector> mDetector;
-  cv::Ptr<cv::DescriptorExtractor> mExtractor;
-  cv::FlannBasedMatcher mMatcher;
+    cv::Ptr<cv::FeatureDetector> mDetector;
+    cv::Ptr<cv::DescriptorExtractor> mExtractor;
+    cv::FlannBasedMatcher mMatcher;
 
-  std::vector<cv::KeyPoint> mDummyKp;
-  cv::Mat mDummyDes;
+    std::vector<cv::KeyPoint> mDummyKp;
+    cv::Mat mDummyDes;
 
-  std::vector<std::vector<cv::DMatch>> mDummyMatches;
-  std::vector<cv::DMatch> mDummyGoodMatches;
+    std::vector<std::vector<cv::DMatch>> mDummyMatches;
+    std::vector<cv::DMatch> mDummyGoodMatches;
 };
 
 #endif

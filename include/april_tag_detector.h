@@ -1,29 +1,26 @@
 #ifndef __APRIL_TAG_DETECTOR_H
 #define __APRIL_TAG_DETECTOR_H
 
+#include <iostream>
+#include <memory>
+#include <opencv2/opencv.hpp>
+#include <string>
+#include <vector>
+
 #include "globals.h"
 #include "master_object.h"
 
-#include <string>
-#include <iostream>
-#include <memory>
-#include <vector>
-
-#include <opencv2/opencv.hpp>
-
-extern "C"
-{
+extern "C" {
 #include <apriltag/apriltag.h>
-#include <apriltag/tagStandard41h12.h>
-#include <apriltag/common/getopt.h>
 #include <apriltag/apriltag_math.h>
 #include <apriltag/apriltag_pose.h>
+#include <apriltag/common/getopt.h>
 #include <apriltag/common/matd.h>
+#include <apriltag/tagStandard41h12.h>
 }
 
-class AprilTagDetector
-{
-public:
+class AprilTagDetector {
+   public:
     AprilTagDetector();
 
     void init(std::shared_ptr<MasterObject> master_obj);
@@ -40,11 +37,13 @@ public:
 
     void printPoses(std::vector<apriltag_pose_t> &poses);
 
+    void drawPoses(std::vector<apriltag_pose_t> &poses);
+
     void drawDetections(cv::Mat &frame);
 
     std::vector<cv::Point> getDetectionPoints();
 
-private:
+   private:
     apriltag_family_t *mFamily;
     apriltag_detector_t *mDetector;
     zarray_t *mDetections;

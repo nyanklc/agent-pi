@@ -1,51 +1,50 @@
 #ifndef __GLOBALS_H
 #define __GLOBALS_H
 
-
 #define LAPTOP_CAM
 // #define RPI_CAM
 
-#define VIDEO_SOURCE                            1
-#define VIEW_MODE                               true
+#define VIDEO_SOURCE 1
+#define VIEW_MODE true
 
-#define SERIAL_ON                               false
-#define SERIAL_PORT                             "/dev/ttyUSB0"
-#define SERIAL_BAUDRATE                         9600
-#define ARDUINO_RESPONSE_ON                     false
+#define SERIAL_ON false
+#define SERIAL_PORT "/dev/ttyUSB0"
+#define SERIAL_BAUDRATE 9600
+#define ARDUINO_RESPONSE_ON false
 
-#define TURN_TOLERANCE                          50
+#define TURN_TOLERANCE 50
 
-#define CALIBRATE_MODE                          false
-#define CALIBRATE_MODE_TRIAL_COUNT              10
-#define QR_LENGTH                               16.5
-#define OBJ_LENGTH                              19
+#define CALIBRATE_MODE false
+#define CALIBRATE_MODE_TRIAL_COUNT 10
+#define QR_LENGTH 16.5
+#define OBJ_LENGTH 19
 
-#define REFERENCE_IMG_PATH                      "../img/ref.jpeg"
-#define KNN_ENABLED                             false
-#define KNN_K                                   2
+#define REFERENCE_IMG_PATH "../img/ref.jpeg"
+#define KNN_ENABLED false
+#define KNN_K 2
 
-#define GUI_ON                                  true
+#define GUI_ON true
 
-#define DETECTION_TRIAL_COUNT                   2
+#define DETECTION_TRIAL_COUNT 2
 
-#define APRILTAG_ENABLED                        true
-#define APRILTAG_THREAD_COUNT                   8
-#define APRILTAG_FAMILY_BIT_COUNT               2
-#define APRILTAG_DEBUG_ON                       true
-#define APRILTAG_QUAD_DECIMATE                  2.0
-#define APRILTAG_QUAD_SIGMA                     1.0
-#define APRILTAG_REFINE_EDGES                   1
+#define APRILTAG_ENABLED true
+#define APRILTAG_THREAD_COUNT 8
+#define APRILTAG_FAMILY_BIT_COUNT 2
+#define APRILTAG_DEBUG_ON true
+#define APRILTAG_QUAD_DECIMATE 2.0
+#define APRILTAG_QUAD_SIGMA 1.0
+#define APRILTAG_REFINE_EDGES 1
 
-#define APRILTAG_TAG_SIZE                       0.1 // 10cm
-#define APRILTAG_POSE_ERROR_THRESHOLD           1.0E-04 // idk
+#define APRILTAG_TAG_SIZE 0.1                  // 10cm
+#define APRILTAG_POSE_ERROR_THRESHOLD 1.0E-04  // idk
 
 #ifdef LAPTOP_CAM
-    #define CAMERA_FX                               630.0
-    #define CAMERA_FY                               630.0
-    #define CAMERA_CX                               342.0
-    #define CAMERA_CY                               231.0
+#define CAMERA_FX 630.0
+#define CAMERA_FY 630.0
+#define CAMERA_CX 342.0
+#define CAMERA_CY 231.0
 #else
-    // TODO: RPi camera calibration
+// TODO: RPi camera calibration
 #endif
 
 #endif

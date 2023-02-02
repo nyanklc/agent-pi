@@ -1,9 +1,8 @@
-#include "../../include/feature_matcher.h"
-
-#include <string>
 #include <iostream>
-
 #include <opencv2/opencv.hpp>
+#include <string>
+
+#include "../../include/feature_matcher.h"
 
 const std::string ref_img_path =
     "/home/nyn/Desktop/means/agent-pi/test/knn/ref_img.jpeg";
@@ -11,8 +10,7 @@ const std::string ref_img_path =
 const std::string test_img_path =
     "/home/nyn/Desktop/means/agent-pi/test/knn/test9.jpeg";
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     FeatureMatcher fm;
     fm.init(ref_img_path, 1);
 
@@ -21,8 +19,7 @@ int main(int argc, char **argv)
     cv::Mat gray;
     cv::cvtColor(frame, gray, cv::COLOR_BGRA2GRAY);
 
-    if (!fm.findObject(frame))
-    {
+    if (!fm.findObject(frame)) {
         std::cout << "failed to find object\n";
         return 1;
     }
