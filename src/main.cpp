@@ -10,8 +10,10 @@
 
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 #include <thread>
+#include <type_traits>
 
 void calibrate(Agent &agent, StreamGetter &stream_getter)
 {
@@ -39,11 +41,11 @@ void calibrate(Agent &agent, StreamGetter &stream_getter)
       }
     }
     if (!agent.isCalibrated())
-      agent.setFocalLength(FOCAL_LENGTH);
+      agent.setFocalLength((CAMERA_FX + CAMERA_FY)/2);
   }
   else
   {
-    agent.setFocalLength(FOCAL_LENGTH);
+    agent.setFocalLength((CAMERA_FX + CAMERA_FY)/2);
   }
 
   return;
@@ -104,7 +106,7 @@ int main(int argc, char **argv)
     if (agent.process(frame) && GUI_ON)
     {
       agent.drawDetections(frame_colored);
-      agent.printDetections();
+      // agent.printDetections();
     }    
     if (GUI_ON)
       gui_handler.setFrame(frame_colored);

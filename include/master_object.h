@@ -16,9 +16,6 @@ struct Pose
 struct MasterObject
 {
   MasterObject();
-  // TODO: may not even be necessary
-  // Check if the compiler generates a reasonable copy constructor
-  MasterObject(MasterObject &m) = default;
 
   // TODO: set values
 

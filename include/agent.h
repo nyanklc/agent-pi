@@ -13,8 +13,6 @@
 #include <memory>
 #include <iostream>
 
-// TODO: implement
-
 class Agent
 {
 public:

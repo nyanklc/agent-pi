@@ -67,13 +67,22 @@ bool Agent::process(cv::Mat &frame)
 
   if (APRILTAG_ENABLED)
   {
-    if (mApriltagDetector->findObject(frame))
+    if (!mApriltagDetector->findObject(frame))
     {
-      std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
-      return true;
+      // std::cout << "couldn't find object\n";
+      return false;
     }
+    
+    if (!mApriltagDetector->poseEstimation(frame))
+    {
+      // std::cout << "couldn't estimate pose\n";
+      return false;
+    }
+    auto poses = mApriltagDetector->getPoses();
+    // mApriltagDetector->printPoses(poses);
+
     std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
-    return false;
+    return true;
   }
 }
 

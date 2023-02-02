@@ -17,7 +17,6 @@ struct FrameData
 
 class FeatureMatcher
 {
-  // TODO:
 public:
   FeatureMatcher();
 

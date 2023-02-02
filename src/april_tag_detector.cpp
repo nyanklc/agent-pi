@@ -30,6 +30,12 @@ void AprilTagDetector::init(std::shared_ptr<MasterObject> master_obj)
     mDetector->debug = false;
 
   mObj = master_obj;
+
+  mInfo.fx = CAMERA_FX;
+  mInfo.fy = CAMERA_FY;
+  mInfo.cx = CAMERA_CX;
+  mInfo.cy = CAMERA_CY;
+  mInfo.tagsize = APRILTAG_TAG_SIZE;
 }
 
 AprilTagDetector::~AprilTagDetector()
@@ -45,9 +51,6 @@ bool AprilTagDetector::findObject(cv::Mat &frame)
   // this results in slower operation. Maybe modify apriltag source code
   // so that the required number of threads is kept throughout the operation.
   // TODO: maybe make im member so we don't allocate every time
-
-  // if (mDetections != NULL)
-  //   apriltag_detections_destroy(mDetections);
 
   // convert to apriltag image type
   image_u8_t im = {.width = frame.cols,
@@ -72,6 +75,54 @@ bool AprilTagDetector::findObject(cv::Mat &frame)
   return true;
 }
 
+bool AprilTagDetector::poseEstimation(cv::Mat &frame)
+{
+  bool success = true;
+
+  std::vector<apriltag_pose_t> poses;
+  for (int i = 0; i < zarray_size(mDetections); i++)
+  {
+    apriltag_detection_t *det;
+    zarray_get(mDetections, i, &det);
+
+    mInfo.det = det;
+
+    apriltag_pose_t pose;
+    double err = estimate_tag_pose(&mInfo, &pose);
+    poses.push_back(pose);
+
+    // std::cout << "err: " << err << "\n";
+    if (err > APRILTAG_POSE_ERROR_THRESHOLD)
+      success = false;
+  }
+  mPoses = poses;
+
+  return success;
+}
+
+std::vector<apriltag_pose_t> AprilTagDetector::getPoses()
+{
+  return mPoses;
+}
+
+void AprilTagDetector::printPoses(std::vector<apriltag_pose_t> &poses)
+{
+  int kk = 0;
+  for (auto pose : poses)
+  {
+    kk++;
+    std::cout << "pose " << kk << ":\n";
+    for (int i = 0; i < pose.R->nrows; i++)
+    {
+      for (int j = 0; j < pose.R->ncols; j++)
+      {
+        std::cout << matd_get(pose.R, i, j) << "\t";
+      }
+      std::cout << "\n";
+    }
+  }
+}
+
 zarray *AprilTagDetector::getDetections()
 {
   return mDetections;
@@ -80,18 +131,18 @@ zarray *AprilTagDetector::getDetections()
 std::vector<cv::Point> AprilTagDetector::getDetectionPoints()
 {
   std::vector<cv::Point> ret;
-  
+
   for (int k = 0; k < zarray_size(mDetections); k++)
   {
     apriltag_detection_t *det;
     zarray_get(mDetections, k, &det);
-    for (int i = 0; i < sizeof(det->p)/sizeof(det->p[0]); i++)
+    for (int i = 0; i < sizeof(det->p) / sizeof(det->p[0]); i++)
     {
       cv::Point p(det->p[i][0], det->p[i][1]);
       ret.push_back(p);
-    } 
+    }
   }
-  
+
   return ret;
 }
 

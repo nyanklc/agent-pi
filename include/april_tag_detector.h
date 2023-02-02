@@ -18,6 +18,7 @@ extern "C"
 #include <apriltag/common/getopt.h>
 #include <apriltag/apriltag_math.h>
 #include <apriltag/apriltag_pose.h>
+#include <apriltag/common/matd.h>
 }
 
 class AprilTagDetector
@@ -31,7 +32,13 @@ public:
 
     bool findObject(cv::Mat &frame);
 
+    bool poseEstimation(cv::Mat &frame);
+
+    std::vector<apriltag_pose_t> getPoses();
+
     zarray *getDetections();
+
+    void printPoses(std::vector<apriltag_pose_t> &poses);
 
     void drawDetections(cv::Mat &frame);
 
@@ -42,6 +49,8 @@ private:
     apriltag_detector_t *mDetector;
     zarray_t *mDetections;
     std::shared_ptr<MasterObject> mObj;
+    apriltag_detection_info_t mInfo;
+    std::vector<apriltag_pose_t> mPoses;
 };
 
 #endif
