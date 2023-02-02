@@ -88,6 +88,9 @@ int main(int argc, char **argv)
   bool first_run = true;
   while (1)
   {
+    // get frame
+    // auto stream_start = cv::getTickCount();
+    // std::cout << "start: " << stream_start << "\n";
     // do not process the same frame again
     if (!stream_getter.isUpdated())
       continue;
@@ -95,12 +98,17 @@ int main(int argc, char **argv)
     if (!stream_getter.getRetrieved())
       break;
 
+    // auto stream_ready = cv::getTickCount();
+    // std::cout << "ready: " << stream_start << "\n";
+
     frame = stream_getter.getFrameGray();
     if (GUI_ON)
       frame_colored = stream_getter.getFrame();
     
     if (frame.empty())
       break;
+    // std::cout << "start @ " << (cv::getTickCount() - stream_start)/ cv::getTickFrequency() << " fps\n";
+    // std::cout << "ready @ " << (cv::getTickCount() - stream_ready)/ cv::getTickFrequency() << " fps\n";
 
     // process
     if (agent.process(frame) && GUI_ON)
