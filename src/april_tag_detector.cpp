@@ -141,11 +141,11 @@ void AprilTagDetector::drawDetections(cv::Mat &frame) {
 
         cv::Point c(det->c[0], det->c[1]);
 
-        cv::line(frame, p1, p2, cv::Scalar(100, 100, 255), 10);
-        cv::line(frame, p1, p4, cv::Scalar(100, 100, 255), 10);
-        cv::line(frame, p2, p3, cv::Scalar(100, 100, 255), 10);
-        cv::line(frame, p3, p4, cv::Scalar(100, 100, 255), 10);
-        cv::circle(frame, c, 0.1, cv::Scalar(255, 0, 0));
+        cv::line(frame, p1, p2, cv::Scalar(100, 180, 0), 3);
+        cv::line(frame, p1, p4, cv::Scalar(100, 180, 0), 3);
+        cv::line(frame, p2, p3, cv::Scalar(100, 180, 0), 3);
+        cv::line(frame, p3, p4, cv::Scalar(100, 180, 0), 3);
+        cv::circle(frame, c, 2, cv::Scalar(0, 0, 255), 3);
     }
 }
 
