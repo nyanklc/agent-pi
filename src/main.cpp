@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
             // agent.printDetections();
         }
 
-        cv::resize(frame_colored, frame_colored, cv::Size(), 4, 4);
+        cv::resize(frame_colored, frame_colored, cv::Size(), 2, 2);
         if (GUI_ON) gui_handler.setFrame(frame_colored);
     }
 

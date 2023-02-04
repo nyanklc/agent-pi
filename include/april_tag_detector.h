@@ -37,11 +37,15 @@ class AprilTagDetector {
 
     void printPoses(std::vector<apriltag_pose_t> &poses);
 
-    void drawPoses(std::vector<apriltag_pose_t> &poses);
+    void drawAxes(cv::Mat &frame, std::vector<apriltag_pose_t> &poses);
+
+    void drawCubes(cv::Mat &frame, std::vector<apriltag_pose_t> &poses);
 
     void drawDetections(cv::Mat &frame);
 
     std::vector<cv::Point> getDetectionPoints();
+
+    void resetAxes();
 
    private:
     apriltag_family_t *mFamily;
@@ -50,6 +54,11 @@ class AprilTagDetector {
     std::shared_ptr<MasterObject> mObj;
     apriltag_detection_info_t mInfo;
     std::vector<apriltag_pose_t> mPoses;
+
+    // axes
+    matd_t *mX;
+    matd_t *mY;
+    matd_t *mZ;
 };
 
 #endif

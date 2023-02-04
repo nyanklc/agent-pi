@@ -24,6 +24,9 @@ void Agent::drawDetections(cv::Mat &frame) {
 
     if (APRILTAG_ENABLED) {
         mApriltagDetector->drawDetections(frame);
+        auto poses = mApriltagDetector->getPoses();
+        mApriltagDetector->drawCubes(frame, poses);
+        mApriltagDetector->printPoses(poses);
     } else if (KNN_ENABLED) {
         mFeatureMatcher.drawDetections(frame);
     }
@@ -32,7 +35,7 @@ void Agent::drawDetections(cv::Mat &frame) {
 void Agent::printDetections() {
     std::vector<cv::Point> detectedPoints =
         mApriltagDetector->getDetectionPoints();
-    for (int i = 0; i < detectedPoints.size(); i++)
+    for (size_t i = 0; i < detectedPoints.size(); i++)
         std::cout << "x" << i + 1 << ": " << detectedPoints[i].x << ", y"
                   << i + 1 << ": " << detectedPoints[i].y << "\n";
 }
@@ -71,9 +74,6 @@ bool Agent::process(cv::Mat &frame) {
             // std::cout << "couldn't estimate pose\n";
             return false;
         }
-        auto poses = mApriltagDetector->getPoses();
-        mApriltagDetector->drawPoses(poses);
-        // mApriltagDetector->printPoses(poses); // prints rotation matrix
 
         std::cout << "processing fps: "
                   << cv::getTickFrequency() / (cv::getTickCount() - start)
