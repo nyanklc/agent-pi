@@ -20,21 +20,21 @@ int main(int argc, char **argv) {
         if (!atd.findObject(frame)) {
             std::cout << "detection failed\n";
         }
-        atd.drawDetections(frame);
+        // atd.drawDetections(frame);
 
-        for (int i = 0; i < zarray_size(atd.getDetections()); i++) {
-            apriltag_detection_t *det;
-            zarray_get(atd.getDetections(), i, &det);
+        // for (int i = 0; i < zarray_size(atd.getDetections()); i++) {
+        //     apriltag_detection_t *det;
+        //     zarray_get(atd.getDetections(), i, &det);
 
-            std::cout << "0,0: " << det->p[0][0] << std::endl;
-            std::cout << "0,1: " << det->p[0][1] << std::endl;
-            std::cout << "1,0: " << det->p[1][0] << std::endl;
-            std::cout << "1,1: " << det->p[1][1] << std::endl;
-            std::cout << "2,0: " << det->p[2][0] << std::endl;
-            std::cout << "2,1: " << det->p[2][1] << std::endl;
-            std::cout << "3,0: " << det->p[3][0] << std::endl;
-            std::cout << "4,1: " << det->p[3][1] << std::endl;
-        }
+        //     std::cout << "0,0: " << det->p[0][0] << std::endl;
+        //     std::cout << "0,1: " << det->p[0][1] << std::endl;
+        //     std::cout << "1,0: " << det->p[1][0] << std::endl;
+        //     std::cout << "1,1: " << det->p[1][1] << std::endl;
+        //     std::cout << "2,0: " << det->p[2][0] << std::endl;
+        //     std::cout << "2,1: " << det->p[2][1] << std::endl;
+        //     std::cout << "3,0: " << det->p[3][0] << std::endl;
+        //     std::cout << "4,1: " << det->p[3][1] << std::endl;
+        // }
 
         cv::imshow("april_tag_test", frame);
         cv::waitKey(1);
