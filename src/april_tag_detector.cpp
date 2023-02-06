@@ -199,20 +199,82 @@ void printMatv(std::vector<matd_t *> matv, int len) {
 void connectCorners(cv::Mat &frame, std::vector<matd_t *> matv) {
     // yes I could've written this in a loop, idc
     // 0 and 1
-    cv::line(frame, cv::Point(matv[0]->data[0], matv[0]->data[1]), cv::Point(matv[2]->data[0], matv[2]->data[1]), cv::Scalar(255, 0, 0));
-    cv::line(frame, cv::Point(matv[0]->data[0], matv[0]->data[1]), cv::Point(matv[3]->data[0], matv[3]->data[1]), cv::Scalar(255, 0, 0));
-    cv::line(frame, cv::Point(matv[1]->data[0], matv[1]->data[1]), cv::Point(matv[2]->data[0], matv[2]->data[1]), cv::Scalar(255, 0, 0));
-    cv::line(frame, cv::Point(matv[1]->data[0], matv[1]->data[1]), cv::Point(matv[3]->data[0], matv[3]->data[1]), cv::Scalar(255, 0, 0));
+    cv::line(frame, cv::Point(matv[0]->data[0], matv[0]->data[1]),
+             cv::Point(matv[2]->data[0], matv[2]->data[1]),
+             cv::Scalar(255, 0, 0));
+    cv::line(frame, cv::Point(matv[0]->data[0], matv[0]->data[1]),
+             cv::Point(matv[3]->data[0], matv[3]->data[1]),
+             cv::Scalar(255, 0, 0));
+    cv::line(frame, cv::Point(matv[1]->data[0], matv[1]->data[1]),
+             cv::Point(matv[2]->data[0], matv[2]->data[1]),
+             cv::Scalar(255, 0, 0));
+    cv::line(frame, cv::Point(matv[1]->data[0], matv[1]->data[1]),
+             cv::Point(matv[3]->data[0], matv[3]->data[1]),
+             cv::Scalar(255, 0, 0));
     // 4 and 5
-    cv::line(frame, cv::Point(matv[4]->data[0], matv[4]->data[1]), cv::Point(matv[6]->data[0], matv[6]->data[1]), cv::Scalar(255, 0, 0));
-    cv::line(frame, cv::Point(matv[4]->data[0], matv[4]->data[1]), cv::Point(matv[7]->data[0], matv[7]->data[1]), cv::Scalar(255, 0, 0));
-    cv::line(frame, cv::Point(matv[5]->data[0], matv[5]->data[1]), cv::Point(matv[6]->data[0], matv[6]->data[1]), cv::Scalar(255, 0, 0));
-    cv::line(frame, cv::Point(matv[5]->data[0], matv[5]->data[1]), cv::Point(matv[7]->data[0], matv[7]->data[1]), cv::Scalar(255, 0, 0));
+    cv::line(frame, cv::Point(matv[4]->data[0], matv[4]->data[1]),
+             cv::Point(matv[6]->data[0], matv[6]->data[1]),
+             cv::Scalar(255, 0, 0));
+    cv::line(frame, cv::Point(matv[4]->data[0], matv[4]->data[1]),
+             cv::Point(matv[7]->data[0], matv[7]->data[1]),
+             cv::Scalar(255, 0, 0));
+    cv::line(frame, cv::Point(matv[5]->data[0], matv[5]->data[1]),
+             cv::Point(matv[6]->data[0], matv[6]->data[1]),
+             cv::Scalar(255, 0, 0));
+    cv::line(frame, cv::Point(matv[5]->data[0], matv[5]->data[1]),
+             cv::Point(matv[7]->data[0], matv[7]->data[1]),
+             cv::Scalar(255, 0, 0));
     // plane connections
-    cv::line(frame, cv::Point(matv[0]->data[0], matv[0]->data[1]), cv::Point(matv[4]->data[0], matv[4]->data[1]), cv::Scalar(255, 0, 0));
-    cv::line(frame, cv::Point(matv[1]->data[0], matv[1]->data[1]), cv::Point(matv[5]->data[0], matv[5]->data[1]), cv::Scalar(255, 0, 0));
-    cv::line(frame, cv::Point(matv[2]->data[0], matv[2]->data[1]), cv::Point(matv[6]->data[0], matv[6]->data[1]), cv::Scalar(255, 0, 0));
-    cv::line(frame, cv::Point(matv[3]->data[0], matv[3]->data[1]), cv::Point(matv[7]->data[0], matv[7]->data[1]), cv::Scalar(255, 0, 0)); 
+    cv::line(frame, cv::Point(matv[0]->data[0], matv[0]->data[1]),
+             cv::Point(matv[4]->data[0], matv[4]->data[1]),
+             cv::Scalar(255, 0, 0));
+    cv::line(frame, cv::Point(matv[1]->data[0], matv[1]->data[1]),
+             cv::Point(matv[5]->data[0], matv[5]->data[1]),
+             cv::Scalar(255, 0, 0));
+    cv::line(frame, cv::Point(matv[2]->data[0], matv[2]->data[1]),
+             cv::Point(matv[6]->data[0], matv[6]->data[1]),
+             cv::Scalar(255, 0, 0));
+    cv::line(frame, cv::Point(matv[3]->data[0], matv[3]->data[1]),
+             cv::Point(matv[7]->data[0], matv[7]->data[1]),
+             cv::Scalar(255, 0, 0));
+}
+
+// remember to free memory after you call this
+std::vector<matd_t *> defineCube(apriltag_pose_t &pose) {
+    double data[3];
+    std::vector<matd_t *> matv;
+    double side_len = 40;  // px
+    double y_APRILTAG_TAG_SIZE = -side_len;
+    for (int i = 0; i < 8; i++) {
+        auto mat = matd_create(3, 1);
+        data[0] = (i % 2 == 0) ? side_len : -side_len;
+        data[1] = y_APRILTAG_TAG_SIZE;
+        if (i % 2 == 0) y_APRILTAG_TAG_SIZE *= -1;
+        data[2] = (i < 4) ? 0 : side_len;
+
+        matd_set_data(mat, data);
+        matv.push_back(mat);
+    }
+    return matv;
+}
+
+void transformObject(std::vector<matd_t *> &matv, matd_t *R, matd_t *t, apriltag_detection_t *det) {
+    // transform cube
+    for (size_t m = 0; m < matv.size(); m++) {
+        auto temp = matd_multiply(R, matv[m]);
+        temp = matd_add(temp, t);
+        // apply perspective
+        // temp = matd_multiply(perspective_mat, temp);
+        matv[m] = temp;
+        // apriltag calculates rotation and translation weirdly.
+        matv[m]->data[0] += det->c[0];  // to carry to the center of tag
+        matv[m]->data[1] += det->c[1];
+        matv[m]->data[2] *= -1;  // to draw the cube towards camera
+    }
+}
+
+// TODO: return top view of the master
+std::vector<cv::Point> AprilTagDetector::setMasterPosition() {
 }
 
 // ffs
@@ -223,52 +285,30 @@ void AprilTagDetector::drawCubes(cv::Mat &frame,
         // TODO: define side length equal to the side length of the tag
         apriltag_detection_t *det;
         zarray_get(mDetections, p, &det);
-        std::vector<matd_t *> matv;
-        double data[3];
-        double side_len = 40;  // px
-        double y_APRILTAG_TAG_SIZE = -side_len;
-        for (int i = 0; i < 8; i++) {
-            auto mat = matd_create(3, 1);
-            data[0] = (i % 2 == 0) ? side_len : -side_len;
-            data[1] = y_APRILTAG_TAG_SIZE;
-            if (i % 2 == 0) y_APRILTAG_TAG_SIZE *= -1;
-            data[2] = (i < 4) ? 0 : side_len;
-
-            matd_set_data(mat, data);
-            matv.push_back(mat);
-        }
+        std::vector<matd_t *> matv = defineCube(poses[p]);
 
         // transform cube
-        for (size_t m = 0; m < 8; m++) {
-            auto temp = matd_multiply(poses[p].R, matv[m]);
-            temp = matd_add(temp, poses[p].t);
-            // apply perspective
-            // temp = matd_multiply(perspective_mat, temp);
-            matv[m] = temp;
-            // apriltag calculates rotation and translation weirdly.
-            matv[m]->data[0] += det->c[0];  // to carry to the center of tag
-            matv[m]->data[1] += det->c[1];
-            matv[m]->data[2] *= -1;  // to draw the cube towards camera
-        }
+        transformObject(matv, poses[p].R, poses[p].t, det);
 
-        // debug
-        std::cout << "after\n";
-        printMatv(matv, 8);
-        std::cout << "actual\n";
-        for (int i = 0; i < 4; i++)
-            std::cout << det->p[i][0] << " " << det->p[i][1] << "\n";
+        // // debug
+        // std::cout << "after\n";
+        // printMatv(matv, 8);
+        // std::cout << "actual\n";
+        // for (int i = 0; i < 4; i++)
+        //     std::cout << det->p[i][0] << " " << det->p[i][1] << "\n";
 
+        // TODO:
         // project cube
-        double distance_x = CAMERA_FX; // light source distance px?
-        double distance_y = CAMERA_FY; // light source distance px?
-        for (int i = 0; i < matv.size(); i++) {
-          matv[i]->data[0] *= distance_x / (distance_x - matv[i]->data[2]);
-            matv[i]->data[1] *= distance_y / (distance_y - matv[i]->data[2]);
-        }
+        // double distance_x = CAMERA_FX;
+        // double distance_y = distance_x;
+        // for (int i = 0; i < matv.size(); i++) {
+        //   matv[i]->data[0] *= distance_x / (distance_x + std::fabs(matv[i]->data[2]));
+        //   matv[i]->data[1] *= distance_y / (distance_y + std::fabs(matv[i]->data[2]));
+        // }
 
-        // debug
-        std::cout << "projected\n";
-        printMatv(matv, 8);
+        // // debug
+        // std::cout << "projected\n";
+        // printMatv(matv, 8);
 
         // draw
         connectCorners(frame, matv);

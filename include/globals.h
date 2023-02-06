@@ -14,11 +14,6 @@
 
 #define TURN_TOLERANCE 50
 
-#define CALIBRATE_MODE false
-#define CALIBRATE_MODE_TRIAL_COUNT 10
-#define QR_LENGTH 16.5
-#define OBJ_LENGTH 19
-
 #define REFERENCE_IMG_PATH "../img/ref.jpeg"
 #define KNN_ENABLED false
 #define KNN_K 2

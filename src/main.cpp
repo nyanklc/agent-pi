@@ -15,28 +15,8 @@
 #include "../include/stream_getter.h"
 
 void calibrate(Agent &agent, StreamGetter &stream_getter) {
-    // CALIBRATE
-    if (CALIBRATE_MODE) {
-        int trials = 0;
-        char required;
-        std::cout << "start camera calibration? (y/n): ";
-        std::cin >> required;
-        while (required != 'n') {
-            if (required == 'y') {
-                cv::Mat fr = stream_getter.getFrameGray();
-                if (agent.initFocalLengthCalibration(fr)) {
-                    if (agent.isCalibrated()) break;
-                } else {
-                    trials++;
-                }
-            }
-        }
-        if (!agent.isCalibrated())
-            agent.setFocalLength((CAMERA_FX + CAMERA_FY) / 2);
-    } else {
-        agent.setFocalLength((CAMERA_FX + CAMERA_FY) / 2);
-    }
-
+    // CALIBRATE yeah we removed this
+    agent.setFocalLength((CAMERA_FX + CAMERA_FY) / 2);
     return;
 }
 

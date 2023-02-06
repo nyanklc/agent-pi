@@ -16,7 +16,8 @@ Agent::Agent() {
     mApriltagDetector = std::make_shared<AprilTagDetector>();
     mApriltagDetector->init(mObj);
 
-    mCalibrated = false;
+    mCalibrated = true;
+    setFocalLength((CAMERA_FX + CAMERA_FY) / 2);
 }
 
 void Agent::drawDetections(cv::Mat &frame) {
@@ -94,31 +95,3 @@ void Agent::setFocalLength(double f) { mFocalLength = f; }
 
 bool Agent::isCalibrated() { return mCalibrated; }
 
-bool Agent::initFocalLengthCalibration(cv::Mat &frame) {
-    double measured_distance;
-    double real_width;
-    double width_in_rf_image;
-
-    std::cout << "starting focal length calibration\n";
-    std::cout << "make sure the object faces the camera los perpendicularly\n";
-    std::cout << "input distance to object: ";
-    std::cin >> measured_distance;
-    std::cout << "input real width of the object (long line): ";
-    std::cin >> real_width;
-
-    if (!mFeatureMatcher.findObject(frame)) {
-        std::cout << "object not detected\n";
-        return false;
-    }
-    width_in_rf_image = mObj->width;
-
-    mFocalLength = mCameraCalibrator.calculateFocalLength(
-        measured_distance, real_width, width_in_rf_image);
-    // TODO: get complete camera parameters
-
-    if (mFocalLength == -1) return false;
-
-    std::cout << "focal length calculated: " << mFocalLength << "\n";
-    mCalibrated = true;
-    return true;
-}

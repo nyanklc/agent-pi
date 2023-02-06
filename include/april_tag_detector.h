@@ -44,6 +44,8 @@ class AprilTagDetector {
 
     void drawDetections(cv::Mat &frame);
 
+    std::vector<cv::Point> setMasterPosition();
+
     std::vector<cv::Point> getDetectionPoints();
 
     void resetAxes();
