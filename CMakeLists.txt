@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.1)
 project(means)
 
+# we use 3 dimensional hypot, available after ++17 lol
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+
 # SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread") # ??
 
 # threads ?

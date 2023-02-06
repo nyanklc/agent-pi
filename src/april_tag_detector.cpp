@@ -240,10 +240,10 @@ void connectCorners(cv::Mat &frame, std::vector<matd_t *> matv) {
 }
 
 // remember to free memory after you call this
-std::vector<matd_t *> defineCube(apriltag_pose_t &pose) {
+std::vector<matd_t *> defineCube(apriltag_pose_t &pose, double sideln) {
     double data[3];
     std::vector<matd_t *> matv;
-    double side_len = 40;  // px
+    double side_len = sideln;  // px
     double y_APRILTAG_TAG_SIZE = -side_len;
     for (int i = 0; i < 8; i++) {
         auto mat = matd_create(3, 1);
@@ -258,7 +258,8 @@ std::vector<matd_t *> defineCube(apriltag_pose_t &pose) {
     return matv;
 }
 
-void transformObject(std::vector<matd_t *> &matv, matd_t *R, matd_t *t, apriltag_detection_t *det) {
+void transformObject(std::vector<matd_t *> &matv, matd_t *R, matd_t *t,
+                     apriltag_detection_t *det) {
     // transform cube
     for (size_t m = 0; m < matv.size(); m++) {
         auto temp = matd_multiply(R, matv[m]);
@@ -274,7 +275,45 @@ void transformObject(std::vector<matd_t *> &matv, matd_t *R, matd_t *t, apriltag
 }
 
 // TODO: return top view of the master
-std::vector<cv::Point> AprilTagDetector::setMasterPosition() {
+std::vector<cv::Point> AprilTagDetector::setMasterPosition() {}
+
+double getTagSideLength(matd_t *R, matd_t *t, zarray_t *mDetections,
+                        size_t &p) {
+    // take two points of the tag's image points
+    apriltag_detection_t *det;
+    zarray_get(mDetections, p, &det);
+    double doubles[3] = {0};
+    double x1_x = det->p[1][0];
+    double x1_y = det->p[1][1];
+    double x2_x = det->p[2][0];
+    double x2_y = det->p[2][1];
+
+    doubles[0] = x1_x;
+    doubles[1] = x1_y;
+    matd_t *x1 = matd_create(3, 1);
+    matd_set_data(x1, doubles);
+    doubles[0] = x2_x;
+    doubles[1] = x2_y;
+    matd_t *x2 = matd_create(3, 1);
+    matd_set_data(x2, doubles);
+    // x1 and x2 are image points now
+
+    matd_t *inv_R = matd_inverse(R);
+    // x1 = matd_subtract(x1, t);
+    // x2 = matd_subtract(x2, t);
+    x1 = matd_multiply(inv_R, x1);
+    x2 = matd_multiply(inv_R, x2);
+    // x1 and x2 are object points now
+
+    double side_len =
+        std::hypot(x1->data[0] - x2->data[0], x1->data[1] - x2->data[1],
+                   x1->data[2] - x2->data[2]);
+
+    matd_destroy(inv_R);
+    matd_destroy(x1);
+    matd_destroy(x2);
+
+    return side_len;
 }
 
 // ffs
@@ -285,7 +324,8 @@ void AprilTagDetector::drawCubes(cv::Mat &frame,
         // TODO: define side length equal to the side length of the tag
         apriltag_detection_t *det;
         zarray_get(mDetections, p, &det);
-        std::vector<matd_t *> matv = defineCube(poses[p]);
+        std::vector<matd_t *> matv = defineCube(
+            poses[p], getTagSideLength(poses[p].R, poses[p].t, mDetections, p));
 
         // transform cube
         transformObject(matv, poses[p].R, poses[p].t, det);
@@ -302,8 +342,9 @@ void AprilTagDetector::drawCubes(cv::Mat &frame,
         // double distance_x = CAMERA_FX;
         // double distance_y = distance_x;
         // for (int i = 0; i < matv.size(); i++) {
-        //   matv[i]->data[0] *= distance_x / (distance_x + std::fabs(matv[i]->data[2]));
-        //   matv[i]->data[1] *= distance_y / (distance_y + std::fabs(matv[i]->data[2]));
+        //   matv[i]->data[0] *= distance_x / (distance_x +
+        //   std::fabs(matv[i]->data[2])); matv[i]->data[1] *= distance_y /
+        //   (distance_y + std::fabs(matv[i]->data[2]));
         // }
 
         // // debug
