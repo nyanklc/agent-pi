@@ -13,35 +13,35 @@
 #include "master_object.h"
 
 class Agent {
-   public:
-    Agent();
+ public:
+  Agent();
 
-    bool process(cv::Mat &frame);
+  bool process(cv::Mat &frame);
 
-    void drawDetections(cv::Mat &frame);
+  void drawDetections(cv::Mat &frame);
 
-    void printDetections();
+  void printDetections();
 
-    Controls generateControls();
+  Controls generateControls();
 
-    double getFocalLength();
+  double getFocalLength();
 
-    void setFocalLength(double f);
+  void setFocalLength(double f);
 
-    bool initFocalLengthCalibration(cv::Mat &frame);
+  bool initFocalLengthCalibration(cv::Mat &frame);
 
-    bool isCalibrated();
+  bool isCalibrated();
 
-   private:
-    bool mCalibrated;
-    double mFocalLength;
-    CameraCalibrator mCameraCalibrator;
-    FeatureMatcher mFeatureMatcher;
-    std::shared_ptr<AprilTagDetector> mApriltagDetector;
-    double mTurnTolerance;
-    std::shared_ptr<MasterObject> mObj;
+ private:
+  bool mCalibrated;
+  double mFocalLength;
+  CameraCalibrator mCameraCalibrator;
+  FeatureMatcher mFeatureMatcher;
+  std::shared_ptr<AprilTagDetector> mApriltagDetector;
+  double mTurnTolerance;
+  std::shared_ptr<MasterObject> mObj;
 
-    FeatureMatcher *mFMPointer;
+  FeatureMatcher *mFMPointer;
 };
 
 #endif

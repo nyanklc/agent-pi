@@ -2,13 +2,13 @@
 #define __CONTROLS_H
 
 struct Controls {
-    Controls();
+  Controls();
 
-    // TODO:
-    // Check if the compiler generates a reasonable copy constructor
-    Controls(const Controls &c) = default;
+  // TODO:
+  // Check if the compiler generates a reasonable copy constructor
+  Controls(const Controls &c) = default;
 
-    // TODO: set values
+  // TODO: set values
 };
 
 #endif

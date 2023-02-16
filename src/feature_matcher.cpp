@@ -26,7 +26,7 @@ void FeatureMatcher::getReferenceFrame(std::string img_path) {
 }
 
 void FeatureMatcher::match(cv::Mat &des, int k) {
-  mDummyMatches.clear(); // may not be necessary
+  mDummyMatches.clear();  // may not be necessary
   mMatcher.knnMatch(des, mReferenceFrameData.des, mDummyMatches, k);
   // mMatcher.match(des, mReferenceFrameData.des, matches);
 }
@@ -37,8 +37,7 @@ void FeatureMatcher::filter() {
   constexpr float ratio_thresh = 0.7;
   for (size_t i = 0; i < mDummyMatches.size(); i++) {
     // idk sometimes there are no matches??
-    if (mDummyMatches[i].size() != 2)
-      continue;
+    if (mDummyMatches[i].size() != 2) continue;
 
     // std::cout << "mDummyMatches.size(): " << mDummyMatches.size() <<
     // std::endl; std::cout << "mDummyMatches[" << i << "].size(): " <<

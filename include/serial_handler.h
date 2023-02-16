@@ -2,7 +2,7 @@
 #define __SERIAL_HANDLER_H
 
 class SerialHandler {
-    // TODO:
+  // TODO:
 };
 
 #endif

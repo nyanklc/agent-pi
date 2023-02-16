@@ -9,25 +9,25 @@
 #include "globals.h"
 
 class GUIHandler {
-   public:
-    GUIHandler();
+ public:
+  GUIHandler();
 
-    bool start();
+  bool start();
 
-    bool stop();
+  bool stop();
 
-    bool isReady();
+  bool isReady();
 
-    void setFrame(const cv::Mat frame);
+  void setFrame(const cv::Mat frame);
 
-    void show();
+  void show();
 
-   private:
-    cv::Mat mFrame;
-    std::mutex mFrameMutex;
-    std::thread mTh;
-    bool mReady;
-    bool mStopped;
+ private:
+  cv::Mat mFrame;
+  std::mutex mFrameMutex;
+  std::thread mTh;
+  bool mReady;
+  bool mStopped;
 };
 
 #endif

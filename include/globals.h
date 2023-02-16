@@ -30,7 +30,7 @@
 #define APRILTAG_QUAD_SIGMA 1.0
 #define APRILTAG_REFINE_EDGES 1
 
-#define APRILTAG_TAG_SIZE 0.02                  // 2 cm
+#define APRILTAG_TAG_SIZE 0.02                 // 2 cm
 #define APRILTAG_POSE_ERROR_THRESHOLD 1.0E-04  // idk
 
 #ifdef LAPTOP_CAM

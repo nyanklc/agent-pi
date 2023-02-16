@@ -8,13 +8,15 @@ void AprilTagDetector::init(std::shared_ptr<MasterObject> master_obj) {
 
   // 2 bits is recommended by the creators, >=3 uses a lot of memory
   // But higher the better
-  // apriltag_detector_add_family_bits(mDetector, mFamily, APRILTAG_FAMILY_BIT_COUNT);
+  // apriltag_detector_add_family_bits(mDetector, mFamily,
+  // APRILTAG_FAMILY_BIT_COUNT);
   apriltag_detector_add_family(mDetector, mFamily);
 
   if (errno == ENOMEM) {
-    printf("Unable to add family to detector due to insufficient memory to "
-           "allocate the tag-family decoder with the default maximum hamming "
-           "value of 2. Try choosing an alternative tag family.\n");
+    printf(
+        "Unable to add family to detector due to insufficient memory to "
+        "allocate the tag-family decoder with the default maximum hamming "
+        "value of 2. Try choosing an alternative tag family.\n");
   }
 
   mDetector->quad_decimate = APRILTAG_QUAD_DECIMATE;
@@ -72,7 +74,7 @@ bool AprilTagDetector::findObject(cv::Mat &frame) {
                    .buf = frame.data};
 
   // detect
-  errno = 0; // stupid piece of shit
+  errno = 0;  // stupid piece of shit
   mDetections = apriltag_detector_detect(mDetector, &im);
 
   if (errno == EAGAIN) {
@@ -82,8 +84,7 @@ bool AprilTagDetector::findObject(cv::Mat &frame) {
   }
 
   // not detected
-  if (zarray_size(mDetections) < 1)
-    return false;
+  if (zarray_size(mDetections) < 1) return false;
 
   return true;
 }
@@ -103,8 +104,7 @@ bool AprilTagDetector::poseEstimation(cv::Mat &frame) {
     poses.push_back(pose);
 
     // std::cout << "err: " << err << "\n";
-    if (err > APRILTAG_POSE_ERROR_THRESHOLD)
-      success = false;
+    if (err > APRILTAG_POSE_ERROR_THRESHOLD) success = false;
   }
   mPoses = poses;
 
@@ -249,14 +249,13 @@ void connectCorners(cv::Mat &frame, std::vector<matd_t *> matv) {
 std::vector<matd_t *> defineCube(double sideln) {
   double data[3];
   std::vector<matd_t *> matv;
-  double side_len = sideln; // px
+  double side_len = sideln;  // px
   double y_APRILTAG_TAG_SIZE = -side_len;
   for (int i = 0; i < 8; i++) {
     auto mat = matd_create(3, 1);
     data[0] = (i % 2 == 0) ? side_len : -side_len;
     data[1] = y_APRILTAG_TAG_SIZE;
-    if (i % 2 == 0)
-      y_APRILTAG_TAG_SIZE *= -1;
+    if (i % 2 == 0) y_APRILTAG_TAG_SIZE *= -1;
     data[2] = (i < 4) ? 0 : side_len;
 
     matd_set_data(mat, data);
@@ -269,15 +268,16 @@ void transformObject(std::vector<matd_t *> &matv, matd_t *R, matd_t *t,
                      apriltag_detection_t *det) {
   // transform cube
   for (size_t m = 0; m < matv.size(); m++) {
-    auto temp = matd_multiply(R, matv[m]);
-    temp = matd_add(temp, t);
+    auto temp = matd_add(matv[m], t);
+    temp = matd_multiply(R, temp);
+
     // apply perspective
     // temp = matd_multiply(perspective_mat, temp);
     matv[m] = temp;
     // apriltag calculates rotation and translation weirdly.
-    matv[m]->data[0] += det->c[0]; // to carry to the center of tag
+    matv[m]->data[0] += det->c[0];  // to carry to the center of tag
     matv[m]->data[1] += det->c[1];
-    matv[m]->data[2] *= -1; // to draw the cube towards camera
+    matv[m]->data[2] *= -1;  // to draw the cube towards camera
   }
 }
 
@@ -339,7 +339,8 @@ void AprilTagDetector::drawCubes(cv::Mat &frame,
     apriltag_detection_t *det;
     zarray_get(mDetections, p, &det);
     // freeCube();
-    mCube = defineCube(getTagSideLength(poses[p].R, poses[p].t, mDetections, p));
+    mCube =
+        defineCube(getTagSideLength(poses[p].R, poses[p].t, mDetections, p));
 
     // transform cube
     transformObject(mCube, poses[p].R, poses[p].t, det);
@@ -359,6 +360,4 @@ void AprilTagDetector::drawCubes(cv::Mat &frame,
   }
 }
 
-std::vector<matd_t *> AprilTagDetector::getCube() {
-  return mCube;
-}
+std::vector<matd_t *> AprilTagDetector::getCube() { return mCube; }
