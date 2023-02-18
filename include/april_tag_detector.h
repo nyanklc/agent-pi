@@ -29,6 +29,8 @@ class AprilTagDetector {
 
   ~AprilTagDetector();
 
+  bool process(cv::Mat &frame);
+
   bool findObject(cv::Mat &frame);
 
   bool poseEstimation(cv::Mat &frame);

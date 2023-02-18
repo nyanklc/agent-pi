@@ -61,12 +61,19 @@ AprilTagDetector::~AprilTagDetector() {
   }
 }
 
-bool AprilTagDetector::findObject(cv::Mat &frame) {
-  // TODO: detector_detect spawns a thread every time,
-  // this results in slower operation. Maybe modify apriltag source code
-  // so that the required number of threads is kept throughout the operation.
-  // TODO: maybe make im member so we don't allocate every time
+bool AprilTagDetector::process(cv::Mat &frame) {
+  if (!findObject(frame)) {
+    // std::cout << "couldn't detect object\n";
+    return false;
+  }
+  if (!poseEstimation(frame)) {
+    // std::cout << "couldn't estimate pose\n";
+    return false;
+  }
+  return true;
+}
 
+bool AprilTagDetector::findObject(cv::Mat &frame) {
   // convert to apriltag image type
   image_u8_t im = {.width = frame.cols,
                    .height = frame.rows,

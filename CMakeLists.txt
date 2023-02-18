@@ -53,4 +53,7 @@ add_executable(knn_test test/knn/knn_test.cpp)
 target_link_libraries(knn_test ${OpenCV_LIBS} feature_matcher)
 
 add_executable(apriltag_test test/apriltag/apriltag_test.cpp)
-target_link_libraries(apriltag_test ${OpenCV_LIBS} april_tag_detector)
+target_link_libraries(apriltag_test ${OpenCV_LIBS} april_tag_detector master_object)
+
+add_executable(apriltag_test2 test/apriltag/apriltag_test2.cpp)
+target_link_libraries(apriltag_test2 ${OpenCV_LIBS} april_tag_detector master_object)
