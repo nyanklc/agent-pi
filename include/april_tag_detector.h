@@ -43,21 +43,9 @@ class AprilTagDetector {
 
   void printDetections(zarray *detections);
 
-  void drawAxes(cv::Mat &frame, std::vector<apriltag_pose_t> &poses);
-
-  void drawCubes(cv::Mat &frame, std::vector<apriltag_pose_t> &poses);
-
-  std::vector<matd_t *> getCube();
-
-  void freeCube();
-
   void drawDetections(cv::Mat &frame);
 
-  std::vector<cv::Point> setMasterPosition();
-
   std::vector<cv::Point> getDetectionPoints();
-
-  void resetAxes();
 
  private:
   apriltag_family_t *mFamily;
@@ -66,14 +54,6 @@ class AprilTagDetector {
   std::shared_ptr<MasterObject> mObj;
   apriltag_detection_info_t mInfo;
   std::vector<apriltag_pose_t> mPoses;
-
-  // cube
-  std::vector<matd_t *> mCube;
-
-  // axes
-  matd_t *mX;
-  matd_t *mY;
-  matd_t *mZ;
 };
 
 #endif
