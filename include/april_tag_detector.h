@@ -41,6 +41,8 @@ class AprilTagDetector {
 
   void printPoses(std::vector<apriltag_pose_t> &poses);
 
+  void printDetections(zarray *detections);
+
   void drawAxes(cv::Mat &frame, std::vector<apriltag_pose_t> &poses);
 
   void drawCubes(cv::Mat &frame, std::vector<apriltag_pose_t> &poses);

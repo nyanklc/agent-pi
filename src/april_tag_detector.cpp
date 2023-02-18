@@ -135,7 +135,7 @@ void AprilTagDetector::printPoses(std::vector<apriltag_pose_t> &poses) {
   kk = 0;
   for (auto pose : poses) {
     kk++;
-    std::cout << "pose " << kk << " tranlation:\n";
+    std::cout << "pose " << kk << " translation:\n";
     for (int i = 0; i < pose.t->nrows; i++) {
       for (int j = 0; j < pose.t->ncols; j++) {
         std::cout << matd_get(pose.t, i, j) << "\t";
@@ -146,6 +146,18 @@ void AprilTagDetector::printPoses(std::vector<apriltag_pose_t> &poses) {
 }
 
 zarray *AprilTagDetector::getDetections() { return mDetections; }
+
+void AprilTagDetector::printDetections(zarray *detections) {
+  for (int k = 0; k < zarray_size(detections); k++) {
+    apriltag_detection_t *det;
+    zarray_get(detections, k, &det);
+    std::cout << "detection " << k << ": \n";
+    std::cout << "center x: " << det->c[0] << ", center y: " << det->c[1] << std::endl;
+    for (size_t i = 0; i < sizeof(det->p) / sizeof(det->p[0]); i++) {
+      std::cout << "x: " << det->p[i][0] << ", y: " << det->p[i][1] << std::endl;
+    }
+  }
+}
 
 std::vector<cv::Point> AprilTagDetector::getDetectionPoints() {
   std::vector<cv::Point> ret;
