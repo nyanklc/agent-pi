@@ -25,9 +25,6 @@ void Agent::drawDetections(cv::Mat &frame) {
 
   if (APRILTAG_ENABLED) {
     mApriltagDetector->drawDetections(frame);
-    auto poses = mApriltagDetector->getPoses();
-    mApriltagDetector->drawCubes(frame, poses);
-    // mApriltagDetector->printPoses(poses);
   } else if (KNN_ENABLED) {
     mFeatureMatcher.drawDetections(frame);
   }
