@@ -93,6 +93,19 @@ bool AprilTagDetector::poseEstimation(cv::Mat &frame) {
     double err = estimate_tag_pose(&mInfo, &pose);
     poses.push_back(pose);
 
+    // test
+    apriltag_pose_t pose1;
+    apriltag_pose_t pose2;
+    double err1;
+    double err2;
+    estimate_tag_pose_orthogonal_iteration(&mInfo, &err1, &pose1, &err2, &pose2, 3);
+    mPosesOrthogonal.push_back(std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));
+
+    // also computing pose from homography to compare the results
+    apriltag_pose_t hpose;
+    estimate_pose_for_tag_homography(&mInfo, &hpose);
+    mPoses.push_back(hpose);
+
     // std::cout << "err: " << err << "\n";
     if (err > APRILTAG_POSE_ERROR_THRESHOLD) success = false;
   }
@@ -135,9 +148,11 @@ void AprilTagDetector::printDetections(zarray *detections) {
     apriltag_detection_t *det;
     zarray_get(detections, k, &det);
     std::cout << "detection " << k << ": \n";
-    std::cout << "center x: " << det->c[0] << ", center y: " << det->c[1] << std::endl;
+    std::cout << "center x: " << det->c[0] << ", center y: " << det->c[1]
+              << std::endl;
     for (size_t i = 0; i < sizeof(det->p) / sizeof(det->p[0]); i++) {
-      std::cout << "x: " << det->p[i][0] << ", y: " << det->p[i][1] << std::endl;
+      std::cout << "x: " << det->p[i][0] << ", y: " << det->p[i][1]
+                << std::endl;
     }
   }
 }
@@ -176,5 +191,26 @@ void AprilTagDetector::drawDetections(cv::Mat &frame) {
     cv::line(frame, p2, p3, cv::Scalar(100, 180, 0), 3);
     cv::line(frame, p3, p4, cv::Scalar(100, 180, 0), 3);
     cv::circle(frame, c, 2, cv::Scalar(0, 0, 255), 3);
+  }
+}
+
+void AprilTagDetector::drawMarkers(cv::Mat &frame) {
+  for (size_t k = 0; k < mPoses.size(); k++) {
+    auto cube = defineCubeWithPoints();
+
+    cv::Mat R = convertToMat(mPoses[k].R);
+    // cv::Rodrigues(R, R); // convert to rotation vector
+    // printMat(R, "R");
+
+    cv::Mat t = convertToMat(mPoses[k].t);
+    // printMat(t, "t");
+
+    cv::Mat K = getCameraMatrix(CAMERA_FX, CAMERA_FY, CAMERA_CX, CAMERA_CY);
+    // printMat(K, "K");
+
+    cv::Mat distortion = getDistortionMatrix();
+    // printMat(distortion, "distortion");
+
+    drawCube(cube, frame, K, distortion, R, t);
   }
 }

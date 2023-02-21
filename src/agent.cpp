@@ -25,6 +25,7 @@ void Agent::drawDetections(cv::Mat &frame) {
 
   if (APRILTAG_ENABLED) {
     mApriltagDetector->drawDetections(frame);
+    mApriltagDetector->drawMarkers(frame);
   } else if (KNN_ENABLED) {
     mFeatureMatcher.drawDetections(frame);
   }

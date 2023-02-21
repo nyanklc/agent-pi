@@ -6,11 +6,13 @@
 #include <iostream>
 #include <memory>
 #include <opencv2/opencv.hpp>
+#include <opencv2/calib3d.hpp>
 #include <string>
 #include <vector>
 
 #include "globals.h"
 #include "master_object.h"
+#include "utils.h"
 
 extern "C" {
 #include <apriltag/apriltag.h>
@@ -45,6 +47,8 @@ class AprilTagDetector {
 
   void drawDetections(cv::Mat &frame);
 
+  void drawMarkers(cv::Mat &frame);
+
   std::vector<cv::Point> getDetectionPoints();
 
  private:
@@ -54,6 +58,8 @@ class AprilTagDetector {
   std::shared_ptr<MasterObject> mObj;
   apriltag_detection_info_t mInfo;
   std::vector<apriltag_pose_t> mPoses;
+  std::vector<apriltag_pose_t> mHPoses;
+  std::vector<std::pair<apriltag_pose_t, apriltag_pose_t>> mPosesOrthogonal;
 };
 
 #endif

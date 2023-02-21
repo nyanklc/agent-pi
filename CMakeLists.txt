@@ -46,7 +46,10 @@ add_library(master_object src/master_object.cpp)
 target_link_libraries(master_object ${OpenCV_LIBS})
 
 add_library(april_tag_detector src/april_tag_detector.cpp)
-target_link_libraries(april_tag_detector ${OpenCV_LIBS} master_object apriltag Threads::Threads m)
+target_link_libraries(april_tag_detector ${OpenCV_LIBS} master_object apriltag Threads::Threads m utils)
+
+add_library(utils src/utils.cpp)
+target_link_libraries(utils ${OpenCV_LIBS} apriltag)
 
 #########################TESTS###########################
 add_executable(knn_test test/knn/knn_test.cpp)
