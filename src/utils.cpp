@@ -128,18 +128,18 @@ cv::Vec3f convertToVec3f(matd_t *m) {
 // defines a cube with side length = size * 2
 std::vector<cv::Point3f> defineCubeWithPoints(double size) {
   std::vector<cv::Point3f> ret;
-  ret.push_back(cv::Point3f(0, 0, 0));   // front bottom left
-  ret.push_back(cv::Point3f(size, 0, 0));   // front bottom right
-  ret.push_back(cv::Point3f(size, size, 0));   // front top right
-  ret.push_back(cv::Point3f(0, size, 0));   // front top left
-  ret.push_back(cv::Point3f(0, 0, -size));  // back bottom left
-  ret.push_back(cv::Point3f(size, 0, -size));  // back bottom right
+  ret.push_back(cv::Point3f(0, 0, 0));            // front bottom left
+  ret.push_back(cv::Point3f(size, 0, 0));         // front bottom right
+  ret.push_back(cv::Point3f(size, size, 0));      // front top right
+  ret.push_back(cv::Point3f(0, size, 0));         // front top left
+  ret.push_back(cv::Point3f(0, 0, -size));        // back bottom left
+  ret.push_back(cv::Point3f(size, 0, -size));     // back bottom right
   ret.push_back(cv::Point3f(size, size, -size));  // back top right
-  ret.push_back(cv::Point3f(0, size, -size));  // back top left
+  ret.push_back(cv::Point3f(0, size, -size));     // back top left
   // translate so that center is at the origin
   cv::Mat t(3, 1, cv::DataType<double>::type);
-  t.at<double>(0, 0) = -size/2;
-  t.at<double>(1, 0) = -size/2;
+  t.at<double>(0, 0) = -size / 2;
+  t.at<double>(1, 0) = -size / 2;
   t.at<double>(2, 0) = 0;
   translatePoints(ret, t);
   return ret;
@@ -225,7 +225,8 @@ void translatePoints(std::vector<cv::Point3f> &cube, cv::Mat t) {
 
 void drawCube(std::vector<cv::Point3f> &cube, cv::Mat &frame,
               cv::Mat &cameraMatrix, cv::Mat &distortionCoefficients,
-              cv::Mat &rotationMatrix, cv::Mat &translationMatrix) {
+              cv::Mat &rotationMatrix, cv::Mat &translationMatrix,
+              cv::Scalar &color) {
   // Define a 3D transformation matrix that transforms coordinates from the
   // camera's coordinate system to the apriltag's coordinate system
   // Convert rotation and translation to 4x4 transformation matrix
@@ -247,28 +248,28 @@ void drawCube(std::vector<cv::Point3f> &cube, cv::Mat &frame,
                     distortionCoefficients, imagePoints);
 
   // Draw the cube on the image
-  cv::line(frame, imagePoints[0], imagePoints[1], cv::Scalar(0, 255, 0),
+  cv::line(frame, imagePoints[0], imagePoints[1], color,
            2);  // front bottom left to front bottom right
-  cv::line(frame, imagePoints[1], imagePoints[2], cv::Scalar(0, 255, 0),
+  cv::line(frame, imagePoints[1], imagePoints[2], color,
            2);  // front bottom right to front top right
-  cv::line(frame, imagePoints[2], imagePoints[3], cv::Scalar(0, 255, 0),
+  cv::line(frame, imagePoints[2], imagePoints[3], color,
            2);  // front top right to front top left
-  cv::line(frame, imagePoints[3], imagePoints[0], cv::Scalar(0, 255, 0),
+  cv::line(frame, imagePoints[3], imagePoints[0], color,
            2);  // front top left to front bottom left
-  cv::line(frame, imagePoints[4], imagePoints[5], cv::Scalar(0, 255, 0),
+  cv::line(frame, imagePoints[4], imagePoints[5], color,
            2);  // back bottom left to back bottom right
-  cv::line(frame, imagePoints[5], imagePoints[6], cv::Scalar(0, 255, 0),
+  cv::line(frame, imagePoints[5], imagePoints[6], color,
            2);  // back bottom right to back top right
-  cv::line(frame, imagePoints[6], imagePoints[7], cv::Scalar(0, 255, 0),
+  cv::line(frame, imagePoints[6], imagePoints[7], color,
            2);  // back top right to back top left
-  cv::line(frame, imagePoints[7], imagePoints[4], cv::Scalar(0, 255, 0),
+  cv::line(frame, imagePoints[7], imagePoints[4], color,
            2);  // back top left to back bottom left
-  cv::line(frame, imagePoints[0], imagePoints[4], cv::Scalar(0, 255, 0),
+  cv::line(frame, imagePoints[0], imagePoints[4], color,
            2);  // front bottom left to back bottom left
-  cv::line(frame, imagePoints[1], imagePoints[5], cv::Scalar(0, 255, 0),
+  cv::line(frame, imagePoints[1], imagePoints[5], color,
            2);  // front bottom right to back bottom right
-  cv::line(frame, imagePoints[2], imagePoints[6], cv::Scalar(0, 255, 0),
+  cv::line(frame, imagePoints[2], imagePoints[6], color,
            2);  // front top right to back top right
-  cv::line(frame, imagePoints[3], imagePoints[7], cv::Scalar(0, 255, 0),
+  cv::line(frame, imagePoints[3], imagePoints[7], color,
            2);  // front top left to back top left
 }

@@ -52,6 +52,7 @@ std::vector<cv::Vec3f> defineCubeWithVectors(double side_length);
 
 void drawCube(std::vector<cv::Point3f> &cube, cv::Mat &frame,
               cv::Mat &cameraMatrix, cv::Mat &distortionCoefficients,
-              cv::Mat &rotationMatrix, cv::Mat &translationMatrix);
+              cv::Mat &rotationMatrix, cv::Mat &translationMatrix,
+              cv::Scalar &color);
 
 #endif

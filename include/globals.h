@@ -4,7 +4,7 @@
 #define LAPTOP_CAM
 // #define RPI_CAM
 
-#define VIDEO_SOURCE 1
+#define VIDEO_SOURCE 0
 #define VIEW_MODE true
 
 #define SERIAL_ON false

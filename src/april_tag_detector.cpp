@@ -98,17 +98,16 @@ bool AprilTagDetector::poseEstimation(cv::Mat &frame) {
     apriltag_pose_t pose2;
     double err1;
     double err2;
-    estimate_tag_pose_orthogonal_iteration(&mInfo, &err1, &pose1, &err2, &pose2, 3);
-    mPosesOrthogonal.push_back(std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));
-
-    // also computing pose from homography to compare the results
-    apriltag_pose_t hpose;
-    estimate_pose_for_tag_homography(&mInfo, &hpose);
-    mPoses.push_back(hpose);
+    estimate_tag_pose_orthogonal_iteration(&mInfo, &err1, &pose1, &err2, &pose2,
+                                           3);
+    mPosesOrthogonal.clear();
+    mPosesOrthogonal.push_back(
+        std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));
 
     // std::cout << "err: " << err << "\n";
     if (err > APRILTAG_POSE_ERROR_THRESHOLD) success = false;
   }
+  mPoses.clear();
   mPoses = poses;
 
   return success;
@@ -200,7 +199,7 @@ void AprilTagDetector::drawMarkers(cv::Mat &frame) {
 
     cv::Mat R = convertToMat(mPoses[k].R);
     // cv::Rodrigues(R, R); // convert to rotation vector
-    // printMat(R, "R");
+    printMat(R, "R");
 
     cv::Mat t = convertToMat(mPoses[k].t);
     // printMat(t, "t");
@@ -211,6 +210,24 @@ void AprilTagDetector::drawMarkers(cv::Mat &frame) {
     cv::Mat distortion = getDistortionMatrix();
     // printMat(distortion, "distortion");
 
-    drawCube(cube, frame, K, distortion, R, t);
+    auto color = cv::Scalar(0, 255, 0);
+    drawCube(cube, frame, K, distortion, R, t, color);
+
+    if (mPosesOrthogonal.size() > k) {
+      // test
+      std::cout << mPoses.size() << " " << mPosesOrthogonal.size() << std::endl;
+      cv::Mat R1 = convertToMat(mPosesOrthogonal[k].first.R);
+      printMat(R1, "R1");
+      cv::Mat R2 = convertToMat(mPosesOrthogonal[k].second.R);
+      printMat(R2, "R2");
+      cv::Mat t1 = convertToMat(mPosesOrthogonal[k].first.t);
+      printMat(t1, "t1");
+      cv::Mat t2 = convertToMat(mPosesOrthogonal[k].second.t);
+      printMat(t2, "t2");
+      auto color1 = cv::Scalar(255, 0, 0);
+      drawCube(cube, frame, K, distortion, R1, t1, color1);
+      auto color2 = cv::Scalar(0, 0, 255);
+      drawCube(cube, frame, K, distortion, R2, t2, color2);
+    }
   }
 }
