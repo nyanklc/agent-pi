@@ -101,9 +101,13 @@ bool AprilTagDetector::poseEstimation(cv::Mat &frame) {
     estimate_tag_pose_orthogonal_iteration(&mInfo, &err1, &pose1, &err2, &pose2,
                                            3);
     mPosesOrthogonal.clear();
-    mPosesOrthogonal.push_back(
-        std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));
-
+    
+    // sometimes the orthogonal iteration can only return 1 result
+    if (pose2.R) {
+      mPosesOrthogonal.push_back(
+        std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));  
+    }
+    
     // std::cout << "err: " << err << "\n";
     if (err > APRILTAG_POSE_ERROR_THRESHOLD) success = false;
   }
