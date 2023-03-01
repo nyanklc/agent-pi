@@ -2,8 +2,10 @@
 
 double CameraCalibrator::calculateFocalLength(double measured_distance,
                                               double real_width,
-                                              double width_in_rf_image) {
-  if (width_in_rf_image == -1) {
+                                              double width_in_rf_image)
+{
+  if (width_in_rf_image == -1)
+  {
     std::cout << "unable to calculate focal length, probably no object "
                  "detected\n";
     // hoping actual focal length is not -1 :)

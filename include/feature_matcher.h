@@ -8,13 +8,15 @@
 #include "globals.h"
 #include "master_object.h"
 
-struct FrameData {
+struct FrameData
+{
   std::vector<cv::KeyPoint> kp;
   cv::Mat des;
 };
 
-class FeatureMatcher {
- public:
+class FeatureMatcher
+{
+public:
   FeatureMatcher();
 
   // virtual const.
@@ -38,7 +40,7 @@ class FeatureMatcher {
 
   void filter();
 
- private:
+private:
   int mKNN_K;
 
   std::shared_ptr<MasterObject> mObj;

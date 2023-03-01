@@ -2,7 +2,8 @@
 
 FeatureMatcher::FeatureMatcher() {}
 
-void FeatureMatcher::init(std::string ref_img_path, int knn_k) {
+void FeatureMatcher::init(std::string ref_img_path, int knn_k)
+{
   mDetector = cv::ORB::create();
   mExtractor = cv::ORB::create();
 
@@ -17,7 +18,8 @@ void FeatureMatcher::init(std::string ref_img_path, int knn_k) {
   mKNN_K = knn_k;
 }
 
-void FeatureMatcher::getReferenceFrame(std::string img_path) {
+void FeatureMatcher::getReferenceFrame(std::string img_path)
+{
   // Idk if any of these throw if anything goes wrong. Should probably check
   // myself.
   cv::Mat ref_img = cv::imread(img_path, cv::IMREAD_GRAYSCALE);
@@ -25,19 +27,23 @@ void FeatureMatcher::getReferenceFrame(std::string img_path) {
   mExtractor->compute(ref_img, mReferenceFrameData.kp, mReferenceFrameData.des);
 }
 
-void FeatureMatcher::match(cv::Mat &des, int k) {
-  mDummyMatches.clear();  // may not be necessary
+void FeatureMatcher::match(cv::Mat &des, int k)
+{
+  mDummyMatches.clear(); // may not be necessary
   mMatcher.knnMatch(des, mReferenceFrameData.des, mDummyMatches, k);
   // mMatcher.match(des, mReferenceFrameData.des, matches);
 }
 
-void FeatureMatcher::filter() {
+void FeatureMatcher::filter()
+{
   // Apply ratio test.
   mDummyGoodMatches.clear();
   constexpr float ratio_thresh = 0.7;
-  for (size_t i = 0; i < mDummyMatches.size(); i++) {
+  for (size_t i = 0; i < mDummyMatches.size(); i++)
+  {
     // idk sometimes there are no matches??
-    if (mDummyMatches[i].size() != 2) continue;
+    if (mDummyMatches[i].size() != 2)
+      continue;
 
     // std::cout << "mDummyMatches.size(): " << mDummyMatches.size() <<
     // std::endl; std::cout << "mDummyMatches[" << i << "].size(): " <<
@@ -48,7 +54,8 @@ void FeatureMatcher::filter() {
     // mDummyMatches[i][1].distance << std::endl;
 
     if (mDummyMatches[i][0].distance <
-        ratio_thresh * mDummyMatches[i][1].distance) {
+        ratio_thresh * mDummyMatches[i][1].distance)
+    {
       // std::cout << "in\n";
       mDummyGoodMatches.push_back(mDummyMatches[i][0]);
     }
@@ -57,7 +64,8 @@ void FeatureMatcher::filter() {
 }
 
 // for testing
-cv::Mat FeatureMatcher::drawMatches(cv::Mat img1, cv::Mat img2) {
+cv::Mat FeatureMatcher::drawMatches(cv::Mat img1, cv::Mat img2)
+{
   // img1 -> ref_img, img2 -> frame
   cv::Mat out_img;
   cv::drawMatches(img2, mDummyKp, img1, mReferenceFrameData.kp,
@@ -66,7 +74,8 @@ cv::Mat FeatureMatcher::drawMatches(cv::Mat img1, cv::Mat img2) {
 }
 
 // for testing
-cv::Mat FeatureMatcher::drawGoodMatches(cv::Mat img1, cv::Mat img2) {
+cv::Mat FeatureMatcher::drawGoodMatches(cv::Mat img1, cv::Mat img2)
+{
   // img1 -> ref_img, img2 -> frame
   cv::Mat out_img;
   cv::drawMatches(img2, mDummyKp, img1, mReferenceFrameData.kp, mDummyMatches,
@@ -74,11 +83,13 @@ cv::Mat FeatureMatcher::drawGoodMatches(cv::Mat img1, cv::Mat img2) {
   return out_img;
 }
 
-void FeatureMatcher::drawDetections(cv::Mat &frame) {
+void FeatureMatcher::drawDetections(cv::Mat &frame)
+{
   // TODO:
 }
 
-bool FeatureMatcher::findObject(cv::Mat &frame) {
+bool FeatureMatcher::findObject(cv::Mat &frame)
+{
   // I can use dummy member descriptors and keypoints here
   // so that we don't need to allocate each time.
   // I doubt compiler handles that.
@@ -94,7 +105,8 @@ bool FeatureMatcher::findObject(cv::Mat &frame) {
   return true;
 }
 
-std::vector<double> FeatureMatcher::getMatchCounts() {
+std::vector<double> FeatureMatcher::getMatchCounts()
+{
   std::vector<double> counts;
   counts.push_back(mDummyMatches.size());
   counts.push_back(mDummyGoodMatches.size());

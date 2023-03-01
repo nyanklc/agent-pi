@@ -6,7 +6,8 @@
 #include <opencv2/core/utility.hpp>
 #include <thread>
 
-StreamGetter::StreamGetter(const std::string src) {
+StreamGetter::StreamGetter(const std::string src)
+{
   mCap = cv::VideoCapture(src);
   // std::cout << "mCap created\n";
   mRetrieved = mCap.read(mFrame);
@@ -15,7 +16,8 @@ StreamGetter::StreamGetter(const std::string src) {
   mStopped = false;
 }
 
-StreamGetter::StreamGetter(const int src) {
+StreamGetter::StreamGetter(const int src)
+{
   mCap = cv::VideoCapture(src);
   // std::cout << "mCap created\n";
   mRetrieved = mCap.read(mFrame);
@@ -24,24 +26,31 @@ StreamGetter::StreamGetter(const int src) {
   mStopped = false;
 }
 
-bool StreamGetter::startStream() {
-  try {
+bool StreamGetter::startStream()
+{
+  try
+  {
     mTh = std::thread(&StreamGetter::getStream, this);
     return true;
-  } catch (...) {
+  }
+  catch (...)
+  {
     std::cerr << "Couldn't start a thread for video capture.\n";
     return false;
   }
 }
 
-void StreamGetter::getStream() {
+void StreamGetter::getStream()
+{
   // TODO: add mutex for mStopped
-  while (!mStopped) {
+  while (!mStopped)
+  {
     // wait before locking the mutex to not hog the members
     std::this_thread::sleep_for(std::chrono::microseconds(100));
 
     // abort if previous frame was not retrieved
-    if (!mRetrieved) {
+    if (!mRetrieved)
+    {
       std::cerr << "Couldn't retrieve frame.\n";
       stopStream();
       return;
@@ -55,7 +64,8 @@ void StreamGetter::getStream() {
     cv::cvtColor(mFrame, mFrameGray, cv::COLOR_BGRA2GRAY);
     // resize for faster processing
     cv::resize(mFrameGray, mFrameGray, cv::Size(), 0.5, 0.5);
-    if (GUI_ON) cv::resize(mFrame, mFrame, cv::Size(), 0.5, 0.5);
+    if (GUI_ON)
+      cv::resize(mFrame, mFrame, cv::Size(), 0.5, 0.5);
     // std::cout << std::this_thread::get_id() << " || stream_getter fps: "
     // << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
     mReady = true;
@@ -63,7 +73,8 @@ void StreamGetter::getStream() {
   }
 }
 
-void StreamGetter::stopStream() {
+void StreamGetter::stopStream()
+{
   // TODO: add mutex for mStopped
   mStopped = true;
   // std::cout << "before join\n";
@@ -76,7 +87,8 @@ bool StreamGetter::isReady() { return mReady; }
 
 bool StreamGetter::isUpdated() { return mUpdated; }
 
-cv::Mat StreamGetter::getFrame() {
+cv::Mat StreamGetter::getFrame()
+{
   // auto start = cv::getTickCount();
   cv::Mat ret;
   std::lock_guard<std::mutex> lock(mStreamMutex);
@@ -87,7 +99,8 @@ cv::Mat StreamGetter::getFrame() {
   return ret;
 }
 
-cv::Mat StreamGetter::getFrameGray() {
+cv::Mat StreamGetter::getFrameGray()
+{
   // auto start = cv::getTickCount();
   cv::Mat ret;
   std::lock_guard<std::mutex> lock(mStreamMutex);

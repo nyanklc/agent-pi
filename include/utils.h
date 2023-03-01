@@ -5,7 +5,8 @@
 #include <string>
 #include <vector>
 
-extern "C" {
+extern "C"
+{
 #include <apriltag/apriltag.h>
 #include <apriltag/apriltag_math.h>
 #include <apriltag/apriltag_pose.h>

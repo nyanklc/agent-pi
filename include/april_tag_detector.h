@@ -14,7 +14,8 @@
 #include "master_object.h"
 #include "utils.h"
 
-extern "C" {
+extern "C"
+{
 #include <apriltag/apriltag.h>
 #include <apriltag/apriltag_math.h>
 #include <apriltag/apriltag_pose.h>
@@ -23,8 +24,9 @@ extern "C" {
 #include <apriltag/tagStandard41h12.h>
 }
 
-class AprilTagDetector {
- public:
+class AprilTagDetector
+{
+public:
   AprilTagDetector();
 
   void init(std::shared_ptr<MasterObject> master_obj);
@@ -51,7 +53,7 @@ class AprilTagDetector {
 
   std::vector<cv::Point> getDetectionPoints();
 
- private:
+private:
   apriltag_family_t *mFamily;
   apriltag_detector_t *mDetector;
   zarray_t *mDetections;

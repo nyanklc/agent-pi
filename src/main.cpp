@@ -14,23 +14,28 @@
 #include "../include/serial_handler.h"
 #include "../include/stream_getter.h"
 
-void calibrate(Agent &agent, StreamGetter &stream_getter) {
+void calibrate(Agent &agent, StreamGetter &stream_getter)
+{
   // CALIBRATE yeah we removed this
   agent.setFocalLength((CAMERA_FX + CAMERA_FY) / 2);
   return;
 }
 
 bool initSystem(StreamGetter &stream_getter, Agent &agent,
-                SerialHandler &serial_handler, GUIHandler &gui_handler) {
-  if (!stream_getter.getRetrieved()) return false;
+                SerialHandler &serial_handler, GUIHandler &gui_handler)
+{
+  if (!stream_getter.getRetrieved())
+    return false;
 
-  if (!stream_getter.startStream()) return false;
+  if (!stream_getter.startStream())
+    return false;
 
   // wait until the stream thread starts
   while (!stream_getter.isReady())
     ;
 
-  if (!gui_handler.start()) return false;
+  if (!gui_handler.start())
+    return false;
 
   // wait until the gui thread starts
   while (!gui_handler.isReady())
@@ -41,7 +46,8 @@ bool initSystem(StreamGetter &stream_getter, Agent &agent,
   return true;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   StreamGetter stream_getter(0);
   Agent agent;
   SerialHandler serial_handler;
@@ -52,35 +58,42 @@ int main(int argc, char **argv) {
   cv::Mat frame;
   cv::Mat frame_colored;
   bool first_run = true;
-  while (1) {
+  while (1)
+  {
     // get frame
     // auto stream_start = cv::getTickCount();
     // std::cout << "start: " << stream_start << "\n";
     // do not process the same frame again
-    if (!stream_getter.isUpdated()) continue;
+    if (!stream_getter.isUpdated())
+      continue;
 
-    if (!stream_getter.getRetrieved()) break;
+    if (!stream_getter.getRetrieved())
+      break;
 
     // auto stream_ready = cv::getTickCount();
     // std::cout << "ready: " << stream_start << "\n";
 
     frame = stream_getter.getFrameGray();
-    if (GUI_ON) frame_colored = stream_getter.getFrame();
+    if (GUI_ON)
+      frame_colored = stream_getter.getFrame();
 
-    if (frame.empty()) break;
+    if (frame.empty())
+      break;
     // std::cout << "start @ " << (cv::getTickCount() - stream_start)/
     // cv::getTickFrequency() << " fps\n"; std::cout << "ready @ " <<
     // (cv::getTickCount() - stream_ready)/ cv::getTickFrequency() << "
     // fps\n";
 
     // process
-    if (agent.process(frame) && GUI_ON) {
+    if (agent.process(frame) && GUI_ON)
+    {
       agent.drawDetections(frame_colored);
       // agent.printDetections();
     }
 
     cv::resize(frame_colored, frame_colored, cv::Size(), 2, 2);
-    if (GUI_ON) gui_handler.setFrame(frame_colored);
+    if (GUI_ON)
+      gui_handler.setFrame(frame_colored);
   }
 
   // yes

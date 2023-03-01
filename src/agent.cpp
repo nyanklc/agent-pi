@@ -1,6 +1,7 @@
 #include "../include/agent.h"
 
-Agent::Agent() {
+Agent::Agent()
+{
   mTurnTolerance = TURN_TOLERANCE;
 
   mObj = std::make_shared<MasterObject>();
@@ -20,18 +21,24 @@ Agent::Agent() {
   setFocalLength((CAMERA_FX + CAMERA_FY) / 2);
 }
 
-void Agent::drawDetections(cv::Mat &frame) {
-  if (!GUI_ON) return;
+void Agent::drawDetections(cv::Mat &frame)
+{
+  if (!GUI_ON)
+    return;
 
-  if (APRILTAG_ENABLED) {
+  if (APRILTAG_ENABLED)
+  {
     mApriltagDetector->drawDetections(frame);
     mApriltagDetector->drawMarkers(frame);
-  } else if (KNN_ENABLED) {
+  }
+  else if (KNN_ENABLED)
+  {
     mFeatureMatcher.drawDetections(frame);
   }
 }
 
-void Agent::printDetections() {
+void Agent::printDetections()
+{
   std::vector<cv::Point> detectedPoints =
       mApriltagDetector->getDetectionPoints();
   for (size_t i = 0; i < detectedPoints.size(); i++)
@@ -39,10 +46,13 @@ void Agent::printDetections() {
               << ": " << detectedPoints[i].y << "\n";
 }
 
-bool Agent::process(cv::Mat &frame) {
+bool Agent::process(cv::Mat &frame)
+{
   auto start = cv::getTickCount();
-  if (KNN_ENABLED) {
-    if (mFeatureMatcher.findObject(frame)) {
+  if (KNN_ENABLED)
+  {
+    if (mFeatureMatcher.findObject(frame))
+    {
       std::cout << "processing fps: "
                 << cv::getTickFrequency() / (cv::getTickCount() - start)
                 << "\n";
@@ -52,8 +62,10 @@ bool Agent::process(cv::Mat &frame) {
               << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
     return false;
   }
-  if (APRILTAG_ENABLED) {
-    if (!mApriltagDetector->process(frame)) return false;
+  if (APRILTAG_ENABLED)
+  {
+    if (!mApriltagDetector->process(frame))
+      return false;
 
     std::cout << "processing fps: "
               << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
@@ -61,7 +73,8 @@ bool Agent::process(cv::Mat &frame) {
   }
 }
 
-Controls Agent::generateControls() {
+Controls Agent::generateControls()
+{
   Controls controls;
   // TODO:
   return controls;

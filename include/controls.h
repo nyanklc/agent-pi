@@ -1,7 +1,8 @@
 #ifndef __CONTROLS_H
 #define __CONTROLS_H
 
-struct Controls {
+struct Controls
+{
   Controls();
 
   // TODO:

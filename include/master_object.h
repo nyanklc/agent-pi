@@ -5,10 +5,11 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
-class MasterObject {
+class MasterObject
+{
   void setPosition(std::vector<cv::Point> corners);
 
- private:
+private:
   double cx;
   double cy;
 };

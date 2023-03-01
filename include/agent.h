@@ -12,8 +12,9 @@
 #include "globals.h"
 #include "master_object.h"
 
-class Agent {
- public:
+class Agent
+{
+public:
   Agent();
 
   bool process(cv::Mat &frame);
@@ -32,7 +33,7 @@ class Agent {
 
   bool isCalibrated();
 
- private:
+private:
   bool mCalibrated;
   double mFocalLength;
   CameraCalibrator mCameraCalibrator;

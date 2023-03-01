@@ -2,21 +2,28 @@
 
 GUIHandler::GUIHandler() { mStopped = false; }
 
-bool GUIHandler::start() {
-  if (!GUI_ON) return true;
+bool GUIHandler::start()
+{
+  if (!GUI_ON)
+    return true;
 
-  try {
+  try
+  {
     mTh = std::thread(&GUIHandler::show, this);
     return true;
-  } catch (...) {
+  }
+  catch (...)
+  {
     std::cerr << "Couldn't start a thread for GUI.\n";
     return false;
   }
 }
 
-void GUIHandler::show() {
+void GUIHandler::show()
+{
   // TODO: add mutex for mStopped
-  while (!mStopped) {
+  while (!mStopped)
+  {
     mReady = true;
 
     // wait before locking the mutex to not hog the members
@@ -24,20 +31,25 @@ void GUIHandler::show() {
 
     std::lock_guard<std::mutex> lock(mFrameMutex);
 
-    if (mFrame.empty()) continue;
+    if (mFrame.empty())
+      continue;
 
     cv::imshow("agent-pi", mFrame);
     cv::waitKey(1);
   }
 }
 
-bool GUIHandler::isReady() {
-  if (!GUI_ON) return true;
+bool GUIHandler::isReady()
+{
+  if (!GUI_ON)
+    return true;
   return mReady;
 }
 
-bool GUIHandler::stop() {
-  if (!GUI_ON) return true;
+bool GUIHandler::stop()
+{
+  if (!GUI_ON)
+    return true;
 
   // TODO: add mutex for mStopped
   mStopped = true;
@@ -45,8 +57,10 @@ bool GUIHandler::stop() {
   return true;
 }
 
-void GUIHandler::setFrame(const cv::Mat frame) {
-  if (!GUI_ON) return;
+void GUIHandler::setFrame(const cv::Mat frame)
+{
+  if (!GUI_ON)
+    return;
 
   std::lock_guard<std::mutex> lock(mFrameMutex);
   mFrame = frame;

@@ -10,8 +10,9 @@
 
 #include "globals.h"
 
-class StreamGetter {
- public:
+class StreamGetter
+{
+public:
   StreamGetter(const std::string src);
 
   StreamGetter(const int src);
@@ -30,7 +31,7 @@ class StreamGetter {
 
   bool getRetrieved();
 
- private:
+private:
   void getStream();
 
   cv::VideoCapture mCap;

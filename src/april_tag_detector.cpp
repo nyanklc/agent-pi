@@ -2,7 +2,8 @@
 
 AprilTagDetector::AprilTagDetector() {}
 
-void AprilTagDetector::init(std::shared_ptr<MasterObject> master_obj) {
+void AprilTagDetector::init(std::shared_ptr<MasterObject> master_obj)
+{
   mFamily = tagStandard41h12_create();
   mDetector = apriltag_detector_create();
 
@@ -12,7 +13,8 @@ void AprilTagDetector::init(std::shared_ptr<MasterObject> master_obj) {
   // APRILTAG_FAMILY_BIT_COUNT);
   apriltag_detector_add_family(mDetector, mFamily);
 
-  if (errno == ENOMEM) {
+  if (errno == ENOMEM)
+  {
     printf(
         "Unable to add family to detector due to insufficient memory to "
         "allocate the tag-family decoder with the default maximum hamming "
@@ -38,25 +40,30 @@ void AprilTagDetector::init(std::shared_ptr<MasterObject> master_obj) {
   mInfo.tagsize = APRILTAG_TAG_SIZE;
 }
 
-AprilTagDetector::~AprilTagDetector() {
+AprilTagDetector::~AprilTagDetector()
+{
   apriltag_detections_destroy(mDetections);
   apriltag_detector_destroy(mDetector);
   tagStandard41h12_destroy(mFamily);
 }
 
-bool AprilTagDetector::process(cv::Mat &frame) {
-  if (!findObject(frame)) {
+bool AprilTagDetector::process(cv::Mat &frame)
+{
+  if (!findObject(frame))
+  {
     // std::cout << "couldn't detect object\n";
     return false;
   }
-  if (!poseEstimation(frame)) {
+  if (!poseEstimation(frame))
+  {
     // std::cout << "couldn't estimate pose\n";
     return false;
   }
   return true;
 }
 
-bool AprilTagDetector::findObject(cv::Mat &frame) {
+bool AprilTagDetector::findObject(cv::Mat &frame)
+{
   // convert to apriltag image type
   image_u8_t im = {.width = frame.cols,
                    .height = frame.rows,
@@ -64,26 +71,30 @@ bool AprilTagDetector::findObject(cv::Mat &frame) {
                    .buf = frame.data};
 
   // detect
-  errno = 0;  // stupid piece of shit
+  errno = 0; // stupid piece of shit
   mDetections = apriltag_detector_detect(mDetector, &im);
 
-  if (errno == EAGAIN) {
+  if (errno == EAGAIN)
+  {
     std::cout << "Unable to create the" << mDetector->nthreads
               << " threads requested.\n";
     return false;
   }
 
   // not detected
-  if (zarray_size(mDetections) < 1) return false;
+  if (zarray_size(mDetections) < 1)
+    return false;
 
   return true;
 }
 
-bool AprilTagDetector::poseEstimation(cv::Mat &frame) {
+bool AprilTagDetector::poseEstimation(cv::Mat &frame)
+{
   bool success = true;
 
   std::vector<apriltag_pose_t> poses;
-  for (int i = 0; i < zarray_size(mDetections); i++) {
+  for (int i = 0; i < zarray_size(mDetections); i++)
+  {
     apriltag_detection_t *det;
     zarray_get(mDetections, i, &det);
 
@@ -103,13 +114,15 @@ bool AprilTagDetector::poseEstimation(cv::Mat &frame) {
     mPosesOrthogonal.clear();
 
     // sometimes orthogonal iteration doesn't return 2 solutions
-    if (pose2.R) {
+    if (pose2.R)
+    {
       mPosesOrthogonal.push_back(
-        std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));  
+          std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));
     }
 
     // std::cout << "err: " << err << "\n";
-    if (err > APRILTAG_POSE_ERROR_THRESHOLD) success = false;
+    if (err > APRILTAG_POSE_ERROR_THRESHOLD)
+      success = false;
   }
   mPoses.clear();
   mPoses = poses;
@@ -119,24 +132,31 @@ bool AprilTagDetector::poseEstimation(cv::Mat &frame) {
 
 std::vector<apriltag_pose_t> AprilTagDetector::getPoses() { return mPoses; }
 
-void AprilTagDetector::printPoses(std::vector<apriltag_pose_t> &poses) {
+void AprilTagDetector::printPoses(std::vector<apriltag_pose_t> &poses)
+{
   int kk = 0;
-  for (auto pose : poses) {
+  for (auto pose : poses)
+  {
     kk++;
     std::cout << "pose " << kk << " rotation:\n";
-    for (int i = 0; i < pose.R->nrows; i++) {
-      for (int j = 0; j < pose.R->ncols; j++) {
+    for (int i = 0; i < pose.R->nrows; i++)
+    {
+      for (int j = 0; j < pose.R->ncols; j++)
+      {
         std::cout << matd_get(pose.R, i, j) << "\t";
       }
       std::cout << "\n";
     }
   }
   kk = 0;
-  for (auto pose : poses) {
+  for (auto pose : poses)
+  {
     kk++;
     std::cout << "pose " << kk << " translation:\n";
-    for (int i = 0; i < pose.t->nrows; i++) {
-      for (int j = 0; j < pose.t->ncols; j++) {
+    for (int i = 0; i < pose.t->nrows; i++)
+    {
+      for (int j = 0; j < pose.t->ncols; j++)
+      {
         std::cout << matd_get(pose.t, i, j) << "\t";
       }
       std::cout << "\n";
@@ -146,27 +166,33 @@ void AprilTagDetector::printPoses(std::vector<apriltag_pose_t> &poses) {
 
 zarray *AprilTagDetector::getDetections() { return mDetections; }
 
-void AprilTagDetector::printDetections(zarray *detections) {
-  for (int k = 0; k < zarray_size(detections); k++) {
+void AprilTagDetector::printDetections(zarray *detections)
+{
+  for (int k = 0; k < zarray_size(detections); k++)
+  {
     apriltag_detection_t *det;
     zarray_get(detections, k, &det);
     std::cout << "detection " << k << ": \n";
     std::cout << "center x: " << det->c[0] << ", center y: " << det->c[1]
               << std::endl;
-    for (size_t i = 0; i < sizeof(det->p) / sizeof(det->p[0]); i++) {
+    for (size_t i = 0; i < sizeof(det->p) / sizeof(det->p[0]); i++)
+    {
       std::cout << "x: " << det->p[i][0] << ", y: " << det->p[i][1]
                 << std::endl;
     }
   }
 }
 
-std::vector<cv::Point> AprilTagDetector::getDetectionPoints() {
+std::vector<cv::Point> AprilTagDetector::getDetectionPoints()
+{
   std::vector<cv::Point> ret;
 
-  for (int k = 0; k < zarray_size(mDetections); k++) {
+  for (int k = 0; k < zarray_size(mDetections); k++)
+  {
     apriltag_detection_t *det;
     zarray_get(mDetections, k, &det);
-    for (size_t i = 0; i < sizeof(det->p) / sizeof(det->p[0]); i++) {
+    for (size_t i = 0; i < sizeof(det->p) / sizeof(det->p[0]); i++)
+    {
       cv::Point p(det->p[i][0], det->p[i][1]);
       ret.push_back(p);
     }
@@ -175,9 +201,11 @@ std::vector<cv::Point> AprilTagDetector::getDetectionPoints() {
   return ret;
 }
 
-void AprilTagDetector::drawDetections(cv::Mat &frame) {
+void AprilTagDetector::drawDetections(cv::Mat &frame)
+{
   // Draw detection outlines and midpoint
-  for (int i = 0; i < zarray_size(mDetections); i++) {
+  for (int i = 0; i < zarray_size(mDetections); i++)
+  {
     apriltag_detection_t *det;
     zarray_get(mDetections, i, &det);
     cv::circle(frame, cv::Point(det->c[0], det->c[1]), 1,
@@ -197,8 +225,10 @@ void AprilTagDetector::drawDetections(cv::Mat &frame) {
   }
 }
 
-void AprilTagDetector::drawMarkers(cv::Mat &frame) {
-  for (size_t k = 0; k < mPoses.size(); k++) {
+void AprilTagDetector::drawMarkers(cv::Mat &frame)
+{
+  for (size_t k = 0; k < mPoses.size(); k++)
+  {
     auto cube = defineCubeWithPoints();
 
     cv::Mat R = convertToMat(mPoses[k].R);
@@ -218,7 +248,8 @@ void AprilTagDetector::drawMarkers(cv::Mat &frame) {
     drawCube(cube, frame, K, distortion, R, t, color);
 
     // sometimes orthogonal iteration doesn't return 2 solutions
-    if (mPosesOrthogonal.size() > k && mPosesOrthogonal[k].second.R) {
+    if (mPosesOrthogonal.size() > k && mPosesOrthogonal[k].second.R)
+    {
       // test
       std::cout << mPoses.size() << " " << mPosesOrthogonal.size() << std::endl;
       cv::Mat R1 = convertToMat(mPosesOrthogonal[k].first.R);

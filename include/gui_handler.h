@@ -8,8 +8,9 @@
 
 #include "globals.h"
 
-class GUIHandler {
- public:
+class GUIHandler
+{
+public:
   GUIHandler();
 
   bool start();
@@ -22,7 +23,7 @@ class GUIHandler {
 
   void show();
 
- private:
+private:
   cv::Mat mFrame;
   std::mutex mFrameMutex;
   std::thread mTh;

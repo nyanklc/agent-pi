@@ -8,7 +8,8 @@
 
 const std::string img_path = "../test/apriltag/test3.jpg";
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   std::cout << "#############################\n";
 
   std::cout << "creating master object\n";
@@ -32,7 +33,8 @@ int main(int argc, char **argv) {
   std::cout << "#############################\n";
 
   std::cout << "detecting object\n";
-  if (!atd.findObject(frame)) {
+  if (!atd.findObject(frame))
+  {
     std::cout << "detection failed\n";
   }
   printf("detected %d objects\n", zarray_size(atd.getDetections()));
@@ -46,7 +48,8 @@ int main(int argc, char **argv) {
   std::cout << "#############################\n";
 
   std::cout << "estimating pose\n";
-  if (!atd.poseEstimation(frame)) {
+  if (!atd.poseEstimation(frame))
+  {
     std::cout << "pose estimation failed\n";
   }
 

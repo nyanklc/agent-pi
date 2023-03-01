@@ -8,7 +8,8 @@
 
 const std::string img_path = "../test/apriltag/test2.png";
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   std::cout << "creating master object\n";
   std::shared_ptr<MasterObject> mobj = std::make_shared<MasterObject>();
   std::cout << "created master object\n";
@@ -21,20 +22,23 @@ int main(int argc, char **argv) {
   cv::VideoCapture cap(0);
   cv::Mat frame;
 
-  while (1) {
+  while (1)
+  {
     std::cout << "reading frame\n";
     cap.read(frame);
     cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
 
     std::cout << "detecting object\n";
-    if (!atd.findObject(frame)) {
+    if (!atd.findObject(frame))
+    {
       std::cout << "detection failed\n";
       continue;
     }
     printf("detected %d objects\n", zarray_size(atd.getDetections()));
 
     std::cout << "estimating pose\n";
-    if (!atd.poseEstimation(frame)) {
+    if (!atd.poseEstimation(frame))
+    {
       std::cout << "pose estimation failed\n";
       continue;
     }
