@@ -101,13 +101,13 @@ bool AprilTagDetector::poseEstimation(cv::Mat &frame) {
     estimate_tag_pose_orthogonal_iteration(&mInfo, &err1, &pose1, &err2, &pose2,
                                            3);
     mPosesOrthogonal.clear();
-    
-    // sometimes the orthogonal iteration can only return 1 result
+
+    // sometimes orthogonal iteration doesn't return 2 solutions
     if (pose2.R) {
       mPosesOrthogonal.push_back(
         std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));  
     }
-    
+
     // std::cout << "err: " << err << "\n";
     if (err > APRILTAG_POSE_ERROR_THRESHOLD) success = false;
   }
@@ -217,7 +217,8 @@ void AprilTagDetector::drawMarkers(cv::Mat &frame) {
     auto color = cv::Scalar(0, 255, 0);
     drawCube(cube, frame, K, distortion, R, t, color);
 
-    if (mPosesOrthogonal.size() > k) {
+    // sometimes orthogonal iteration doesn't return 2 solutions
+    if (mPosesOrthogonal.size() > k && mPosesOrthogonal[k].second.R) {
       // test
       std::cout << mPoses.size() << " " << mPosesOrthogonal.size() << std::endl;
       cv::Mat R1 = convertToMat(mPosesOrthogonal[k].first.R);
