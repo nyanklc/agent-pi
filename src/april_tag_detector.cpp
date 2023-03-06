@@ -109,15 +109,13 @@ bool AprilTagDetector::poseEstimation(cv::Mat &frame)
     apriltag_pose_t pose2;
     double err1;
     double err2;
-    estimate_tag_pose_orthogonal_iteration(&mInfo, &err1, &pose1, &err2, &pose2,
-                                           3);
-    mPosesOrthogonal.clear();
+    estimate_tag_pose_orthogonal_iteration(&mInfo, &err1, &pose1, &err2, &pose2, 3);
 
     // sometimes orthogonal iteration doesn't return 2 solutions
     if (pose2.R)
     {
-      mPosesOrthogonal.push_back(
-          std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));
+      mPosesOrthogonal.clear();
+      mPosesOrthogonal.push_back(std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));
     }
 
     // std::cout << "err: " << err << "\n";
@@ -225,15 +223,13 @@ void AprilTagDetector::drawDetections(cv::Mat &frame)
   }
 }
 
-void AprilTagDetector::drawMarkers(cv::Mat &frame)
+void AprilTagDetector::drawMarkers(cv::Mat &frame, bool cube_on, bool axes_on)
 {
   for (size_t k = 0; k < mPoses.size(); k++)
   {
-    auto cube = defineCubeWithPoints();
-
     cv::Mat R = convertToMat(mPoses[k].R);
     // cv::Rodrigues(R, R); // convert to rotation vector
-    printMat(R, "R");
+    // printMat(R, "R");
 
     cv::Mat t = convertToMat(mPoses[k].t);
     // printMat(t, "t");
@@ -244,26 +240,43 @@ void AprilTagDetector::drawMarkers(cv::Mat &frame)
     cv::Mat distortion = getDistortionMatrix();
     // printMat(distortion, "distortion");
 
-    auto color = cv::Scalar(0, 255, 0);
-    drawCube(cube, frame, K, distortion, R, t, color);
-
-    // sometimes orthogonal iteration doesn't return 2 solutions
-    if (mPosesOrthogonal.size() > k && mPosesOrthogonal[k].second.R)
+    if (cube_on)
     {
-      // test
-      std::cout << mPoses.size() << " " << mPosesOrthogonal.size() << std::endl;
-      cv::Mat R1 = convertToMat(mPosesOrthogonal[k].first.R);
-      printMat(R1, "R1");
-      cv::Mat R2 = convertToMat(mPosesOrthogonal[k].second.R);
-      printMat(R2, "R2");
-      cv::Mat t1 = convertToMat(mPosesOrthogonal[k].first.t);
-      printMat(t1, "t1");
-      cv::Mat t2 = convertToMat(mPosesOrthogonal[k].second.t);
-      printMat(t2, "t2");
-      auto color1 = cv::Scalar(255, 0, 0);
-      drawCube(cube, frame, K, distortion, R1, t1, color1);
-      auto color2 = cv::Scalar(0, 0, 255);
-      drawCube(cube, frame, K, distortion, R2, t2, color2);
+      // cubes
+      auto cube = defineCubeWithPoints();
+      auto color = cv::Scalar(0, 255, 0);
+      drawCube(cube, frame, K, distortion, R, t, color);
+
+      // // also draw second result from orthogonal iteration
+      // // sometimes orthogonal iteration doesn't return 2 solutions
+      // if (mPosesOrthogonal.size() > k && mPosesOrthogonal[k].second.R)
+      // {
+      //   // test
+      //   std::cout << mPoses.size() << " " << mPosesOrthogonal.size() << std::endl;
+      //   cv::Mat R1 = convertToMat(mPosesOrthogonal[k].first.R);
+      //   // printMat(R1, "R1");
+      //   cv::Mat R2 = convertToMat(mPosesOrthogonal[k].second.R);
+      //   // printMat(R2, "R2");
+      //   cv::Mat t1 = convertToMat(mPosesOrthogonal[k].first.t);
+      //   // printMat(t1, "t1");
+      //   cv::Mat t2 = convertToMat(mPosesOrthogonal[k].second.t);
+      //   // printMat(t2, "t2");
+      //   // auto color1 = cv::Scalar(255, 0, 0);
+      //   // drawCube(cube, frame, K, distortion, R1, t1, color1);
+      //   auto color2 = cv::Scalar(0, 0, 255);
+      //   drawCube(cube, frame, K, distortion, R2, t2, color2);
+      // }
+    }
+
+    if (axes_on)
+    {
+      // axes
+      auto axes = defineAxesWithPoints();
+      std::vector<cv::Scalar> axes_colors;
+      axes_colors.push_back(cv::Scalar(0, 0, 255)); // x is red
+      axes_colors.push_back(cv::Scalar(0, 255, 0)); // y is green
+      axes_colors.push_back(cv::Scalar(255, 0, 0)); // z is blue
+      drawAxes(axes, frame, K, distortion, R, t, axes_colors);
     }
   }
 }

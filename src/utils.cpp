@@ -308,3 +308,47 @@ void drawCube(std::vector<cv::Point3f> &cube, cv::Mat &frame,
   cv::line(frame, imagePoints[3], imagePoints[7], color,
            2); // front top left to back top left
 }
+
+std::vector<cv::Point3f> defineAxesWithPoints(double size)
+{
+  std::vector<cv::Point3f> pts;
+  pts.push_back(cv::Point3f(0, 0, 0)); // origin
+  pts.push_back(cv::Point3f(size, 0, 0)); // x
+  pts.push_back(cv::Point3f(0, size, 0)); // y
+  pts.push_back(cv::Point3f(0, 0, size)); // z
+  return pts;
+}
+
+void drawAxes(std::vector<cv::Point3f> &axes, cv::Mat &frame,
+              cv::Mat &cameraMatrix, cv::Mat &distortionCoefficients,
+              cv::Mat &rotationMatrix, cv::Mat &translationMatrix,
+              std::vector<cv::Scalar> &colors)
+{
+  // Define a 3D transformation matrix that transforms coordinates from the
+  // camera's coordinate system to the apriltag's coordinate system
+  // Convert rotation and translation to 4x4 transformation matrix
+  cv::Mat transformationMatrix = cv::Mat::eye(4, 4, cv::DataType<double>::type);
+  cv::Mat submatrix = transformationMatrix(cv::Rect(0, 0, 3, 3));
+  rotationMatrix.copyTo(submatrix);
+  translationMatrix.copyTo(transformationMatrix(cv::Rect(3, 0, 1, 3)));
+  // printMat(transformationMatrix, "transformationMatrix");
+
+  // Transform the 3D coordinates of the cube vertices into the apriltag's
+  // coordinate system
+  std::vector<cv::Point3f> transformedCube;
+  cv::perspectiveTransform(axes, transformedCube, transformationMatrix);
+
+  // Project the transformed cube vertices onto the image plane
+  std::vector<cv::Point2f> imagePoints;
+  cv::projectPoints(transformedCube, cv::Mat::eye(3, 3, CV_64F),
+                    cv::Mat::zeros(1, 3, CV_64F), cameraMatrix,
+                    distortionCoefficients, imagePoints);
+
+  // Draw the cube on the image
+  cv::line(frame, imagePoints[0], imagePoints[1], colors[0],
+           2); // front bottom left to front bottom right
+  cv::line(frame, imagePoints[0], imagePoints[2], colors[1],
+           2); // front bottom right to front top right
+  cv::line(frame, imagePoints[0], imagePoints[3], colors[2],
+           2); // front top right to front top left
+}

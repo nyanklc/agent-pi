@@ -49,7 +49,7 @@ public:
 
   void drawDetections(cv::Mat &frame);
 
-  void drawMarkers(cv::Mat &frame);
+  void drawMarkers(cv::Mat &frame, bool cube_on, bool axes_on);
 
   std::vector<cv::Point> getDetectionPoints();
 

@@ -56,6 +56,12 @@ void StreamGetter::getStream()
       return;
     }
 
+    // // don't yet read the frame if main did not fetch our latest frame
+    // if (mUpdated)
+    // {
+    //   continue;
+    // }
+
     // read frame from stream
     // auto start = cv::getTickCount();
     std::lock_guard<std::mutex> lock(mStreamMutex);
