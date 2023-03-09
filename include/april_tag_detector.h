@@ -13,6 +13,7 @@
 #include "globals.h"
 #include "master_object.h"
 #include "utils.h"
+#include "tag_pose.h"
 
 extern "C"
 {
@@ -23,19 +24,6 @@ extern "C"
 #include <apriltag/common/matd.h>
 #include <apriltag/tagStandard41h12.h>
 }
-
-class TagPose
-{
-public:
-  int id;
-  float x;
-  float y;
-  float z;
-  float roll;
-  float pitch;
-  float yaw;
-  bool valid;
-};
 
 class AprilTagDetector
 {

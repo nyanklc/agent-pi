@@ -52,7 +52,7 @@ std::vector<TagPose> AprilTagDetector::process(cv::Mat &frame)
   std::vector<TagPose> tag_poses;
   if (!findObject(frame))
   {
-    std::cout << "couldn't detect object\n";
+    // std::cout << "couldn't detect object\n";
     return tag_poses;
   }
   if (!poseEstimation(frame))
@@ -69,8 +69,8 @@ std::vector<TagPose> AprilTagDetector::process(cv::Mat &frame)
     TagPose pose;
     pose.id = det->id;
     pose.x = mPoses[i].t->data[0];
-    pose.x = mPoses[i].t->data[1];
-    pose.x = mPoses[i].t->data[2];
+    pose.y = mPoses[i].t->data[1];
+    pose.z = mPoses[i].t->data[2];
     auto rot = convertToMat(mPoses[i].R);
     std::array<float, 3> rpy = getRPY(rot);
     pose.roll = rpy[0];
@@ -79,17 +79,17 @@ std::vector<TagPose> AprilTagDetector::process(cv::Mat &frame)
     tag_poses.push_back(pose);
   }
 
-  // debug
-  for (int i = 0; i < tag_poses.size(); i++)
-  {
-    std::cout << "pose " << i << " id: " << tag_poses[i].id << "\n";
-    std::cout << "pose " << i << " x: " << tag_poses[i].x << "\n";
-    std::cout << "pose " << i << " y: " << tag_poses[i].y << "\n";
-    std::cout << "pose " << i << " z: " << tag_poses[i].z << "\n";
-    std::cout << "pose " << i << " roll: " << tag_poses[i].roll << "\n";
-    std::cout << "pose " << i << " pitch: " << tag_poses[i].pitch << "\n";
-    std::cout << "pose " << i << " yaw: " << tag_poses[i].yaw << "\n";
-  }
+  // // debug
+  // for (int i = 0; i < tag_poses.size(); i++)
+  // {
+  //   std::cout << "pose " << i << " id: " << tag_poses[i].id << "\n";
+  //   std::cout << "pose " << i << " x: " << tag_poses[i].x << "\n";
+  //   std::cout << "pose " << i << " y: " << tag_poses[i].y << "\n";
+  //   std::cout << "pose " << i << " z: " << tag_poses[i].z << "\n";
+  //   std::cout << "pose " << i << " roll: " << tag_poses[i].roll << "\n";
+  //   std::cout << "pose " << i << " pitch: " << tag_poses[i].pitch << "\n";
+  //   std::cout << "pose " << i << " yaw: " << tag_poses[i].yaw << "\n";
+  // }
   
   return tag_poses;
 }

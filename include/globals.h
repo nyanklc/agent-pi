@@ -12,17 +12,9 @@
 #define SERIAL_BAUDRATE 9600
 #define ARDUINO_RESPONSE_ON false
 
-#define TURN_TOLERANCE 50
-
-#define REFERENCE_IMG_PATH "../img/ref.jpeg"
-#define KNN_ENABLED false
-#define KNN_K 2
-
 #define GUI_ON true
 #define DRAW_CUBES false
 #define DRAW_AXES true
-
-#define DETECTION_TRIAL_COUNT 2
 
 #define APRILTAG_ENABLED true
 #define APRILTAG_THREAD_COUNT 8
@@ -32,7 +24,7 @@
 #define APRILTAG_QUAD_SIGMA 0.8
 #define APRILTAG_REFINE_EDGES 0
 
-#define APRILTAG_TAG_SIZE 0.014               // cm
+#define APRILTAG_TAG_SIZE 0.075               // cm
 #define APRILTAG_POSE_ERROR_THRESHOLD 1.0E-04 // idk
 
 #ifdef LAPTOP_CAM

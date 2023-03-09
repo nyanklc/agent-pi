@@ -2,17 +2,9 @@
 
 Agent::Agent()
 {
-  mTurnTolerance = TURN_TOLERANCE;
-
   mObj = std::make_shared<MasterObject>();
 
   mCameraCalibrator = CameraCalibrator();
-
-  // When agent is created, it calls the default constructor of
-  // mFeatureMatcher. I'm setting necessary stuff later on with init etc.
-  mFeatureMatcher = FeatureMatcher();
-  mFeatureMatcher.init(REFERENCE_IMG_PATH, KNN_K);
-  mFeatureMatcher.setObj(mObj);
 
   mApriltagDetector = std::make_shared<AprilTagDetector>();
   mApriltagDetector->init(mObj);
@@ -26,15 +18,8 @@ void Agent::drawDetections(cv::Mat &frame, bool cube_on, bool axes_on)
   if (!GUI_ON)
     return;
 
-  if (APRILTAG_ENABLED)
-  {
-    mApriltagDetector->drawDetections(frame);
-    mApriltagDetector->drawMarkers(frame, cube_on, axes_on);
-  }
-  else if (KNN_ENABLED)
-  {
-    mFeatureMatcher.drawDetections(frame);
-  }
+  mApriltagDetector->drawDetections(frame);
+  mApriltagDetector->drawMarkers(frame, cube_on, axes_on);
 }
 
 void Agent::printDetections()
@@ -46,29 +31,9 @@ void Agent::printDetections()
               << ": " << detectedPoints[i].y << "\n";
 }
 
-bool Agent::process(cv::Mat &frame)
+std::vector<TagPose> Agent::process(cv::Mat &frame)
 {
-  auto start = cv::getTickCount();
-  if (KNN_ENABLED)
-  {
-    if (mFeatureMatcher.findObject(frame))
-    {
-      std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
-      return true;
-    }
-    std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
-    return false;
-  }
-  
-  if (APRILTAG_ENABLED)
-  {
-    auto tag_poses = mApriltagDetector->process(frame);
-    if (tag_poses.size() == 0)
-      return false;
-
-    std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
-    return true;
-  }
+  return mApriltagDetector->process(frame);
 }
 
 Controls Agent::generateControls()

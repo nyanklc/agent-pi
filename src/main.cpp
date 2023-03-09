@@ -94,18 +94,23 @@ int main(int argc, char **argv)
     // std::cout << "ready @ " << (cv::getTickCount() - stream_ready)/ cv::getTickFrequency() << "fps\n";
 
     // process
-    if (agent.process(frame) && GUI_ON)
-    {
-      agent.drawDetections(frame_colored, DRAW_CUBES, DRAW_AXES);
-      // agent.printDetections();
-    }
+    auto process_start_time = cv::getTickCount();
+    std::vector<TagPose> tag_objects = agent.process(frame);
+    std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - process_start_time) << "\n";
 
     if (GUI_ON)
     {
+      agent.drawDetections(frame_colored, DRAW_CUBES, DRAW_AXES);
       cv::resize(frame_colored, frame_colored, cv::Size(), 2, 2);
       gui_handler.setFrame(frame_colored);
-      cv::Mat f = topdown.test("../img/ref.jpeg");
-      gui_handler_topdown.setFrame(f);
+
+      if (tag_objects.size() != 0)
+      {
+        std::vector<TopDownObject> topdown_objects = TopDown::convertToTopDown(tag_objects);
+        auto window_size = frame_colored.size();
+        cv::Mat f = topdown.prepareView(topdown_objects, window_size);
+        gui_handler_topdown.setFrame(f);
+      }
     }
   }
 
