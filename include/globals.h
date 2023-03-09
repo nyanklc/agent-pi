@@ -13,7 +13,7 @@
 #define ARDUINO_RESPONSE_ON false
 
 #define GUI_ON true
-#define DRAW_CUBES false
+#define DRAW_CUBES true
 #define DRAW_AXES true
 
 #define APRILTAG_ENABLED true
