@@ -2,7 +2,7 @@
 
 GUIHandler::GUIHandler() { mStopped = false; }
 
-bool GUIHandler::start()
+bool GUIHandler::start(std::string frame_title)
 {
   if (!GUI_ON)
     return true;
@@ -10,6 +10,7 @@ bool GUIHandler::start()
   try
   {
     mTh = std::thread(&GUIHandler::show, this);
+    mFrameName = frame_title;
     return true;
   }
   catch (...)
@@ -34,7 +35,7 @@ void GUIHandler::show()
     if (mFrame.empty())
       continue;
 
-    cv::imshow("agent-pi", mFrame);
+    cv::imshow(mFrameName, mFrame);
     cv::waitKey(1);
   }
 }

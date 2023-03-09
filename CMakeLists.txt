@@ -19,7 +19,8 @@ include_directories("/usr/local/include/apriltag/")
 
 # means
 add_executable(main src/main.cpp)
-target_link_libraries(main ${OpenCV_LIBS} stream_getter agent serial_handler controls gui_handler)
+add_dependencies(main ${OpenCV_LIBS} stream_getter agent serial_handler controls gui_handler topdown)
+target_link_libraries(main ${OpenCV_LIBS} stream_getter agent serial_handler controls gui_handler topdown)
 
 add_library(agent src/agent.cpp)
 target_link_libraries(agent ${OpenCV_LIBS} camera_calibrator feature_matcher controls master_object april_tag_detector)
@@ -50,6 +51,9 @@ target_link_libraries(april_tag_detector ${OpenCV_LIBS} master_object apriltag T
 
 add_library(utils src/utils.cpp)
 target_link_libraries(utils ${OpenCV_LIBS} apriltag)
+
+add_library(topdown src/topdown.cpp)
+target_link_libraries(topdown ${OpenCV_LIBS})
 
 #########################TESTS###########################
 add_executable(knn_test test/knn/knn_test.cpp)

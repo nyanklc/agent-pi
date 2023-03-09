@@ -24,6 +24,19 @@ extern "C"
 #include <apriltag/tagStandard41h12.h>
 }
 
+class TagPose
+{
+public:
+  int id;
+  float x;
+  float y;
+  float z;
+  float roll;
+  float pitch;
+  float yaw;
+  bool valid;
+};
+
 class AprilTagDetector
 {
 public:
@@ -33,7 +46,7 @@ public:
 
   ~AprilTagDetector();
 
-  bool process(cv::Mat &frame);
+  std::vector<TagPose> process(cv::Mat &frame);
 
   bool findObject(cv::Mat &frame);
 
@@ -49,7 +62,7 @@ public:
 
   void drawDetections(cv::Mat &frame);
 
-  void drawMarkers(cv::Mat &frame);
+  void drawMarkers(cv::Mat &frame, bool cube_on, bool axes_on);
 
   std::vector<cv::Point> getDetectionPoints();
 

@@ -47,19 +47,51 @@ AprilTagDetector::~AprilTagDetector()
   tagStandard41h12_destroy(mFamily);
 }
 
-bool AprilTagDetector::process(cv::Mat &frame)
+std::vector<TagPose> AprilTagDetector::process(cv::Mat &frame)
 {
+  std::vector<TagPose> tag_poses;
   if (!findObject(frame))
   {
-    // std::cout << "couldn't detect object\n";
-    return false;
+    std::cout << "couldn't detect object\n";
+    return tag_poses;
   }
   if (!poseEstimation(frame))
   {
-    // std::cout << "couldn't estimate pose\n";
-    return false;
+    std::cout << "couldn't estimate pose\n";
+    return tag_poses;
   }
-  return true;
+
+  for (int i = 0; i < zarray_size(mDetections); i++)
+  {
+    apriltag_detection_t *det;
+    zarray_get(mDetections, i, &det);
+    
+    TagPose pose;
+    pose.id = det->id;
+    pose.x = mPoses[i].t->data[0];
+    pose.x = mPoses[i].t->data[1];
+    pose.x = mPoses[i].t->data[2];
+    auto rot = convertToMat(mPoses[i].R);
+    std::array<float, 3> rpy = getRPY(rot);
+    pose.roll = rpy[0];
+    pose.pitch = rpy[1];
+    pose.yaw = rpy[2];
+    tag_poses.push_back(pose);
+  }
+
+  // debug
+  for (int i = 0; i < tag_poses.size(); i++)
+  {
+    std::cout << "pose " << i << " id: " << tag_poses[i].id << "\n";
+    std::cout << "pose " << i << " x: " << tag_poses[i].x << "\n";
+    std::cout << "pose " << i << " y: " << tag_poses[i].y << "\n";
+    std::cout << "pose " << i << " z: " << tag_poses[i].z << "\n";
+    std::cout << "pose " << i << " roll: " << tag_poses[i].roll << "\n";
+    std::cout << "pose " << i << " pitch: " << tag_poses[i].pitch << "\n";
+    std::cout << "pose " << i << " yaw: " << tag_poses[i].yaw << "\n";
+  }
+  
+  return tag_poses;
 }
 
 bool AprilTagDetector::findObject(cv::Mat &frame)
@@ -109,15 +141,13 @@ bool AprilTagDetector::poseEstimation(cv::Mat &frame)
     apriltag_pose_t pose2;
     double err1;
     double err2;
-    estimate_tag_pose_orthogonal_iteration(&mInfo, &err1, &pose1, &err2, &pose2,
-                                           3);
-    mPosesOrthogonal.clear();
+    estimate_tag_pose_orthogonal_iteration(&mInfo, &err1, &pose1, &err2, &pose2, 3);
 
     // sometimes orthogonal iteration doesn't return 2 solutions
     if (pose2.R)
     {
-      mPosesOrthogonal.push_back(
-          std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));
+      mPosesOrthogonal.clear();
+      mPosesOrthogonal.push_back(std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));
     }
 
     // std::cout << "err: " << err << "\n";
@@ -215,25 +245,23 @@ void AprilTagDetector::drawDetections(cv::Mat &frame)
     cv::Point p3(det->p[2][0], det->p[2][1]);
     cv::Point p4(det->p[3][0], det->p[3][1]);
 
-    cv::Point c(det->c[0], det->c[1]);
+    // cv::Point c(det->c[0], det->c[1]);
 
     cv::line(frame, p1, p2, cv::Scalar(100, 180, 0), 3);
     cv::line(frame, p1, p4, cv::Scalar(100, 180, 0), 3);
     cv::line(frame, p2, p3, cv::Scalar(100, 180, 0), 3);
     cv::line(frame, p3, p4, cv::Scalar(100, 180, 0), 3);
-    cv::circle(frame, c, 2, cv::Scalar(0, 0, 255), 3);
+    // cv::circle(frame, c, 2, cv::Scalar(0, 0, 255), 3);
   }
 }
 
-void AprilTagDetector::drawMarkers(cv::Mat &frame)
+void AprilTagDetector::drawMarkers(cv::Mat &frame, bool cube_on, bool axes_on)
 {
   for (size_t k = 0; k < mPoses.size(); k++)
   {
-    auto cube = defineCubeWithPoints();
-
     cv::Mat R = convertToMat(mPoses[k].R);
     // cv::Rodrigues(R, R); // convert to rotation vector
-    printMat(R, "R");
+    // printMat(R, "R");
 
     cv::Mat t = convertToMat(mPoses[k].t);
     // printMat(t, "t");
@@ -244,26 +272,43 @@ void AprilTagDetector::drawMarkers(cv::Mat &frame)
     cv::Mat distortion = getDistortionMatrix();
     // printMat(distortion, "distortion");
 
-    auto color = cv::Scalar(0, 255, 0);
-    drawCube(cube, frame, K, distortion, R, t, color);
-
-    // sometimes orthogonal iteration doesn't return 2 solutions
-    if (mPosesOrthogonal.size() > k && mPosesOrthogonal[k].second.R)
+    if (cube_on)
     {
-      // test
-      std::cout << mPoses.size() << " " << mPosesOrthogonal.size() << std::endl;
-      cv::Mat R1 = convertToMat(mPosesOrthogonal[k].first.R);
-      printMat(R1, "R1");
-      cv::Mat R2 = convertToMat(mPosesOrthogonal[k].second.R);
-      printMat(R2, "R2");
-      cv::Mat t1 = convertToMat(mPosesOrthogonal[k].first.t);
-      printMat(t1, "t1");
-      cv::Mat t2 = convertToMat(mPosesOrthogonal[k].second.t);
-      printMat(t2, "t2");
-      auto color1 = cv::Scalar(255, 0, 0);
-      drawCube(cube, frame, K, distortion, R1, t1, color1);
-      auto color2 = cv::Scalar(0, 0, 255);
-      drawCube(cube, frame, K, distortion, R2, t2, color2);
+      // cubes
+      auto cube = defineCubeWithPoints();
+      auto color = cv::Scalar(0, 255, 0);
+      drawCube(cube, frame, K, distortion, R, t, color);
+
+      // // also draw second result from orthogonal iteration
+      // // sometimes orthogonal iteration doesn't return 2 solutions
+      // if (mPosesOrthogonal.size() > k && mPosesOrthogonal[k].second.R)
+      // {
+      //   // test
+      //   std::cout << mPoses.size() << " " << mPosesOrthogonal.size() << std::endl;
+      //   cv::Mat R1 = convertToMat(mPosesOrthogonal[k].first.R);
+      //   // printMat(R1, "R1");
+      //   cv::Mat R2 = convertToMat(mPosesOrthogonal[k].second.R);
+      //   // printMat(R2, "R2");
+      //   cv::Mat t1 = convertToMat(mPosesOrthogonal[k].first.t);
+      //   // printMat(t1, "t1");
+      //   cv::Mat t2 = convertToMat(mPosesOrthogonal[k].second.t);
+      //   // printMat(t2, "t2");
+      //   // auto color1 = cv::Scalar(255, 0, 0);
+      //   // drawCube(cube, frame, K, distortion, R1, t1, color1);
+      //   auto color2 = cv::Scalar(0, 0, 255);
+      //   drawCube(cube, frame, K, distortion, R2, t2, color2);
+      // }
+    }
+
+    if (axes_on)
+    {
+      // axes
+      auto axes = defineAxesWithPoints();
+      std::vector<cv::Scalar> axes_colors;
+      axes_colors.push_back(cv::Scalar(0, 0, 255)); // x is red
+      axes_colors.push_back(cv::Scalar(0, 255, 0)); // y is green
+      axes_colors.push_back(cv::Scalar(255, 0, 0)); // z is blue
+      drawAxes(axes, frame, K, distortion, R, t, axes_colors);
     }
   }
 }

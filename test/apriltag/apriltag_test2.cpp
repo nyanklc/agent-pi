@@ -67,7 +67,7 @@ int main(int argc, char **argv)
   std::cout << "#############################\n";
 
   std::cout << "drawing markers\n";
-  atd.drawMarkers(frame_colored);
+  atd.drawMarkers(frame_colored, true, true);
 
   std::cout << "#############################\n";
 

@@ -13,6 +13,7 @@
 #include "../include/gui_handler.h"
 #include "../include/serial_handler.h"
 #include "../include/stream_getter.h"
+#include "../include/topdown.h"
 
 void calibrate(Agent &agent, StreamGetter &stream_getter)
 {
@@ -22,7 +23,7 @@ void calibrate(Agent &agent, StreamGetter &stream_getter)
 }
 
 bool initSystem(StreamGetter &stream_getter, Agent &agent,
-                SerialHandler &serial_handler, GUIHandler &gui_handler)
+                SerialHandler &serial_handler, GUIHandler &gui_handler, GUIHandler &gui_handler2)
 {
   if (!stream_getter.getRetrieved())
     return false;
@@ -34,11 +35,17 @@ bool initSystem(StreamGetter &stream_getter, Agent &agent,
   while (!stream_getter.isReady())
     ;
 
-  if (!gui_handler.start())
+  if (!gui_handler.start("agent-pi"))
     return false;
 
-  // wait until the gui thread starts
   while (!gui_handler.isReady())
+    ;
+
+  // topdown
+  if (!gui_handler2.start("topdown view"))
+    return false;
+
+  while (!gui_handler2.isReady())
     ;
 
   calibrate(agent, stream_getter);
@@ -52,21 +59,25 @@ int main(int argc, char **argv)
   Agent agent;
   SerialHandler serial_handler;
   GUIHandler gui_handler;
+  GUIHandler gui_handler_topdown;
+  TopDown topdown;
 
-  initSystem(stream_getter, agent, serial_handler, gui_handler);
+  initSystem(stream_getter, agent, serial_handler, gui_handler, gui_handler_topdown);
 
   cv::Mat frame;
   cv::Mat frame_colored;
   bool first_run = true;
   while (1)
   {
-    // get frame
     // auto stream_start = cv::getTickCount();
     // std::cout << "start: " << stream_start << "\n";
+
+    // get frame
     // do not process the same frame again
     if (!stream_getter.isUpdated())
       continue;
 
+    // quit if stream wasn't read
     if (!stream_getter.getRetrieved())
       break;
 
@@ -79,26 +90,29 @@ int main(int argc, char **argv)
 
     if (frame.empty())
       break;
-    // std::cout << "start @ " << (cv::getTickCount() - stream_start)/
-    // cv::getTickFrequency() << " fps\n"; std::cout << "ready @ " <<
-    // (cv::getTickCount() - stream_ready)/ cv::getTickFrequency() << "
-    // fps\n";
+    // std::cout << "start @ " << (cv::getTickCount() - stream_start)/ cv::getTickFrequency() << " fps\n";
+    // std::cout << "ready @ " << (cv::getTickCount() - stream_ready)/ cv::getTickFrequency() << "fps\n";
 
     // process
     if (agent.process(frame) && GUI_ON)
     {
-      agent.drawDetections(frame_colored);
+      agent.drawDetections(frame_colored, DRAW_CUBES, DRAW_AXES);
       // agent.printDetections();
     }
 
-    cv::resize(frame_colored, frame_colored, cv::Size(), 2, 2);
     if (GUI_ON)
+    {
+      cv::resize(frame_colored, frame_colored, cv::Size(), 2, 2);
       gui_handler.setFrame(frame_colored);
+      cv::Mat f = topdown.test("../img/ref.jpeg");
+      gui_handler_topdown.setFrame(f);
+    }
   }
 
   // yes
   stream_getter.stopStream();
   gui_handler.stop();
+  gui_handler_topdown.stop();
 
   return 0;
 }

@@ -1,6 +1,8 @@
 #ifndef __UTILS_H
 #define __UTILS_H
 
+#include "globals.h"
+
 #include <opencv2/opencv.hpp>
 #include <string>
 #include <vector>
@@ -45,15 +47,26 @@ cv::Mat convertToMat(std::vector<cv::Point3f> &v);
 
 cv::Mat convertToMat(std::vector<cv::Point2f> &v);
 
+std::array<float, 3> getRPY(cv::Mat &R);
+
+cv::Mat fromRPY(float roll, float pitch, float yaw);
+
 cv::Vec3f convertToVec3f(matd_t *m);
 
-std::vector<cv::Point3f> defineCubeWithPoints(double size = 0.014);
+std::vector<cv::Point3f> defineCubeWithPoints(double size = APRILTAG_TAG_SIZE);
 
 std::vector<cv::Vec3f> defineCubeWithVectors(double side_length);
+
+std::vector<cv::Point3f> defineAxesWithPoints(double size = APRILTAG_TAG_SIZE / 3);
 
 void drawCube(std::vector<cv::Point3f> &cube, cv::Mat &frame,
               cv::Mat &cameraMatrix, cv::Mat &distortionCoefficients,
               cv::Mat &rotationMatrix, cv::Mat &translationMatrix,
               cv::Scalar &color);
+
+void drawAxes(std::vector<cv::Point3f> &axes, cv::Mat &frame,
+              cv::Mat &cameraMatrix, cv::Mat &distortionCoefficients,
+              cv::Mat &rotationMatrix, cv::Mat &translationMatrix,
+              std::vector<cv::Scalar> &colors);
 
 #endif

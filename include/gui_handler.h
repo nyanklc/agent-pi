@@ -5,6 +5,7 @@
 #include <mutex>
 #include <opencv2/opencv.hpp>
 #include <thread>
+#include <string>
 
 #include "globals.h"
 
@@ -13,7 +14,7 @@ class GUIHandler
 public:
   GUIHandler();
 
-  bool start();
+  bool start(std::string frame_title);
 
   bool stop();
 
@@ -25,6 +26,7 @@ public:
 
 private:
   cv::Mat mFrame;
+  std::string mFrameName;
   std::mutex mFrameMutex;
   std::thread mTh;
   bool mReady;

@@ -19,7 +19,7 @@ public:
 
   bool process(cv::Mat &frame);
 
-  void drawDetections(cv::Mat &frame);
+  void drawDetections(cv::Mat &frame, bool cube_on, bool axes_on);
 
   void printDetections();
 

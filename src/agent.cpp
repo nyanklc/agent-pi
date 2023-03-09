@@ -21,7 +21,7 @@ Agent::Agent()
   setFocalLength((CAMERA_FX + CAMERA_FY) / 2);
 }
 
-void Agent::drawDetections(cv::Mat &frame)
+void Agent::drawDetections(cv::Mat &frame, bool cube_on, bool axes_on)
 {
   if (!GUI_ON)
     return;
@@ -29,7 +29,7 @@ void Agent::drawDetections(cv::Mat &frame)
   if (APRILTAG_ENABLED)
   {
     mApriltagDetector->drawDetections(frame);
-    mApriltagDetector->drawMarkers(frame);
+    mApriltagDetector->drawMarkers(frame, cube_on, axes_on);
   }
   else if (KNN_ENABLED)
   {
@@ -53,22 +53,20 @@ bool Agent::process(cv::Mat &frame)
   {
     if (mFeatureMatcher.findObject(frame))
     {
-      std::cout << "processing fps: "
-                << cv::getTickFrequency() / (cv::getTickCount() - start)
-                << "\n";
+      std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
       return true;
     }
-    std::cout << "processing fps: "
-              << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
+    std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
     return false;
   }
+  
   if (APRILTAG_ENABLED)
   {
-    if (!mApriltagDetector->process(frame))
+    auto tag_poses = mApriltagDetector->process(frame);
+    if (tag_poses.size() == 0)
       return false;
 
-    std::cout << "processing fps: "
-              << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
+    std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
     return true;
   }
 }
