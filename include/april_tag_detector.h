@@ -24,6 +24,37 @@ extern "C"
 #include <apriltag/tagStandard41h12.h>
 }
 
+class TagPose
+{
+public:
+  int id;
+  float x;
+  float y;
+  float z;
+  float roll;
+  float pitch;
+  float yaw;
+  bool valid;
+
+  void draw(cv::Mat &frame, float arrow_size = 1)
+  {
+    cv::Matx33f rotation_matrix(
+        cos(yaw) * cos(pitch),
+        cos(yaw) * sin(pitch) * sin(roll) - sin(yaw) * cos(roll),
+        cos(yaw) * sin(pitch) * cos(roll) + sin(yaw) * sin(roll),
+        sin(yaw) * cos(pitch),
+        sin(yaw) * sin(pitch) * sin(roll) + cos(yaw) * cos(roll),
+        sin(yaw) * sin(pitch) * cos(roll) - cos(yaw) * sin(roll),
+        -sin(pitch),
+        cos(pitch) * sin(roll),
+        cos(pitch) * cos(roll)
+    );
+    cv::Vec3d translation_vector(x, y, z);
+
+
+  }
+};
+
 class AprilTagDetector
 {
 public:
@@ -33,7 +64,7 @@ public:
 
   ~AprilTagDetector();
 
-  bool process(cv::Mat &frame);
+  std::vector<TagPose> process(cv::Mat &frame);
 
   bool findObject(cv::Mat &frame);
 

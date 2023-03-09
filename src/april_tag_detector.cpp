@@ -47,19 +47,51 @@ AprilTagDetector::~AprilTagDetector()
   tagStandard41h12_destroy(mFamily);
 }
 
-bool AprilTagDetector::process(cv::Mat &frame)
+std::vector<TagPose> AprilTagDetector::process(cv::Mat &frame)
 {
+  std::vector<TagPose> tag_poses;
   if (!findObject(frame))
   {
-    // std::cout << "couldn't detect object\n";
-    return false;
+    std::cout << "couldn't detect object\n";
+    return tag_poses;
   }
   if (!poseEstimation(frame))
   {
-    // std::cout << "couldn't estimate pose\n";
-    return false;
+    std::cout << "couldn't estimate pose\n";
+    return tag_poses;
   }
-  return true;
+
+  for (int i = 0; i < zarray_size(mDetections); i++)
+  {
+    apriltag_detection_t *det;
+    zarray_get(mDetections, i, &det);
+    
+    TagPose pose;
+    pose.id = det->id;
+    pose.x = mPoses[i].t->data[0];
+    pose.x = mPoses[i].t->data[1];
+    pose.x = mPoses[i].t->data[2];
+    auto rot = convertToMat(mPoses[i].R);
+    std::array<float, 3> rpy = getRPY(rot);
+    pose.roll = rpy[0];
+    pose.pitch = rpy[1];
+    pose.yaw = rpy[2];
+    tag_poses.push_back(pose);
+  }
+
+  // debug
+  for (int i = 0; i < tag_poses.size(); i++)
+  {
+    std::cout << "pose " << i << " id: " << tag_poses[i].id << "\n";
+    std::cout << "pose " << i << " x: " << tag_poses[i].x << "\n";
+    std::cout << "pose " << i << " y: " << tag_poses[i].y << "\n";
+    std::cout << "pose " << i << " z: " << tag_poses[i].z << "\n";
+    std::cout << "pose " << i << " roll: " << tag_poses[i].roll << "\n";
+    std::cout << "pose " << i << " pitch: " << tag_poses[i].pitch << "\n";
+    std::cout << "pose " << i << " yaw: " << tag_poses[i].yaw << "\n";
+  }
+  
+  return tag_poses;
 }
 
 bool AprilTagDetector::findObject(cv::Mat &frame)
@@ -213,13 +245,13 @@ void AprilTagDetector::drawDetections(cv::Mat &frame)
     cv::Point p3(det->p[2][0], det->p[2][1]);
     cv::Point p4(det->p[3][0], det->p[3][1]);
 
-    cv::Point c(det->c[0], det->c[1]);
+    // cv::Point c(det->c[0], det->c[1]);
 
     cv::line(frame, p1, p2, cv::Scalar(100, 180, 0), 3);
     cv::line(frame, p1, p4, cv::Scalar(100, 180, 0), 3);
     cv::line(frame, p2, p3, cv::Scalar(100, 180, 0), 3);
     cv::line(frame, p3, p4, cv::Scalar(100, 180, 0), 3);
-    cv::circle(frame, c, 2, cv::Scalar(0, 0, 255), 3);
+    // cv::circle(frame, c, 2, cv::Scalar(0, 0, 255), 3);
   }
 }
 

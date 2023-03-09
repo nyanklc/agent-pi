@@ -90,7 +90,7 @@ int main(int argc, char **argv)
 
     if (frame.empty())
       break;
-    // std::cout << "start @ " << (cv::getTickCount() - stream_start)/ cv::getTickFrequency() << " fps\n"; 
+    // std::cout << "start @ " << (cv::getTickCount() - stream_start)/ cv::getTickFrequency() << " fps\n";
     // std::cout << "ready @ " << (cv::getTickCount() - stream_ready)/ cv::getTickFrequency() << "fps\n";
 
     // process
@@ -100,9 +100,9 @@ int main(int argc, char **argv)
       // agent.printDetections();
     }
 
-    cv::resize(frame_colored, frame_colored, cv::Size(), 2, 2);
     if (GUI_ON)
     {
+      cv::resize(frame_colored, frame_colored, cv::Size(), 2, 2);
       gui_handler.setFrame(frame_colored);
       cv::Mat f = topdown.test("../img/ref.jpeg");
       gui_handler_topdown.setFrame(f);

@@ -62,7 +62,8 @@ bool Agent::process(cv::Mat &frame)
   
   if (APRILTAG_ENABLED)
   {
-    if (!mApriltagDetector->process(frame))
+    auto tag_poses = mApriltagDetector->process(frame);
+    if (tag_poses.size() == 0)
       return false;
 
     std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";

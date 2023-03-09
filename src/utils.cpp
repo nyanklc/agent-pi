@@ -284,35 +284,35 @@ void drawCube(std::vector<cv::Point3f> &cube, cv::Mat &frame,
 
   // Draw the cube on the image
   cv::line(frame, imagePoints[0], imagePoints[1], color,
-           2); // front bottom left to front bottom right
+           1); // front bottom left to front bottom right
   cv::line(frame, imagePoints[1], imagePoints[2], color,
-           2); // front bottom right to front top right
+           1); // front bottom right to front top right
   cv::line(frame, imagePoints[2], imagePoints[3], color,
-           2); // front top right to front top left
+           1); // front top right to front top left
   cv::line(frame, imagePoints[3], imagePoints[0], color,
-           2); // front top left to front bottom left
+           1); // front top left to front bottom left
   cv::line(frame, imagePoints[4], imagePoints[5], color,
-           2); // back bottom left to back bottom right
+           1); // back bottom left to back bottom right
   cv::line(frame, imagePoints[5], imagePoints[6], color,
-           2); // back bottom right to back top right
+           1); // back bottom right to back top right
   cv::line(frame, imagePoints[6], imagePoints[7], color,
-           2); // back top right to back top left
+           1); // back top right to back top left
   cv::line(frame, imagePoints[7], imagePoints[4], color,
-           2); // back top left to back bottom left
+           1); // back top left to back bottom left
   cv::line(frame, imagePoints[0], imagePoints[4], color,
-           2); // front bottom left to back bottom left
+           1); // front bottom left to back bottom left
   cv::line(frame, imagePoints[1], imagePoints[5], color,
-           2); // front bottom right to back bottom right
+           1); // front bottom right to back bottom right
   cv::line(frame, imagePoints[2], imagePoints[6], color,
-           2); // front top right to back top right
+           1); // front top right to back top right
   cv::line(frame, imagePoints[3], imagePoints[7], color,
-           2); // front top left to back top left
+           1); // front top left to back top left
 }
 
 std::vector<cv::Point3f> defineAxesWithPoints(double size)
 {
   std::vector<cv::Point3f> pts;
-  pts.push_back(cv::Point3f(0, 0, 0)); // origin
+  pts.push_back(cv::Point3f(0, 0, 0));    // origin
   pts.push_back(cv::Point3f(size, 0, 0)); // x
   pts.push_back(cv::Point3f(0, size, 0)); // y
   pts.push_back(cv::Point3f(0, 0, size)); // z
@@ -346,9 +346,52 @@ void drawAxes(std::vector<cv::Point3f> &axes, cv::Mat &frame,
 
   // Draw the cube on the image
   cv::line(frame, imagePoints[0], imagePoints[1], colors[0],
-           2); // front bottom left to front bottom right
+           1); // front bottom left to front bottom right
   cv::line(frame, imagePoints[0], imagePoints[2], colors[1],
-           2); // front bottom right to front top right
+           1); // front bottom right to front top right
   cv::line(frame, imagePoints[0], imagePoints[3], colors[2],
-           2); // front top right to front top left
+           1); // front top right to front top left
+}
+
+std::array<float, 3> getRPY(cv::Mat &R)
+{
+  float sy = sqrt(R.at<double>(0, 0) * R.at<double>(0, 0) + R.at<double>(1, 0) * R.at<double>(1, 0));
+  bool singular = sy < 1e-6; // If
+  float x, y, z;
+  if (!singular)
+  {
+    x = atan2(R.at<double>(2, 1), R.at<double>(2, 2));
+    y = atan2(-R.at<double>(2, 0), sy);
+    z = atan2(R.at<double>(1, 0), R.at<double>(0, 0));
+  }
+  else
+  {
+    x = atan2(-R.at<double>(1, 2), R.at<double>(1, 1));
+    y = atan2(-R.at<double>(2, 0), sy);
+    z = 0;
+  }
+  std::array<float, 3> ret;
+  ret[0] = x;
+  ret[1] = y;
+  ret[2] = z;
+  return ret;
+}
+
+cv::Mat fromRPY(float roll, float pitch, float yaw)
+{
+  // Calculate rotation about x axis
+  cv::Mat R_x = (cv::Mat_<double>(3, 3) << 1, 0, 0,
+                 0, cos(roll), -sin(roll),
+                 0, sin(roll), cos(roll));
+  // Calculate rotation about y axis
+  cv::Mat R_y = (cv::Mat_<double>(3, 3) << cos(pitch), 0, sin(pitch),
+                 0, 1, 0,
+                 -sin(pitch), 0, cos(pitch));
+  // Calculate rotation about z axis
+  cv::Mat R_z = (cv::Mat_<double>(3, 3) << cos(yaw), -sin(yaw), 0,
+                 sin(yaw), cos(yaw), 0,
+                 0, 0, 1);
+  // Combined rotation matrix
+  cv::Mat R = R_z * R_y * R_x;
+  return R;
 }

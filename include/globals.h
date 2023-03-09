@@ -19,7 +19,7 @@
 #define KNN_K 2
 
 #define GUI_ON true
-#define DRAW_CUBES true
+#define DRAW_CUBES false
 #define DRAW_AXES true
 
 #define DETECTION_TRIAL_COUNT 2

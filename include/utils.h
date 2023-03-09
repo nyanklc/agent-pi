@@ -47,6 +47,10 @@ cv::Mat convertToMat(std::vector<cv::Point3f> &v);
 
 cv::Mat convertToMat(std::vector<cv::Point2f> &v);
 
+std::array<float, 3> getRPY(cv::Mat &R);
+
+cv::Mat fromRPY(float roll, float pitch, float yaw);
+
 cv::Vec3f convertToVec3f(matd_t *m);
 
 std::vector<cv::Point3f> defineCubeWithPoints(double size = APRILTAG_TAG_SIZE);
