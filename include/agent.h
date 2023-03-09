@@ -8,7 +8,6 @@
 #include "april_tag_detector.h"
 #include "camera_calibrator.h"
 #include "controls.h"
-#include "feature_matcher.h"
 #include "globals.h"
 #include "master_object.h"
 
@@ -17,7 +16,7 @@ class Agent
 public:
   Agent();
 
-  bool process(cv::Mat &frame);
+  std::vector<TagPose> process(cv::Mat &frame);
 
   void drawDetections(cv::Mat &frame, bool cube_on, bool axes_on);
 
@@ -37,12 +36,9 @@ private:
   bool mCalibrated;
   double mFocalLength;
   CameraCalibrator mCameraCalibrator;
-  FeatureMatcher mFeatureMatcher;
   std::shared_ptr<AprilTagDetector> mApriltagDetector;
   double mTurnTolerance;
   std::shared_ptr<MasterObject> mObj;
-
-  FeatureMatcher *mFMPointer;
 };
 
 #endif

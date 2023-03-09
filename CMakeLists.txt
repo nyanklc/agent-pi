@@ -23,13 +23,10 @@ add_dependencies(main ${OpenCV_LIBS} stream_getter agent serial_handler controls
 target_link_libraries(main ${OpenCV_LIBS} stream_getter agent serial_handler controls gui_handler topdown)
 
 add_library(agent src/agent.cpp)
-target_link_libraries(agent ${OpenCV_LIBS} camera_calibrator feature_matcher controls master_object april_tag_detector)
+target_link_libraries(agent ${OpenCV_LIBS} camera_calibrator controls master_object april_tag_detector)
 
 add_library(camera_calibrator src/camera_calibrator.cpp)
 target_link_libraries(camera_calibrator ${OpenCV_LIBS})
-
-add_library(feature_matcher src/feature_matcher.cpp)
-target_link_libraries(feature_matcher ${OpenCV_LIBS} master_object)
 
 add_library(stream_getter src/stream_getter.cpp)
 target_link_libraries(stream_getter ${OpenCV_LIBS})
@@ -56,9 +53,6 @@ add_library(topdown src/topdown.cpp)
 target_link_libraries(topdown ${OpenCV_LIBS})
 
 #########################TESTS###########################
-add_executable(knn_test test/knn/knn_test.cpp)
-target_link_libraries(knn_test ${OpenCV_LIBS} feature_matcher)
-
 add_executable(apriltag_test test/apriltag/apriltag_test.cpp)
 target_link_libraries(apriltag_test ${OpenCV_LIBS} april_tag_detector master_object)
 
