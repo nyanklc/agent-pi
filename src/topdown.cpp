@@ -15,10 +15,12 @@ cv::Mat TopDown::prepareView(std::vector<TopDownObject> &objects, cv::Size &wind
 
   // draw the camera's pov arrow as well
   cv::Point2f base(view.size().width / 2, 0);
-  cv::Point2f head(view.size().width / 2, view.size().height / 8);
+  cv::Point2f head(view.size().width / 2, 60);
   cv::arrowedLine(view, base, head, cv::Scalar(0, 0, 0));
   head.x += 10;
   cv::putText(view, "camera pov", head, cv::HersheyFonts::FONT_ITALIC, 0.4 , cv::Scalar(0, 0, 0));
+  head.y += -30;
+  cv::putText(view, "(width range: 20cm, height range: 2m)", head, cv::HersheyFonts::FONT_ITALIC, 0.4 , cv::Scalar(0, 0, 0));
 
   return view;
 }
