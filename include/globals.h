@@ -33,7 +33,10 @@
 #define CAMERA_CX 342.0
 #define CAMERA_CY 231.0
 #else
-// TODO: RPi camera calibration
+#define CAMERA_FX 512.9
+#define CAMERA_FY 514.6
+#define CAMERA_CX 319.1
+#define CAMERA_CY 237.7
 #endif
 
 #endif
