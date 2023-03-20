@@ -12,7 +12,7 @@
 #define SERIAL_BAUDRATE 9600
 #define ARDUINO_RESPONSE_ON false
 
-#define GUI_ON true
+#define GUI_ON false
 #define DRAW_CUBES true
 #define DRAW_AXES true
 

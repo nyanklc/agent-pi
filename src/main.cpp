@@ -35,18 +35,21 @@ bool initSystem(StreamGetter &stream_getter, Agent &agent,
   while (!stream_getter.isReady())
     ;
 
-  if (!gui_handler.start("agent-pi"))
-    return false;
+  if (GUI_ON)
+  {
+    if (!gui_handler.start("agent-pi"))
+      return false;
 
-  while (!gui_handler.isReady())
-    ;
+    while (!gui_handler.isReady())
+      ;
 
-  // topdown
-  if (!gui_handler2.start("topdown view"))
-    return false;
+    // topdown
+    if (!gui_handler2.start("topdown view"))
+      return false;
 
-  while (!gui_handler2.isReady())
-    ;
+    while (!gui_handler2.isReady())
+      ;
+  }
 
   calibrate(agent, stream_getter);
 
