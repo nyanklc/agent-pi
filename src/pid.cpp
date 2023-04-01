@@ -1,6 +1,8 @@
 #include "../include/pid.h"
 
-PIDController::PIDController(double p, double i, double d, double goal_value, double last_error, double last_measurement, double lim_min, double lim_max) {
+PIDController::PIDController() {}
+
+void PIDController::init(double p, double i, double d, double goal_value, double last_error, double last_measurement, double lim_min, double lim_max) {
     kp_ = p;
     ki_ = i;
     kd_ = d;

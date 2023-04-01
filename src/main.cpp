@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
         // process
         auto process_start_time = cv::getTickCount();
         std::vector<TagPose> tag_objects = agent.process(frame);  // TODO: copying vector here, find a better way
-        std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - process_start_time) << "\n";
+        // std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - process_start_time) << "\n";
 
         // generate and send control commands
         ArduinoCommands arduino_commands = agent.getOutputCommands(tag_objects);

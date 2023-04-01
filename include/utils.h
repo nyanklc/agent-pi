@@ -68,4 +68,22 @@ void drawAxes(std::vector<cv::Point3f> &axes, cv::Mat &frame,
               cv::Mat &rotationMatrix, cv::Mat &translationMatrix,
               std::vector<cv::Scalar> &colors);
 
+struct Transform {
+    cv::Mat T;
+};
+
+Transform constructTransform(matd_t *R, matd_t *t);
+
+Transform constructTransform(cv::Mat R, cv::Mat t);
+
+cv::Mat getRotationMatrix(double roll, double pitch, double yaw);
+
+cv::Mat getRotationFromTransform(Transform &tf);
+
+cv::Mat getTranslationFromTransform(Transform &tf);
+
+void printTransform(Transform &tf, std::string msg = "");
+
+cv::Mat getTranslationMatrix(double x, double y, double z);
+
 #endif

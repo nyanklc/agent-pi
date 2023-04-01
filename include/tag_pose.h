@@ -10,6 +10,8 @@ struct TagPose {
     float roll;
     float pitch;
     float yaw;
+    int center_x_px;
+    int center_y_px;
 };
 
 #endif

@@ -3,7 +3,9 @@
 
 class PIDController {
    public:
-    PIDController(double p, double i, double d, double goal_value, double last_error = 0, double last_measurement = 0, double lim_min = -100, double lim_max = 100);
+    PIDController();
+
+    void init(double p, double i, double d, double goal_value, double last_error = 0, double last_measurement = 0, double lim_min = -100, double lim_max = 100);
 
     double update(double measurement, double dt);
 

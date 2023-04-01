@@ -67,6 +67,8 @@ std::vector<TagPose> AprilTagDetector::process(cv::Mat &frame) {
         pose.roll = rpy[0];
         pose.pitch = rpy[1];
         pose.yaw = rpy[2];
+        pose.center_x_px = det->c[0];
+        pose.center_y_px = det->c[1];
         tag_poses.push_back(pose);
     }
 
