@@ -6,39 +6,37 @@
 #include <opencv2/opencv.hpp>
 
 #include "april_tag_detector.h"
+#include "arduino_commands.h"
 #include "camera_calibrator.h"
 #include "controls.h"
 #include "globals.h"
 #include "master_object.h"
 
-class Agent
-{
-public:
-  Agent();
+class Agent {
+   public:
+    Agent();
 
-  std::vector<TagPose> process(cv::Mat &frame);
+    std::vector<TagPose> process(cv::Mat &frame);
 
-  void drawDetections(cv::Mat &frame, bool cube_on, bool axes_on);
+    void drawDetections(cv::Mat &frame, bool cube_on, bool axes_on);
 
-  void printDetections();
+    void printDetections();
 
-  Controls generateControls();
+    ArduinoCommands getOutputCommands(std::vector<TagPose> tag_objects);
 
-  double getFocalLength();
+    double getFocalLength();
 
-  void setFocalLength(double f);
+    void setFocalLength(double f);
 
-  bool initFocalLengthCalibration(cv::Mat &frame);
+    bool isCalibrated();
 
-  bool isCalibrated();
-
-private:
-  bool mCalibrated;
-  double mFocalLength;
-  CameraCalibrator mCameraCalibrator;
-  std::shared_ptr<AprilTagDetector> mApriltagDetector;
-  double mTurnTolerance;
-  std::shared_ptr<MasterObject> mObj;
+   private:
+    bool mCalibrated;
+    double mFocalLength;
+    CameraCalibrator mCameraCalibrator;
+    std::shared_ptr<AprilTagDetector> mApriltagDetector;
+    double mTurnTolerance;
+    std::shared_ptr<MasterObject> mObj;
 };
 
 #endif
