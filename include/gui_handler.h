@@ -4,33 +4,32 @@
 #include <iostream>
 #include <mutex>
 #include <opencv2/opencv.hpp>
-#include <thread>
 #include <string>
+#include <thread>
 
 #include "globals.h"
 
-class GUIHandler
-{
-public:
-  GUIHandler();
+class GUIHandler {
+   public:
+    GUIHandler();
 
-  bool start(std::string frame_title);
+    bool start(std::string frame_title);
 
-  bool stop();
+    bool stop();
 
-  bool isReady();
+    bool isReady();
 
-  void setFrame(const cv::Mat frame);
+    void setFrame(const cv::Mat frame);
 
-  void show();
+    void show();
 
-private:
-  cv::Mat mFrame;
-  std::string mFrameName;
-  std::mutex mFrameMutex;
-  std::thread mTh;
-  bool mReady;
-  bool mStopped;
+   private:
+    cv::Mat mFrame;
+    std::string mFrameName;
+    std::mutex mFrameMutex;
+    std::thread mTh;
+    bool mReady;
+    bool mStopped;
 };
 
 #endif

@@ -1,31 +1,29 @@
 #ifndef __GLOBALS_H
 #define __GLOBALS_H
 
-#define LAPTOP_CAM
-// #define RPI_CAM
+// #define LAPTOP_CAM
 
 #define VIDEO_SOURCE 0
 #define VIEW_MODE true
 
-#define SERIAL_ON false
-#define SERIAL_PORT "/dev/ttyUSB0"
+#define SERIAL_ON true
+#define SERIAL_PORT "/dev/ttyACM0"
 #define SERIAL_BAUDRATE 9600
-#define ARDUINO_RESPONSE_ON false
 
 #define GUI_ON false
 #define DRAW_CUBES true
 #define DRAW_AXES true
 
 #define APRILTAG_ENABLED true
-#define APRILTAG_THREAD_COUNT 4 // 4 for rpi
+#define APRILTAG_THREAD_COUNT 4  // 4 for rpi
 #define APRILTAG_FAMILY_BIT_COUNT 2
 #define APRILTAG_DEBUG_ON true
 #define APRILTAG_QUAD_DECIMATE 1.0
 #define APRILTAG_QUAD_SIGMA 0.8
 #define APRILTAG_REFINE_EDGES 0
 
-#define APRILTAG_TAG_SIZE 0.075               // cm
-#define APRILTAG_POSE_ERROR_THRESHOLD 1.0E-04 // idk
+#define APRILTAG_TAG_SIZE 0.075                // cm
+#define APRILTAG_POSE_ERROR_THRESHOLD 1.0E-04  // idk
 
 #ifdef LAPTOP_CAM
 #define CAMERA_FX 630.0

@@ -13,6 +13,19 @@ find_package(Threads REQUIRED)
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
+#serial
+# Find wiringPi library
+find_library(WIRINGPI_LIB wiringPi)
+if(NOT WIRINGPI_LIB)
+    message(FATAL_ERROR "wiringPi library not found")
+endif()
+
+# Find wiringPi dev library
+find_library(WIRINGPI_DEV_LIB wiringPiDev)
+if(NOT WIRINGPI_DEV_LIB)
+    message(FATAL_ERROR "wiringPi dev library not found")
+endif()
+
 # apriltag
 find_package(apriltag REQUIRED)
 include_directories("/usr/local/include/apriltag/")
@@ -35,7 +48,7 @@ add_library(gui_handler src/gui_handler.cpp)
 target_link_libraries(gui_handler ${OpenCV_LIBS})
 
 add_library(serial_handler src/serial_handler.cpp)
-target_link_libraries(serial_handler ${OpenCV_LIBS})
+target_link_libraries(serial_handler ${OpenCV_LIBS} ${WIRINGPI_LIB} ${WIRINGPI_DEV_LIB})
 
 add_library(controls src/controls.cpp)
 target_link_libraries(controls ${OpenCV_LIBS})

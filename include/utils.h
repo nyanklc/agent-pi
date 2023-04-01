@@ -1,14 +1,13 @@
 #ifndef __UTILS_H
 #define __UTILS_H
 
-#include "globals.h"
-
 #include <opencv2/opencv.hpp>
 #include <string>
 #include <vector>
 
-extern "C"
-{
+#include "globals.h"
+
+extern "C" {
 #include <apriltag/apriltag.h>
 #include <apriltag/apriltag_math.h>
 #include <apriltag/apriltag_pose.h>
