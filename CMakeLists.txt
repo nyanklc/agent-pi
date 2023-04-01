@@ -56,6 +56,9 @@ target_link_libraries(utils ${OpenCV_LIBS} apriltag)
 add_library(topdown src/topdown.cpp)
 target_link_libraries(topdown ${OpenCV_LIBS})
 
+add_library(pid src/pid.cpp)
+target_link_libraries(pid)
+
 #########################TESTS###########################
 # add_executable(apriltag_test test/apriltag/apriltag_test.cpp)
 # target_link_libraries(apriltag_test ${OpenCV_LIBS} april_tag_detector)
