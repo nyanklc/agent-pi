@@ -2,7 +2,7 @@
 
 AprilTagDetector::AprilTagDetector() {}
 
-void AprilTagDetector::init(std::shared_ptr<MasterObject> master_obj) {
+void AprilTagDetector::init() {
     mFamily = tagStandard41h12_create();
     mDetector = apriltag_detector_create();
 
@@ -28,8 +28,6 @@ void AprilTagDetector::init(std::shared_ptr<MasterObject> master_obj) {
         mDetector->debug = true;
     else
         mDetector->debug = false;
-
-    mObj = master_obj;
 
     mInfo.fx = CAMERA_FX;
     mInfo.fy = CAMERA_FY;

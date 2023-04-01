@@ -1,15 +1,8 @@
 #include "../include/agent.h"
 
 Agent::Agent() {
-    mObj = std::make_shared<MasterObject>();
-
-    mCameraCalibrator = CameraCalibrator();
-
     mApriltagDetector = std::make_shared<AprilTagDetector>();
-    mApriltagDetector->init(mObj);
-
-    mCalibrated = true;
-    setFocalLength((CAMERA_FX + CAMERA_FY) / 2);
+    mApriltagDetector->init();
 }
 
 void Agent::drawDetections(cv::Mat &frame, bool cube_on, bool axes_on) {
@@ -41,9 +34,3 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> tag_objects) {
 
     return commands;
 }
-
-double Agent::getFocalLength() { return mFocalLength; }
-
-void Agent::setFocalLength(double f) { mFocalLength = f; }
-
-bool Agent::isCalibrated() { return mCalibrated; }

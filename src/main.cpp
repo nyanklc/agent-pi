@@ -16,12 +16,6 @@
 #include "../include/stream_getter.h"
 #include "../include/topdown.h"
 
-void calibrate(Agent &agent, StreamGetter &stream_getter) {
-    // CALIBRATE yeah we removed this
-    agent.setFocalLength((CAMERA_FX + CAMERA_FY) / 2);
-    return;
-}
-
 bool initSystem(StreamGetter &stream_getter, Agent &agent,
                 SerialHandler &serial_handler, GUIHandler &gui_handler, GUIHandler &gui_handler2) {
     if (!stream_getter.getRetrieved())
@@ -55,8 +49,6 @@ bool initSystem(StreamGetter &stream_getter, Agent &agent,
         while (!serial_handler.isReady()) // unnecessary i think
             ;
     }
-
-    calibrate(agent, stream_getter);
 
     return true;
 }

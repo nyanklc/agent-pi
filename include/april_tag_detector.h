@@ -28,7 +28,7 @@ class AprilTagDetector {
    public:
     AprilTagDetector();
 
-    void init(std::shared_ptr<MasterObject> master_obj);
+    void init();
 
     ~AprilTagDetector();
 
@@ -56,7 +56,6 @@ class AprilTagDetector {
     apriltag_family_t *mFamily;
     apriltag_detector_t *mDetector;
     zarray_t *mDetections;
-    std::shared_ptr<MasterObject> mObj;
     apriltag_detection_info_t mInfo;
     std::vector<apriltag_pose_t> mPoses;
     std::vector<apriltag_pose_t> mHPoses;

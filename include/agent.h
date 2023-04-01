@@ -24,19 +24,8 @@ class Agent {
 
     ArduinoCommands getOutputCommands(std::vector<TagPose> tag_objects);
 
-    double getFocalLength();
-
-    void setFocalLength(double f);
-
-    bool isCalibrated();
-
    private:
-    bool mCalibrated;
-    double mFocalLength;
-    CameraCalibrator mCameraCalibrator;
     std::shared_ptr<AprilTagDetector> mApriltagDetector;
-    double mTurnTolerance;
-    std::shared_ptr<MasterObject> mObj;
 };
 
 #endif
