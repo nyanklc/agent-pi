@@ -10,9 +10,7 @@ Agent::Agent() {
     camera_angular_controller_.init(CAMERA_SIZE_X / 2, CAMERA_CONTROLLER_MULTIPLIER, CAMERA_CONTROLLER_TOLERANCE);
 
     agent_to_camera_initial_ = getAgentToCameraTransform();
-    printTransform(agent_to_camera_initial_, "initial agent to camera");
     agent_to_camera_current_ = agent_to_camera_initial_;
-     printTransform(agent_to_camera_initial_, "initial current");
 }
 
 void Agent::drawDetections(cv::Mat &frame, bool cube_on, bool axes_on) {
@@ -62,12 +60,8 @@ Transform Agent::getAgentToCameraTransform() {
 }
 
 void Agent::updateAgentToCameraTransform(double dyaw) {
-    std::cout << "here1\n";
     cv::Mat R_curr = getRotationFromTransform(agent_to_camera_current_);
-    std::cout << "here2\n";
     R_curr = getRotationMatrix(0, 0, dyaw) * R_curr;
-    std::cout << "here3\n";
     agent_to_camera_current_ = constructTransform(R_curr, getTranslationFromTransform(agent_to_camera_current_));
-    std::cout << "here4\n";
-    printTransform(agent_to_camera_current_, "updated current");
+    // printTransform(agent_to_camera_current_, "updated current");
 }
