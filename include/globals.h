@@ -12,6 +12,7 @@
 #define SERIAL_ON true
 #define SERIAL_PORT "/dev/ttyACM0"
 #define SERIAL_BAUDRATE 9600
+#define SERIAL_RECEIVE_NUM_OF_BYTES 5 // we expect to receive this many bytes (characters) from Arduino
 
 #define GUI_ON false
 #define DRAW_CUBES true

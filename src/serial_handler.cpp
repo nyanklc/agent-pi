@@ -54,32 +54,28 @@ void SerialHandler::communicationLoop() {
         {
             std::lock_guard<std::mutex> lock(mutex_send_);
             if (!message_to_send_.empty()) {
-                serialPrintf(port_, "%sa", message_to_send_.c_str());
+                serialPrintf(port_, "%s\n", message_to_send_.c_str());
+                // std::cout << sizeof(message_to_send_.c_str()) / sizeof(char) << "\n";
                 // std::cout << "serial sent: " << message_to_send_ << std::endl;
             }
         }
+        serialFlush(port_); // waits for the transmission of outgoing serial data to complete
 
-        /*
-        // wait for arduino to process the incoming message and respond
-        while (serialDataAvail(port_) <= 0) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
+        // wait until arduino responds back
+        while (serialDataAvail(port_) < SERIAL_RECEIVE_NUM_OF_BYTES);
 
         // receive
         std::string current_received;
         while (serialDataAvail(port_) > 0) {
             char c = serialGetchar(port_);
-            if (c == 'b') {
+            if (c == '\n') {
                 std::lock_guard<std::mutex> lock(mutex_receive_);
                 latest_received_ = current_received;
-                std::cout << "serial received: " << current_received << std::endl;
+                // std::cout << "serial received: " << current_received << std::endl;
                 // break; // ??
             } else {
                 current_received += c;
             }
         }
-        */
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 }
