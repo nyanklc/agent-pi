@@ -28,7 +28,7 @@ class Agent {
 
     Transform getAgentToCameraTransform();
 
-    Transform getTagToMaster(std::vector<TagPose> &tag_objects, size_t &index);
+    Transform getCameraToMaster(std::vector<TagPose> &tag_objects, size_t &index);
 
     void updateAgentToCameraTransform(double dyaw);
 

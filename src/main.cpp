@@ -54,6 +54,7 @@ bool initSystem(StreamGetter &stream_getter, Agent &agent,
 }
 
 int main(int argc, char **argv) {
+    std::cout << "### INITIALIZING ###\n";
     StreamGetter stream_getter(0);
     Agent agent;
     SerialHandler serial_handler;
@@ -66,6 +67,7 @@ int main(int argc, char **argv) {
     cv::Mat frame;
     cv::Mat frame_colored;
     bool first_run = true;
+    std::cout << "### STARTING ###\n";
     while (1) {
         // auto stream_start = cv::getTickCount();
         // std::cout << "start: " << stream_start << "\n";
