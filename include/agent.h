@@ -24,9 +24,11 @@ class Agent {
 
     void printDetections();
 
-    ArduinoCommands getOutputCommands(std::vector<TagPose> tag_objects);
+    ArduinoCommands getOutputCommands(std::vector<TagPose> &tag_objects);
 
     Transform getAgentToCameraTransform();
+
+    Transform getTagToMaster(std::vector<TagPose> &tag_objects, size_t &index);
 
     void updateAgentToCameraTransform(double dyaw);
 

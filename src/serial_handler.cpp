@@ -55,7 +55,7 @@ void SerialHandler::communicationLoop() {
             std::lock_guard<std::mutex> lock(mutex_send_);
             if (!message_to_send_.empty()) {
                 serialPrintf(port_, "%sa", message_to_send_.c_str());
-                std::cout << "serial sent: " << message_to_send_ << std::endl;
+                // std::cout << "serial sent: " << message_to_send_ << std::endl;
             }
         }
 

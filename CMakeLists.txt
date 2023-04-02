@@ -19,7 +19,6 @@ find_library(WIRINGPI_LIB wiringPi)
 if(NOT WIRINGPI_LIB)
     message(FATAL_ERROR "wiringPi library not found")
 endif()
-
 # Find wiringPi dev library
 find_library(WIRINGPI_DEV_LIB wiringPiDev)
 if(NOT WIRINGPI_DEV_LIB)

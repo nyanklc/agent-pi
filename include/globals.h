@@ -48,9 +48,9 @@
 #define AGENT_TO_CAMERA_Y_OFFSET 0
 #define AGENT_TO_CAMERA_Z_OFFSET 0.01 // 10 cm above the base
 // NOTE: camera tf is the same as ROS conventions (OpenCV also), robot base tf is such that, y-axis points forward, z-axis points upward
-#define AGENT_TO_CAMERA_ROLL_INITIAL -M_PI / 2
+#define AGENT_TO_CAMERA_ROLL_INITIAL M_PI / 2
 #define AGENT_TO_CAMERA_PITCH_INITIAL 0
-#define AGENT_TO_CAMERA_YAW_INITIAL M_PI
+#define AGENT_TO_CAMERA_YAW_INITIAL 0
 
 #ifdef LAPTOP_CAM
 #define CAMERA_FX 630.0
