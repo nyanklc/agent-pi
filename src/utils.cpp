@@ -361,3 +361,83 @@ cv::Mat fromRPY(float roll, float pitch, float yaw) {
     cv::Mat R = R_z * R_y * R_x;
     return R;
 }
+
+Transform constructTransform(matd_t *R, matd_t *t) {
+    return constructTransform(convertToMat(R), convertToMat(t));
+}
+
+Transform constructTransform(cv::Mat R, cv::Mat t) {
+    cv::Mat transform_matrix = cv::Mat::eye(4, 4, CV_64FC1);
+    R.copyTo(transform_matrix(cv::Rect(0, 0, 3, 3)));
+    t.copyTo(transform_matrix(cv::Rect(3, 0, 1, 3)));
+
+    Transform tf;
+    tf.T = transform_matrix;
+    return tf;
+}
+
+cv::Mat getRotationMatrix(double roll, double pitch, double yaw) {
+    cv::Mat R = cv::Mat::zeros(3, 3, CV_64F);
+
+    double c_roll = std::cos(roll);
+    double s_roll = std::sin(roll);
+    double c_pitch = std::cos(pitch);
+    double s_pitch = std::sin(pitch);
+    double c_yaw = std::cos(yaw);
+    double s_yaw = std::sin(yaw);
+
+    R.at<double>(0, 0) = c_yaw * c_pitch;
+    R.at<double>(0, 1) = c_yaw * s_pitch * s_roll - s_yaw * c_roll;
+    R.at<double>(0, 2) = c_yaw * s_pitch * c_roll + s_yaw * s_roll;
+
+    R.at<double>(1, 0) = s_yaw * c_pitch;
+    R.at<double>(1, 1) = s_yaw * s_pitch * s_roll + c_yaw * c_roll;
+    R.at<double>(1, 2) = s_yaw * s_pitch * c_roll - c_yaw * s_roll;
+
+    R.at<double>(2, 0) = -s_pitch;
+    R.at<double>(2, 1) = c_pitch * s_roll;
+    R.at<double>(2, 2) = c_pitch * c_roll;
+
+    return R;
+}
+
+cv::Mat getRotationFromTransform(Transform &tf) {
+    cv::Mat R = cv::Mat::zeros(3, 3, CV_64F);
+    R.at<double>(0, 0) = tf.T.at<double>(0, 0);
+    R.at<double>(0, 1) = tf.T.at<double>(0, 1);
+    R.at<double>(0, 2) = tf.T.at<double>(0, 2);
+    R.at<double>(1, 0) = tf.T.at<double>(1, 0);
+    R.at<double>(1, 1) = tf.T.at<double>(1, 1);
+    R.at<double>(1, 2) = tf.T.at<double>(1, 2);
+    R.at<double>(2, 0) = tf.T.at<double>(2, 0);
+    R.at<double>(2, 1) = tf.T.at<double>(2, 1);
+    R.at<double>(2, 2) = tf.T.at<double>(2, 2);
+    return R;
+}
+
+cv::Mat getTranslationFromTransform(Transform &tf) {
+    cv::Mat t = cv::Mat::zeros(3, 1, CV_64F);
+    t.at<double>(0, 0) = tf.T.at<double>(0, 3);
+    t.at<double>(1, 0) = tf.T.at<double>(1, 3);
+    t.at<double>(2, 0) = tf.T.at<double>(2, 3);
+    return t;
+}
+
+void printTransform(Transform &tf, std::string msg) {
+    if (msg != "")
+        std::cout << msg << std::endl;
+    auto R = getRotationFromTransform(tf);
+    auto t = getTranslationFromTransform(tf);
+    std::cout << "tf Rotation: " << R << std::endl;
+    std::cout << "tf Translation: " << t << std::endl;
+    auto rpy = getRPY(R);
+    std::cout << "tf RPY: " << rpy[0] << ", " << rpy[1] << ", " << rpy[2] << std::endl;
+}
+
+cv::Mat getTranslationMatrix(double x, double y, double z) {
+    cv::Mat t = cv::Mat::zeros(3, 1, CV_64F);
+    t.at<double>(0, 0) = x;
+    t.at<double>(1, 0) = y;
+    t.at<double>(2, 0) = z;
+    return t;
+}

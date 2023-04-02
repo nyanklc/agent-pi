@@ -46,7 +46,7 @@ bool initSystem(StreamGetter &stream_getter, Agent &agent,
     if (SERIAL_ON) {
         serial_handler.init(SERIAL_PORT, SERIAL_BAUDRATE);
         serial_handler.start();
-        while (!serial_handler.isReady()) // unnecessary i think
+        while (!serial_handler.isReady())  // unnecessary i think
             ;
     }
 
@@ -54,6 +54,7 @@ bool initSystem(StreamGetter &stream_getter, Agent &agent,
 }
 
 int main(int argc, char **argv) {
+    std::cout << "### INITIALIZING ###\n";
     StreamGetter stream_getter(0);
     Agent agent;
     SerialHandler serial_handler;
@@ -66,6 +67,7 @@ int main(int argc, char **argv) {
     cv::Mat frame;
     cv::Mat frame_colored;
     bool first_run = true;
+    std::cout << "### STARTING ###\n";
     while (1) {
         // auto stream_start = cv::getTickCount();
         // std::cout << "start: " << stream_start << "\n";
@@ -94,15 +96,17 @@ int main(int argc, char **argv) {
         // process
         auto process_start_time = cv::getTickCount();
         std::vector<TagPose> tag_objects = agent.process(frame);  // TODO: copying vector here, find a better way
-        std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - process_start_time) << "\n";
+        // std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - process_start_time) << "\n";
 
-        // generate and send control commands
-        ArduinoCommands arduino_commands = agent.getOutputCommands(tag_objects);
-        // std::cout << "main sent: " << SerialHandler::constructFromCommands(arduino_commands) << std::endl;
-        serial_handler.setCommand(arduino_commands);
-        std::string received_msg = serial_handler.getMessage();
-        // std::cout << "main received: " << received_msg << std::endl;
-        // agent.setArduinoResponse(received_msg); // TODO: implement
+        if (tag_objects.size() > 0) {
+            // generate and send control commands
+            ArduinoCommands arduino_commands = agent.getOutputCommands(tag_objects);
+            // std::cout << "main sent: " << SerialHandler::constructFromCommands(arduino_commands) << std::endl;
+            serial_handler.setCommand(arduino_commands);
+            // std::string received_msg = serial_handler.getMessage();
+            // std::cout << "main received: " << received_msg << std::endl;
+            // agent.setArduinoResponse(received_msg); // TODO: implement
+        }
 
         if (GUI_ON) {
             agent.drawDetections(frame_colored, DRAW_CUBES, DRAW_AXES);

@@ -6,9 +6,13 @@
 #define VIDEO_SOURCE 0
 #define VIEW_MODE true
 
+#define CAMERA_SIZE_X 640
+#define CAMERA_SIZE_Y 480
+
 #define SERIAL_ON true
 #define SERIAL_PORT "/dev/ttyACM0"
 #define SERIAL_BAUDRATE 9600
+#define SERIAL_RECEIVE_NUM_OF_BYTES 5 // we expect to receive this many bytes (characters) from Arduino
 
 #define GUI_ON false
 #define DRAW_CUBES true
@@ -24,6 +28,30 @@
 
 #define APRILTAG_TAG_SIZE 0.075                // cm
 #define APRILTAG_POSE_ERROR_THRESHOLD 1.0E-04  // idk
+
+#define LINEAR_P 0.002
+#define LINEAR_I 0.002
+#define LINEAR_D 0.002
+#define LINEAR_LIM_MIN 0.002
+#define LINEAR_LIM_MAX 0.002
+
+#define ANGULAR_P 0.002
+#define ANGULAR_I 0.002
+#define ANGULAR_D 0.002
+#define ANGULAR_LIM_MIN 0.002
+#define ANGULAR_LIM_MAX 0.002
+
+#define CAMERA_CONTROLLER_TOLERANCE 30 // px
+#define CAMERA_CONTROLLER_MULTIPLIER 1
+
+// robot base to camera transform definition
+#define AGENT_TO_CAMERA_X_OFFSET 0
+#define AGENT_TO_CAMERA_Y_OFFSET 0
+#define AGENT_TO_CAMERA_Z_OFFSET 0.01 // 10 cm above the base
+// NOTE: camera tf is the same as ROS conventions (OpenCV also), robot base tf is such that, y-axis points forward, z-axis points upward
+#define AGENT_TO_CAMERA_ROLL_INITIAL M_PI / 2
+#define AGENT_TO_CAMERA_PITCH_INITIAL M_PI
+#define AGENT_TO_CAMERA_YAW_INITIAL M_PI
 
 #ifdef LAPTOP_CAM
 #define CAMERA_FX 630.0

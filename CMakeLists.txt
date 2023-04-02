@@ -19,7 +19,6 @@ find_library(WIRINGPI_LIB wiringPi)
 if(NOT WIRINGPI_LIB)
     message(FATAL_ERROR "wiringPi library not found")
 endif()
-
 # Find wiringPi dev library
 find_library(WIRINGPI_DEV_LIB wiringPiDev)
 if(NOT WIRINGPI_DEV_LIB)
@@ -36,7 +35,7 @@ add_dependencies(main ${OpenCV_LIBS} stream_getter agent serial_handler gui_hand
 target_link_libraries(main ${OpenCV_LIBS} stream_getter agent serial_handler gui_handler topdown)
 
 add_library(agent src/agent.cpp)
-target_link_libraries(agent ${OpenCV_LIBS} april_tag_detector)
+target_link_libraries(agent ${OpenCV_LIBS} april_tag_detector pid camera_controller)
 
 add_library(stream_getter src/stream_getter.cpp)
 target_link_libraries(stream_getter ${OpenCV_LIBS})
@@ -59,9 +58,15 @@ target_link_libraries(topdown ${OpenCV_LIBS})
 add_library(pid src/pid.cpp)
 target_link_libraries(pid)
 
+add_library(camera_controller src/camera_controller.cpp)
+target_link_libraries(camera_controller)
+
 #########################TESTS###########################
 # add_executable(apriltag_test test/apriltag/apriltag_test.cpp)
 # target_link_libraries(apriltag_test ${OpenCV_LIBS} april_tag_detector)
 
 # add_executable(apriltag_test2 test/apriltag/apriltag_test2.cpp)
 # target_link_libraries(apriltag_test2 ${OpenCV_LIBS} april_tag_detector)
+
+add_executable(serial_test test/serial/serial_test.cpp)
+target_link_libraries(serial_test serial_handler ${WIRINGPI_LIB} ${WIRINGPI_DEV_LIB} Threads::Threads m)

@@ -14,6 +14,7 @@
 #include <thread>
 
 #include "arduino_commands.h"
+#include "globals.h"
 
 class SerialHandler {
    public:
