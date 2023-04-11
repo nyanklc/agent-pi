@@ -19,8 +19,7 @@ int main(int argc, char **argv) {
 
         auto msg = serial_handler.getMessage();
         if (msg != msg_past) {
-            uint8_t received_count = msg[3];
-            std::cout << "received: " << (int)received_count << "\n";
+            std::cout << "received: " << msg << "\n";
         }
 
         msg_past = msg;

@@ -11,6 +11,10 @@ Agent::Agent() {
 
     agent_to_camera_initial_ = getAgentToCameraTransform();
     agent_to_camera_current_ = agent_to_camera_initial_;
+
+    current_yaw_ = 0;
+    current_linear_speed_ = 0;
+    current_angular_speed_ = 0;
 }
 
 void Agent::drawDetections(cv::Mat &frame, bool cube_on, bool axes_on) {
@@ -43,26 +47,39 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects) {
     tag_center_average *= 2;  // since we resized the image
 
     // find the master's relative position to agent
-    size_t tag_objects_index = 0;
-    Transform camera_to_master = getCameraToMaster(tag_objects, tag_objects_index);
-    // printTransform(camera_to_master, "camera_to_master, also the apriltag pose in camera frame");
+    Transform camera_to_master = getCameraToMaster(tag_objects);
     Transform agent_to_master;
     agent_to_master.T = agent_to_camera_current_.T * camera_to_master.T;
-    // printTransform(agent_to_master, "agent_to_master");
-    // TODO: linear/angular control
 
-    // camera motor
+    printTransform(camera_to_master, "camera_to_master: ");
+
+    // get the position/orientation we want to be at
+    goal_pose_ = getGoalPose(agent_to_master);
+    goal_pose_.print("goal pose");
+
+    // set controller goals
+    double linear_goal = std::sqrt(std::pow(goal_pose_.x, 2) + std::pow(goal_pose_.y, 2)) * LINEAR_GOAL_MULTIPLIER;
+    double angular_goal = getAngularDifference(goal_pose_.yaw, current_yaw_) * ANGULAR_GOAL_MULTIPLIER;
+    linear_controller_.setGoal(linear_goal); // TODO: sqrt is slow
+    angular_controller_.setGoal(angular_goal);
+
+    std::cout << "linear_goal: " << linear_goal << "\n";
+    std::cout << "angular_goal: " << angular_goal << "\n";
+
     ArduinoCommands commands;
-    commands.angular_speed = 1.11;
-    commands.linear_speed = 2.22;
+    auto durat = (std::chrono::system_clock::now() - last_controller_update_time_);
+    double dt =  durat.count() * 1e-9;
+    last_controller_update_time_ = std::chrono::system_clock::now();
+
+    commands.angular_speed = linear_controller_.update(current_linear_speed_, dt);
+    commands.linear_speed = angular_controller_.update(current_angular_speed_, dt);
     commands.camera_angular_speed = camera_angular_controller_.update(tag_center_average);
 
     return commands;
 }
 
-Transform Agent::getCameraToMaster(std::vector<TagPose> &tag_objects, size_t &index) {
-    // TODO: implement, put whichever tag_objects index you used to calculate the master's tf to the index
-    index = 0;
+Transform Agent::getCameraToMaster(std::vector<TagPose> &tag_objects) {
+    // TODO: implement
     return constructTransform(getRotationMatrix(tag_objects[0].roll, tag_objects[0].pitch, tag_objects[0].yaw), getTranslationMatrix(tag_objects[0].x, tag_objects[0].y, tag_objects[0].z));
 }
 
@@ -78,4 +95,34 @@ void Agent::updateAgentToCameraTransform(double dyaw) {
     R_curr = getRotationMatrix(0, 0, dyaw) * R_curr;
     agent_to_camera_current_ = constructTransform(R_curr, getTranslationFromTransform(agent_to_camera_current_));
     // printTransform(agent_to_camera_current_, "updated current");
+}
+
+GoalPose Agent::getGoalPose(Transform &agent_to_master) {
+    auto R = getRotationFromTransform(agent_to_master);
+    auto t = getTranslationFromTransform(agent_to_master);
+
+    auto rpy = getRPY(R);
+
+    auto goal_position = truncateVector(t, 3/4);
+
+    std::cout << "roll: " << rpy[0] << "\n";
+    std::cout << "pitch: " << rpy[1] << "\n";
+    std::cout << "yaw: " << rpy[2] << "\n";
+
+    GoalPose goal_pose;
+    goal_pose.x = goal_position.at<double>(0, 0);
+    goal_pose.y = goal_position.at<double>(1, 0);
+    goal_pose.yaw = rpy[2]; // TODO: which angle is the correct "yaw"?
+
+    return goal_pose;
+}
+
+void Agent::setArduinoResponse(std::string received_msg) {
+    // TODO: set current linear/angular speed
+    char lin_str[4] = {received_msg[0], received_msg[1], received_msg[2], received_msg[3]};
+    char ang_str[4] = {received_msg[0], received_msg[1], received_msg[2], received_msg[3]};
+    // TODO: camera speed
+    // std::string lin_str_str(lin_str);
+    // std::string ang_str_str(ang_str);
+    // TODO: set current linear and angular speeds
 }

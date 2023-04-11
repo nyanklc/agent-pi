@@ -441,3 +441,28 @@ cv::Mat getTranslationMatrix(double x, double y, double z) {
     t.at<double>(2, 0) = z;
     return t;
 }
+
+cv::Mat truncateVector(cv::Mat t, double fraction) {
+    cv::Mat shorter = t;
+    for (int i = 0; i < shorter.rows; i++)
+        for (int j = 0; j < shorter.cols; j++)
+            shorter.at<double>(i, j) = fraction * shorter.at<double>(i, j);
+    return shorter;
+}
+
+double getAngularDifference(double th1, double th2) {
+    using namespace std;
+
+    if (th1 == th2)
+        return 0.0;
+
+    double diff = atan2((cos(th1) * sin(th2) - cos(th2) * sin(th1)),
+                        (sin(th1) * sin(th2) + cos(th1) * cos(th2)));
+
+    while (diff > M_PI)
+        diff -= 2 * M_PI;
+    while (diff < -M_PI)
+        diff += 2 * M_PI;
+
+    return diff;
+}

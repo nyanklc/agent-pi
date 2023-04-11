@@ -14,6 +14,16 @@
 #include "pid.h"
 #include "camera_controller.h"
 
+struct GoalPose {
+    double x;
+    double y;
+    double yaw;
+
+    void print(std::string name) {
+        std::cout << name << " x: " << x << "y: " << y << " yaw: " << yaw << "\n";
+    }
+};
+
 class Agent {
    public:
     Agent();
@@ -28,9 +38,13 @@ class Agent {
 
     Transform getAgentToCameraTransform();
 
-    Transform getCameraToMaster(std::vector<TagPose> &tag_objects, size_t &index);
+    Transform getCameraToMaster(std::vector<TagPose> &tag_objects);
 
     void updateAgentToCameraTransform(double dyaw);
+
+    GoalPose getGoalPose(Transform &agent_to_master);
+
+    void setArduinoResponse(std::string received_msg);
 
    private:
 
@@ -42,6 +56,14 @@ class Agent {
 
     Transform agent_to_camera_initial_;
     Transform agent_to_camera_current_;
+
+    GoalPose goal_pose_;
+    double current_yaw_;
+
+    double current_linear_speed_;
+    double current_angular_speed_;
+
+    std::chrono::time_point<std::chrono::system_clock> last_controller_update_time_;
 };
 
 #endif

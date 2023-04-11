@@ -44,6 +44,9 @@
 #define CAMERA_CONTROLLER_TOLERANCE 30 // px
 #define CAMERA_CONTROLLER_MULTIPLIER 1
 
+#define LINEAR_GOAL_MULTIPLIER 2
+#define ANGULAR_GOAL_MULTIPLIER 2
+
 // robot base to camera transform definition
 #define AGENT_TO_CAMERA_X_OFFSET 0
 #define AGENT_TO_CAMERA_Y_OFFSET 0

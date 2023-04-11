@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
     cv::Mat frame;
     cv::Mat frame_colored;
     bool first_run = true;
-    std::cout << "### STARTING ###\n";
+    std::cout << "### LET'S GOOOOOOOOOOOOOOOOOOOOOOOOOOOOO ###\n";
     while (1) {
         // auto stream_start = cv::getTickCount();
         // std::cout << "start: " << stream_start << "\n";
@@ -101,11 +101,12 @@ int main(int argc, char **argv) {
         if (tag_objects.size() > 0) {
             // generate and send control commands
             ArduinoCommands arduino_commands = agent.getOutputCommands(tag_objects);
-            // std::cout << "main sent: " << SerialHandler::constructFromCommands(arduino_commands) << std::endl;
-            serial_handler.setCommand(arduino_commands);
-            // std::string received_msg = serial_handler.getMessage();
-            // std::cout << "main received: " << received_msg << std::endl;
-            // agent.setArduinoResponse(received_msg); // TODO: implement
+            std::cout << "arduino commands: " << arduino_commands.linear_speed << ", " << arduino_commands.angular_speed << ", " << arduino_commands.camera_angular_speed << "\n";
+            // serial_handler.setCommand(arduino_commands);
+            std::string received_msg = serial_handler.getMessage();
+            std::cout << "main received: " << received_msg << std::endl;
+            if (received_msg != "")
+                agent.setArduinoResponse(received_msg);
         }
 
         if (GUI_ON) {

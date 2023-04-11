@@ -86,4 +86,8 @@ void printTransform(Transform &tf, std::string msg = "");
 
 cv::Mat getTranslationMatrix(double x, double y, double z);
 
+cv::Mat truncateVector(cv::Mat t, double fraction);
+
+double getAngularDifference(double th1, double th2);
+
 #endif

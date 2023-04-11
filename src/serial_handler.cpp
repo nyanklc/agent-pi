@@ -24,8 +24,7 @@ void SerialHandler::start() {
 }
 
 void SerialHandler::stop() {
-    if (th_.joinable())
-        th_.join();
+    th_.join();
     serialClose(port_);
     running_ = false;
 }
