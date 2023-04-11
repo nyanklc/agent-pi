@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <opencv2/opencv.hpp>
+#include <bits/stdc++.h>
 
 #include "april_tag_detector.h"
 #include "arduino_commands.h"
@@ -45,6 +46,8 @@ class Agent {
     GoalPose getGoalPose(Transform &agent_to_master);
 
     void setArduinoResponse(std::string received_msg);
+
+    std::pair<bool, std::array<double, 3>> isValidResponse(std::string &msg);
 
    private:
 

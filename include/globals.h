@@ -12,7 +12,6 @@
 #define SERIAL_ON true
 #define SERIAL_PORT "/dev/ttyACM0"
 #define SERIAL_BAUDRATE 9600
-#define SERIAL_RECEIVE_NUM_OF_BYTES 5 // we expect to receive this many bytes (characters) from Arduino
 
 #define GUI_ON false
 #define DRAW_CUBES true
@@ -21,12 +20,12 @@
 #define APRILTAG_ENABLED true
 #define APRILTAG_THREAD_COUNT 4  // 4 for rpi
 #define APRILTAG_FAMILY_BIT_COUNT 2
-#define APRILTAG_DEBUG_ON true
-#define APRILTAG_QUAD_DECIMATE 1.0
+#define APRILTAG_DEBUG_ON false
+#define APRILTAG_QUAD_DECIMATE 0.5
 #define APRILTAG_QUAD_SIGMA 0.8
 #define APRILTAG_REFINE_EDGES 0
 
-#define APRILTAG_TAG_SIZE 0.075                // cm
+#define APRILTAG_TAG_SIZE 0.05                 // cm
 #define APRILTAG_POSE_ERROR_THRESHOLD 1.0E-04  // idk
 
 #define LINEAR_P 0.002

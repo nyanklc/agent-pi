@@ -101,10 +101,8 @@ int main(int argc, char **argv) {
         if (tag_objects.size() > 0) {
             // generate and send control commands
             ArduinoCommands arduino_commands = agent.getOutputCommands(tag_objects);
-            std::cout << "arduino commands: " << arduino_commands.linear_speed << ", " << arduino_commands.angular_speed << ", " << arduino_commands.camera_angular_speed << "\n";
-            // serial_handler.setCommand(arduino_commands);
+            serial_handler.setCommand(arduino_commands);
             std::string received_msg = serial_handler.getMessage();
-            std::cout << "main received: " << received_msg << std::endl;
             if (received_msg != "")
                 agent.setArduinoResponse(received_msg);
         }

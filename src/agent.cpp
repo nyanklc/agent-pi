@@ -48,32 +48,30 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects) {
 
     // find the master's relative position to agent
     Transform camera_to_master = getCameraToMaster(tag_objects);
+
+    // std::cout << "##########################\n";
+    // printTransform(camera_to_master, "camera_to_master");
+
     Transform agent_to_master;
     agent_to_master.T = agent_to_camera_current_.T * camera_to_master.T;
 
-    printTransform(camera_to_master, "camera_to_master: ");
+    // std::cout << "##########################\n";
+    // printTransform(agent_to_master, "agent_to_master");
 
-    // get the position/orientation we want to be at
-    goal_pose_ = getGoalPose(agent_to_master);
-    goal_pose_.print("goal pose");
-
-    // set controller goals
-    double linear_goal = std::sqrt(std::pow(goal_pose_.x, 2) + std::pow(goal_pose_.y, 2)) * LINEAR_GOAL_MULTIPLIER;
-    double angular_goal = getAngularDifference(goal_pose_.yaw, current_yaw_) * ANGULAR_GOAL_MULTIPLIER;
-    linear_controller_.setGoal(linear_goal); // TODO: sqrt is slow
-    angular_controller_.setGoal(angular_goal);
-
-    std::cout << "linear_goal: " << linear_goal << "\n";
-    std::cout << "angular_goal: " << angular_goal << "\n";
+    auto t = getTranslationFromTransform(agent_to_master);
+    auto R = getRotationFromTransform(agent_to_master);
+    auto rpy = getRPY(R);
+    goal_pose_.x = t.at<double>(0);
+    goal_pose_.y = t.at<double>(1);
+    goal_pose_.yaw = rpy[2];
 
     ArduinoCommands commands;
-    auto durat = (std::chrono::system_clock::now() - last_controller_update_time_);
-    double dt =  durat.count() * 1e-9;
-    last_controller_update_time_ = std::chrono::system_clock::now();
+    commands.linear_speed = goal_pose_.y-0.3;
+    double ang_magnitude = std::sqrt(std::fabs(tag_center_average - CAMERA_SIZE_X/2));
+    commands.angular_speed = tag_center_average > CAMERA_SIZE_X/2 ? ang_magnitude : -ang_magnitude;
+    commands.camera_angular_speed = 3.33;
 
-    commands.angular_speed = linear_controller_.update(current_linear_speed_, dt);
-    commands.linear_speed = angular_controller_.update(current_angular_speed_, dt);
-    commands.camera_angular_speed = camera_angular_controller_.update(tag_center_average);
+    // commands.print("output commands");
 
     return commands;
 }
@@ -118,11 +116,45 @@ GoalPose Agent::getGoalPose(Transform &agent_to_master) {
 }
 
 void Agent::setArduinoResponse(std::string received_msg) {
-    // TODO: set current linear/angular speed
-    char lin_str[4] = {received_msg[0], received_msg[1], received_msg[2], received_msg[3]};
-    char ang_str[4] = {received_msg[0], received_msg[1], received_msg[2], received_msg[3]};
-    // TODO: camera speed
-    // std::string lin_str_str(lin_str);
-    // std::string ang_str_str(ang_str);
-    // TODO: set current linear and angular speeds
+    auto is_valid = isValidResponse(received_msg);
+    if (!is_valid.first)
+    {
+        std::cout << "response not valid\n";
+        return;
+    }
+
+    double lin_spd = is_valid.second[0];
+    double ang_spd = is_valid.second[1];
+    double cam_ang_spd = is_valid.second[2];
+
+    std::cout << "lin_spd: " << lin_spd << ", ang_spd: " << ang_spd << ", cam_ang_spd: " << cam_ang_spd << "\n";
+}
+
+std::pair<bool, std::array<double, 3>> Agent::isValidResponse(std::string &msg) {
+    msg += ' ';
+    std::stringstream ss(msg);
+    std::string word;
+    char count = 0;
+    std::array<double, 3> arr;
+    while (ss >> word) {
+        std::cout << word << std::endl;
+        if (count == 3) {
+            count = 255;
+            break;
+        }
+        arr[count] = (double)atof(word.c_str());
+        count++;
+    }
+    bool valid = false;
+    if (count == 3)
+        valid = true;
+    else if (count == 2) {
+        std::string last_num = msg.substr(msg.size() - 5, 5);
+        arr[2] = (double)atof(last_num.c_str());
+        valid = true;
+    }
+    std::pair<bool, std::array<double, 3>> ret;
+    ret.first = valid;
+    ret.second = arr;
+    return ret;
 }
