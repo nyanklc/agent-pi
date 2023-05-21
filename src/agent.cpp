@@ -49,14 +49,8 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects) {
     // find the master's relative position to agent
     Transform camera_to_master = getCameraToMaster(tag_objects);
 
-    // std::cout << "##########################\n";
-    // printTransform(camera_to_master, "camera_to_master");
-
     Transform agent_to_master;
     agent_to_master.T = agent_to_camera_current_.T * camera_to_master.T;
-
-    // std::cout << "##########################\n";
-    // printTransform(agent_to_master, "agent_to_master");
 
     auto t = getTranslationFromTransform(agent_to_master);
     auto R = getRotationFromTransform(agent_to_master);
@@ -65,13 +59,14 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects) {
     goal_pose_.y = t.at<double>(1);
     goal_pose_.yaw = rpy[2];
 
-    ArduinoCommands commands;
-    commands.linear_speed = goal_pose_.y-0.3;
-    double ang_magnitude = std::sqrt(std::fabs(tag_center_average - CAMERA_SIZE_X/2));
-    commands.angular_speed = tag_center_average > CAMERA_SIZE_X/2 ? ang_magnitude : -ang_magnitude;
-    commands.camera_angular_speed = 3.33;
+    // TODO: calculate lin/angular speed and convert them to arduino commands (analogWrite value, step count)
 
-    // commands.print("output commands");
+    // test
+    ArduinoCommands commands;
+    commands.left_motor_speed = 0;
+    commands.right_motor_speed = 0;
+    commands.camera_step_count = -camera_angular_controller_.update(tag_center_average);  // negative to fix direction
+    commands.print("camera controls");
 
     return commands;
 }

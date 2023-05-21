@@ -3,14 +3,15 @@
 
 #include <math.h>
 #include <iostream>
+#include "./globals.h"
 
 class CameraController {
    public:
     CameraController();
 
-    void init(double goal, double multiplier, double tolerance);
+    void init(int goal, int multiplier, int tolerance);
 
-    double update(double current);
+    double update(int current);
 
    private:
     double goal_;

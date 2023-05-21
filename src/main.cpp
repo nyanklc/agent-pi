@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
     bool first_run = true;
     std::cout << "### LET'S GOOOOOOOOOOOOOOOOOOOOOOOOOOOOO ###\n";
     while (1) {
-        // auto stream_start = cv::getTickCount();
+        auto stream_start = cv::getTickCount();
         // std::cout << "start: " << stream_start << "\n";
 
         // get frame
@@ -101,9 +101,15 @@ int main(int argc, char **argv) {
             // generate and send control commands
             ArduinoCommands arduino_commands = agent.getOutputCommands(tag_objects);
             serial_handler.setCommand(arduino_commands);
-            std::string received_msg = serial_handler.getMessage();
-            if (received_msg != "")
-                agent.setArduinoResponse(received_msg);
+        }
+        else
+        {
+            // stop motion if not detected
+            ArduinoCommands arduino_commands;
+            arduino_commands.left_motor_speed = 0;
+            arduino_commands.right_motor_speed = 0;
+            arduino_commands.camera_step_count = 0;
+            serial_handler.setCommand(arduino_commands);
         }
 
         if (GUI_ON) {
@@ -119,7 +125,7 @@ int main(int argc, char **argv) {
             }
         }
 
-        // std::cout << "main loop @ " << cv::getTickFrequency() / (cv::getTickCount() - stream_start) << " fps\n";
+        std::cout << "main loop @ " << cv::getTickFrequency() / (cv::getTickCount() - stream_start) << " fps\n";
     }
 
     // yes
