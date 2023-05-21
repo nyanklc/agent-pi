@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "globals.h"
-#include "master_object.h"
 #include "tag_pose.h"
 #include "utils.h"
 

@@ -8,10 +8,7 @@
 
 #include "april_tag_detector.h"
 #include "arduino_commands.h"
-#include "camera_calibrator.h"
-#include "controls.h"
 #include "globals.h"
-#include "master_object.h"
 #include "pid.h"
 #include "camera_controller.h"
 

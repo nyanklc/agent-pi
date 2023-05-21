@@ -25,7 +25,7 @@
 #define APRILTAG_QUAD_SIGMA 0.8
 #define APRILTAG_REFINE_EDGES 0
 
-#define APRILTAG_TAG_SIZE 0.05                 // cm
+#define APRILTAG_TAG_SIZE 0.055                // cm
 #define APRILTAG_POSE_ERROR_THRESHOLD 1.0E-04  // idk
 
 #define LINEAR_P 0.002

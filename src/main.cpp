@@ -9,7 +9,6 @@
 
 #include "../include/agent.h"
 #include "../include/arduino_commands.h"
-#include "../include/controls.h"
 #include "../include/globals.h"
 #include "../include/gui_handler.h"
 #include "../include/serial_handler.h"
@@ -119,6 +118,8 @@ int main(int argc, char **argv) {
                 gui_handler_topdown.setFrame(f);
             }
         }
+
+        // std::cout << "main loop @ " << cv::getTickFrequency() / (cv::getTickCount() - stream_start) << " fps\n";
     }
 
     // yes
