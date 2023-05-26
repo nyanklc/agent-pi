@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
 
         if (GUI_ON) {
             agent.drawDetections(frame_colored, DRAW_CUBES, DRAW_AXES);
-            cv::resize(frame_colored, frame_colored, cv::Size(), 2, 2);
+            // cv::resize(frame_colored, frame_colored, cv::Size(), 2, 2);
             gui_handler.setFrame(frame_colored);
 
             if (tag_objects.size() != 0) {

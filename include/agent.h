@@ -18,7 +18,7 @@ struct GoalPose {
     double yaw;
 
     void print(std::string name) {
-        std::cout << name << " x: " << x << "y: " << y << " yaw: " << yaw << "\n";
+        std::cout << name << " x: " << -x << " y: " << -y << " yaw: " << yaw << "\n";
     }
 };
 
@@ -34,17 +34,15 @@ class Agent {
 
     ArduinoCommands getOutputCommands(std::vector<TagPose> &tag_objects);
 
-    Transform getAgentToCameraTransform();
-
-    Transform getCameraToMaster(std::vector<TagPose> &tag_objects);
-
-    void updateAgentToCameraTransform(double dyaw);
-
-    GoalPose getGoalPose(Transform &agent_to_master);
+    GoalPose getMasterPose(std::vector<TagPose> &tag_objects);
 
     void setArduinoResponse(std::string received_msg);
 
     std::pair<bool, std::array<double, 3>> isValidResponse(std::string &msg);
+
+    void rotatePose(GoalPose &pose, double angle);
+
+    void convertToMotorSpeeds(ArduinoCommands &commands, double linear_speed, double ang_magnitude);
 
    private:
 
@@ -54,16 +52,14 @@ class Agent {
     PIDController angular_controller_;
     CameraController camera_angular_controller_;
 
-    Transform agent_to_camera_initial_;
-    Transform agent_to_camera_current_;
-
     GoalPose goal_pose_;
-    double current_yaw_;
 
     double current_linear_speed_;
     double current_angular_speed_;
 
-    std::chrono::time_point<std::chrono::system_clock> last_controller_update_time_;
+    double last_controller_update_time_;
+
+    double camera_yaw_;
 };
 
 #endif

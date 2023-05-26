@@ -1,7 +1,7 @@
 #include <Stepper.h>
 
 const int steps_per_rev = 200;
-const int camera_stepper_setspeed = 30;
+const int camera_stepper_setspeed = 120;  // ?
 
 // PINS
 const int camera_stepper_1 = 8;
@@ -24,11 +24,15 @@ void drive_motors(int left_s, int right_s)
 
   if (left_s > 0)
   {
+    if (left_s > 255)
+      left_s = 255;
     analogWrite(left_motor_1, left_s);
     analogWrite(left_motor_2, 0);
   }
   else if (left_s < 0)
   {
+    if (left_s < -255)
+      left_s = -255;
     analogWrite(left_motor_1, 0);
     analogWrite(left_motor_2, left_s);
   }
@@ -40,11 +44,15 @@ void drive_motors(int left_s, int right_s)
 
   if (right_s > 0)
   {
+    if (right_s > 255)
+      right_s = 255;
     analogWrite(right_motor_1, right_s);
     analogWrite(right_motor_2, 0);
   }
   else if (right_s < 0)
   {
+    if (right_s < -255)
+      right_s = -255;
     analogWrite(right_motor_1, 0);
     analogWrite(right_motor_2, right_s);
   }

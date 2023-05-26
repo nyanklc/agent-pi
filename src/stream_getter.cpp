@@ -60,9 +60,9 @@ void StreamGetter::getStream() {
         mRetrieved = mCap.read(mFrame);
         cv::cvtColor(mFrame, mFrameGray, cv::COLOR_BGRA2GRAY);
         // resize for faster processing
-        cv::resize(mFrameGray, mFrameGray, cv::Size(), 0.5, 0.5);
-        if (GUI_ON)
-            cv::resize(mFrame, mFrame, cv::Size(), 0.5, 0.5);
+        // cv::resize(mFrameGray, mFrameGray, cv::Size(), 0.5, 0.5);
+        // if (GUI_ON)
+        //     cv::resize(mFrame, mFrame, cv::Size(), 0.5, 0.5);
         // std::cout << std::this_thread::get_id() << " || stream_getter fps: "
         // << cv::getTickFrequency() / (cv::getTickCount() - start) << "\n";
         mReady = true;

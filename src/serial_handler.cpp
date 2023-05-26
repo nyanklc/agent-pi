@@ -55,13 +55,13 @@ void SerialHandler::communicationLoop() {
             continue;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         // send
         {
             std::lock_guard<std::mutex> lock(mutex_send_);
             if (!message_to_send_.empty()) {
                 serialPrintf(port_, "%s\n", message_to_send_.c_str());
-                std::cout << "serial sent: " << message_to_send_ << std::endl;
+                // std::cout << "serial sent: " << message_to_send_ << std::endl;
             }
         }
     }
