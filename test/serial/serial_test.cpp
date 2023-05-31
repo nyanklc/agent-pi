@@ -1,31 +1,96 @@
-#include "../../include/serial_handler.h"
 #include "../../include/arduino_commands.h"
+#include <iostream>
+#include <string>
+#include <chrono>
+#include <thread>
+#include <iomanip>
+#include <sstream>
 
-int main(int argc, char **argv) {
+// RPi I/O library
+#include <wiringSerial.h>
 
-    SerialHandler serial_handler;
-    serial_handler.init("/dev/ttyACM0", 9600);
-    serial_handler.start();
-    while (!serial_handler.isReady());
+int SERIAL = 0;
 
-    std::string msg_past;
-    while (true) {
-        ArduinoCommands commands;
-        commands.linear_speed = 1.11;
-        commands.angular_speed = -2.22;
-        commands.camera_angular_speed = 3.33;
-        serial_handler.setCommand(commands);
-        // std::cout << "sent: " << SerialHandler::constructFromCommands(commands) << "\n";
+std::string constructFromCommands(const ArduinoCommands &commands)
+{
+    std::string msg = "";
 
-        auto msg = serial_handler.getMessage();
-        if (msg != msg_past) {
-            std::cout << "received: " << msg << "\n";
-        }
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(2) << commands.left_motor_speed;
+    std::string s = stream.str();
+    msg += s;
+    msg += " ";
 
-        msg_past = msg;
+    std::stringstream stream1;
+    stream1 << std::fixed << std::setprecision(2) << commands.right_motor_speed;
+    std::string s1 = stream1.str();
+    msg += s1;
+    msg += " ";
+
+    std::stringstream stream2;
+    stream2 << std::fixed << std::setprecision(2) << commands.right_motor_speed;
+    std::string s2 = stream2.str();
+    msg += s2;
+    msg += "\n";
+
+    return msg;
+}
+
+void initSerial(std::string port, int baudrate)
+{
+    SERIAL = serialOpen(port.c_str(), baudrate);
+    if (SERIAL < 0)
+    {
+        std::cerr << "Error opening serial connection.\n";
+        exit(1);
     }
+}
 
-    serial_handler.stop();
+void sendMessage(ArduinoCommands &commands)
+{
+    std::string message = constructFromCommands(commands);
+    serialPrintf(SERIAL, "%s\n", message.c_str());
+    std::cout << "serial sent: " << message << std::endl;
+}
+
+bool receiveMessage()
+{
+    // receive
+    int ch = serialGetchar(SERIAL);
+    if ((char)ch == 'a')
+    {
+        std::cout << "OK received.\n";
+        return true;
+    }
+    else
+    {
+        std::cerr << "something went wrong in response message from Arduino\n";
+        return false;
+    }
+}
+
+int main(int argc, char **argv)
+{
+    using namespace std::chrono_literals;
+
+    initSerial("/dev/ttyACM0", 9600);
+
+    bool first_run = true;
+    while (1)
+    {
+        ArduinoCommands commands;
+        commands.left_motor_speed = 0;
+        commands.right_motor_speed = 0;
+        commands.camera_step_count = 0;
+
+        if (!first_run)
+        {
+            while(!receiveMessage()) std::this_thread::sleep_for(2000ms);
+        }
+        sendMessage(commands);
+
+        first_run = false;
+    }
 
     return 0;
 }

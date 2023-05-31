@@ -9,8 +9,9 @@
 
 #include "globals.h"
 
-class GUIHandler {
-   public:
+class GUIHandler
+{
+public:
     GUIHandler();
 
     bool start(std::string frame_title);
@@ -23,7 +24,7 @@ class GUIHandler {
 
     void show();
 
-   private:
+private:
     cv::Mat mFrame;
     std::string mFrameName;
     std::mutex mFrameMutex;

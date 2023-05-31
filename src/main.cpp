@@ -11,12 +11,26 @@
 #include "../include/arduino_commands.h"
 #include "../include/globals.h"
 #include "../include/gui_handler.h"
-#include "../include/serial_handler.h"
 #include "../include/stream_getter.h"
 #include "../include/topdown.h"
 
-bool initSystem(StreamGetter &stream_getter, Agent &agent,
-                SerialHandler &serial_handler, GUIHandler &gui_handler, GUIHandler &gui_handler2) {
+// RPi I/O library
+#include <wiringSerial.h>
+
+int SERIAL = 0;
+
+void initSerial(std::string port, int baudrate)
+{
+    SERIAL = serialOpen(port.c_str(), baudrate);
+    if (SERIAL < 0)
+    {
+        std::cerr << "Error opening serial connection.\n";
+        exit(1);
+    }
+}
+
+bool initSystem(StreamGetter &stream_getter, Agent &agent, GUIHandler &gui_handler, GUIHandler &gui_handler2)
+{
     if (!stream_getter.getRetrieved())
         return false;
 
@@ -27,7 +41,13 @@ bool initSystem(StreamGetter &stream_getter, Agent &agent,
     while (!stream_getter.isReady())
         ;
 
-    if (GUI_ON) {
+    if (SERIAL_ON)
+    {
+        initSerial(SERIAL_PORT, SERIAL_BAUDRATE);
+    }
+
+    if (GUI_ON)
+    {
         if (!gui_handler.start("agent-pi"))
             return false;
 
@@ -42,33 +62,77 @@ bool initSystem(StreamGetter &stream_getter, Agent &agent,
             ;
     }
 
-    if (SERIAL_ON) {
-        serial_handler.init(SERIAL_PORT, SERIAL_BAUDRATE);
-        serial_handler.start();
-        while (!serial_handler.isReady())  // unnecessary i think
-            ;
-    }
-
     return true;
 }
 
-int main(int argc, char **argv) {
+std::string constructFromCommands(const ArduinoCommands &commands)
+{
+    return std::to_string(commands.left_motor_speed) + " " + std::to_string(commands.right_motor_speed) + " " + std::to_string(commands.camera_step_count) + '\n';
+}
+
+void sendMessage(ArduinoCommands &commands)
+{
+    std::string message = constructFromCommands(commands);
+    serialPrintf(SERIAL, "%s\n", message.c_str());
+    std::cout << "serial sent: " << message << std::endl;
+}
+
+bool receiveMessage()
+{
+    // receive
+    try
+    {
+        std::cout << serialDataAvail(SERIAL) << std::endl;
+        if (serialDataAvail(SERIAL) == 0)
+        {
+            // std::cout << "haven't received any messages yet\n";
+            return false;
+        }
+        if (serialDataAvail(SERIAL) == -1)
+        {
+            std::cout << "serial receive error" << std::endl;
+            throw;
+        }
+
+        int ch = serialGetchar(SERIAL);
+        if ((char)ch == 'a')
+        {
+            std::cout << "OK received.\n";
+            return true;
+        }
+        else
+        {
+            std::cerr << "something went wrong in response message from Arduino\n";
+            throw;
+        }
+    }
+    catch (const std::exception &e)
+    {
+        std::cout << "serial receive error\n";
+        std::cerr << e.what() << '\n';
+    }
+
+    return false;
+}
+
+int main(int argc, char **argv)
+{
     std::cout << "### INITIALIZING ###\n";
     StreamGetter stream_getter(0);
     Agent agent;
-    SerialHandler serial_handler;
     GUIHandler gui_handler;
     GUIHandler gui_handler_topdown;
     TopDown topdown;
 
-    initSystem(stream_getter, agent, serial_handler, gui_handler, gui_handler_topdown);
+    initSystem(stream_getter, agent, gui_handler, gui_handler_topdown);
 
     cv::Mat frame;
     cv::Mat frame_colored;
     bool first_run = true;
     std::cout << "### LET'S GOOOOOOOOOOOOOOOOOOOOOOOOOOOOO ###\n";
-    while (1) {
-        auto stream_start = cv::getTickCount();
+    while (1)
+    {
+        // auto stream_start = cv::getTickCount();
         // std::cout << "start: " << stream_start << "\n";
 
         // get frame
@@ -94,45 +158,60 @@ int main(int argc, char **argv) {
 
         // process
         auto process_start_time = cv::getTickCount();
-        std::vector<TagPose> tag_objects = agent.process(frame);  // TODO: copying vector here, find a better way
+        std::vector<TagPose> tag_objects = agent.process(frame); // TODO: copying vector here, find a better way
         // std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - process_start_time) << "\n";
 
-        if (tag_objects.size() > 0) {
+        if (tag_objects.size() > 0)
+        {
+            std::cout << "detection\n";
             // generate and send control commands
             ArduinoCommands arduino_commands = agent.getOutputCommands(tag_objects);
-            serial_handler.setCommand(arduino_commands);
+
+            if (!first_run)
+            {
+                while(!receiveMessage());
+            }
+            sendMessage(arduino_commands);
+
+            first_run = false;
         }
         else
         {
-            // stop motion if not detected
+            std::cout << "no detection\n";
             ArduinoCommands arduino_commands;
             arduino_commands.left_motor_speed = 0;
             arduino_commands.right_motor_speed = 0;
             arduino_commands.camera_step_count = 0;
-            serial_handler.setCommand(arduino_commands);
+
+            if (!first_run)
+            {
+                while(!receiveMessage());
+            }
+            sendMessage(arduino_commands);
+
+            first_run = false;
         }
 
-        if (GUI_ON) {
+        if (GUI_ON)
+        {
             agent.drawDetections(frame_colored, DRAW_CUBES, DRAW_AXES);
-            // cv::resize(frame_colored, frame_colored, cv::Size(), 2, 2);
+            cv::resize(frame_colored, frame_colored, cv::Size(), 2, 2);
             gui_handler.setFrame(frame_colored);
 
-            if (tag_objects.size() != 0) {
+            if (tag_objects.size() != 0)
+            {
                 std::vector<TopDownObject> topdown_objects = TopDown::convertToTopDown(tag_objects);
                 auto window_size = frame_colored.size();
                 cv::Mat f = topdown.prepareView(topdown_objects, window_size);
                 gui_handler_topdown.setFrame(f);
             }
         }
-
-        std::cout << "main loop @ " << cv::getTickFrequency() / (cv::getTickCount() - stream_start) << " fps\n";
     }
 
     // yes
     stream_getter.stopStream();
     gui_handler.stop();
     gui_handler_topdown.stop();
-    serial_handler.stop();
 
     return 0;
 }

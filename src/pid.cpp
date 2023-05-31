@@ -2,7 +2,8 @@
 
 PIDController::PIDController() {}
 
-void PIDController::init(double p, double i, double d, double goal_value, double last_error, double last_measurement, double lim_min, double lim_max) {
+void PIDController::init(double p, double i, double d, double goal_value, double last_error, double last_measurement, double lim_min, double lim_max)
+{
     kp_ = p;
     ki_ = i;
     kd_ = d;
@@ -21,7 +22,8 @@ void PIDController::init(double p, double i, double d, double goal_value, double
     out_ = 0;
 }
 
-double PIDController::update(double measurement, double dt) {
+double PIDController::update(double measurement, double dt)
+{
     double err = goal_ - measurement;
 
     // proportional term
@@ -33,19 +35,28 @@ double PIDController::update(double measurement, double dt) {
     // clamp integral term (anti-windup via dynamic integrator clamping)
     double lim_min_int;
     double lim_max_int;
-    if (lim_max_ > proportional) {
+    if (lim_max_ > proportional)
+    {
         lim_max_int = lim_max_ - proportional;
-    } else {
+    }
+    else
+    {
         lim_max_int = 0;
     }
-    if (lim_min_ < proportional) {
+    if (lim_min_ < proportional)
+    {
         lim_min_int = lim_min_ - proportional;
-    } else {
+    }
+    else
+    {
         lim_min_int = 0;
     }
-    if (integral > lim_max_int) {
+    if (integral > lim_max_int)
+    {
         integral = lim_max_int;
-    } else if (integral < lim_min_int) {
+    }
+    else if (integral < lim_min_int)
+    {
         integral = lim_min_int;
     }
 
@@ -71,10 +82,12 @@ double PIDController::update(double measurement, double dt) {
     return out_;
 }
 
-void PIDController::setGoal(double new_goal) {
+void PIDController::setGoal(double new_goal)
+{
     goal_ = new_goal;
 }
 
-double PIDController::getGoal() {
+double PIDController::getGoal()
+{
     return goal_;
 }

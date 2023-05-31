@@ -2,23 +2,29 @@
 
 GUIHandler::GUIHandler() { mStopped = false; }
 
-bool GUIHandler::start(std::string frame_title) {
+bool GUIHandler::start(std::string frame_title)
+{
     if (!GUI_ON)
         return true;
 
-    try {
+    try
+    {
         mTh = std::thread(&GUIHandler::show, this);
         mFrameName = frame_title;
         return true;
-    } catch (...) {
+    }
+    catch (...)
+    {
         std::cerr << "Couldn't start a thread for GUI.\n";
         return false;
     }
 }
 
-void GUIHandler::show() {
+void GUIHandler::show()
+{
     // TODO: add mutex for mStopped
-    while (!mStopped) {
+    while (!mStopped)
+    {
         mReady = true;
 
         // wait before locking the mutex to not hog the members
@@ -34,13 +40,15 @@ void GUIHandler::show() {
     }
 }
 
-bool GUIHandler::isReady() {
+bool GUIHandler::isReady()
+{
     if (!GUI_ON)
         return true;
     return mReady;
 }
 
-bool GUIHandler::stop() {
+bool GUIHandler::stop()
+{
     if (!GUI_ON)
         return true;
 
@@ -50,7 +58,8 @@ bool GUIHandler::stop() {
     return true;
 }
 
-void GUIHandler::setFrame(const cv::Mat frame) {
+void GUIHandler::setFrame(const cv::Mat frame)
+{
     if (!GUI_ON)
         return;
 

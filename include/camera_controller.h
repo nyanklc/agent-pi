@@ -5,15 +5,16 @@
 #include <iostream>
 #include "./globals.h"
 
-class CameraController {
-   public:
+class CameraController
+{
+public:
     CameraController();
 
     void init(int goal, int multiplier, int tolerance);
 
     double update(int current);
 
-   private:
+private:
     double goal_;
     double multiplier_;
     double tolerance_;

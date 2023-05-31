@@ -16,9 +16,10 @@
 #include "arduino_commands.h"
 #include "globals.h"
 
-class SerialHandler {
-   public:
-    SerialHandler() {}  // dummy
+class SerialHandler
+{
+public:
+    SerialHandler() {} // dummy
 
     void init(std::string port, int baudrate);
 
@@ -30,11 +31,17 @@ class SerialHandler {
 
     void setCommand(const ArduinoCommands &commands);
 
-    std::string getMessage();
+    bool sendMessage();
+
+    bool receiveMessage();
+
+    bool checkMainReceived();
+
+    bool getMessage();
 
     static std::string constructFromCommands(const ArduinoCommands &commands);
 
-   private:
+private:
     void communicationLoop();
 
     std::string port_name_;
@@ -43,7 +50,9 @@ class SerialHandler {
     bool running_;
     ArduinoCommands command_to_send_;
     std::string message_to_send_;
-    std::string latest_received_;
+    bool main_read_;
+    bool new_send_;
+    bool new_receive_;
 
     std::thread th_;
     std::mutex mutex_send_;

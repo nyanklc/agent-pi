@@ -7,7 +7,8 @@
 
 #include "globals.h"
 
-extern "C" {
+extern "C"
+{
 #include <apriltag/apriltag.h>
 #include <apriltag/apriltag_math.h>
 #include <apriltag/apriltag_pose.h>
@@ -68,7 +69,8 @@ void drawAxes(std::vector<cv::Point3f> &axes, cv::Mat &frame,
               cv::Mat &rotationMatrix, cv::Mat &translationMatrix,
               std::vector<cv::Scalar> &colors);
 
-struct Transform {
+struct Transform
+{
     cv::Mat T;
 };
 

@@ -17,15 +17,15 @@
 #define DRAW_AXES true
 
 #define APRILTAG_ENABLED true
-#define APRILTAG_THREAD_COUNT 8  // 4 for rpi
+#define APRILTAG_THREAD_COUNT 8 // 4 for rpi
 #define APRILTAG_FAMILY_BIT_COUNT 2
 #define APRILTAG_DEBUG_ON false
 #define APRILTAG_QUAD_DECIMATE 0.8
 #define APRILTAG_QUAD_SIGMA 0.8
 #define APRILTAG_REFINE_EDGES 0
 
-#define APRILTAG_TAG_SIZE 0.055                // cm
-#define APRILTAG_POSE_ERROR_THRESHOLD 1.0E-04  // idk
+#define APRILTAG_TAG_SIZE 0.055               // cm
+#define APRILTAG_POSE_ERROR_THRESHOLD 1.0E-04 // idk
 
 // clockwise top view (back of master is id1)
 #define TAG_ID_1 0
@@ -52,18 +52,18 @@
 #define ANGULAR_LIM_MIN 0.0
 #define ANGULAR_LIM_MAX 1.0
 
-#define CAMERA_CONTROLLER_TOLERANCE CAMERA_SIZE_X / 20  // px
-#define CAMERA_CONTROLLER_LIMIT 5  // steps
-#define CAMERA_CONTROLLER_MULTIPLIER 0.05  // steps / px
+#define CAMERA_CONTROLLER_TOLERANCE CAMERA_SIZE_X / 20 // px
+#define CAMERA_CONTROLLER_LIMIT 5                      // steps
+#define CAMERA_CONTROLLER_MULTIPLIER 0.05              // steps / px
 // #define CAMERA_STEP_ANGLE 2 * M_PI / 200  // rad
-#define CAMERA_STEP_ANGLE 1.8 / 360 * 2 * M_PI  // rad
+#define CAMERA_STEP_ANGLE 1.8 / 360 * 2 * M_PI // rad
 #define CAMERA_YAW_INITIAL M_PI / 2
 
 #define LINEAR_GOAL_MULTIPLIER 1
 #define ANGULAR_GOAL_MULTIPLIER 2
 #define LINEAR_BACKWARD_RADIUS 0.1
 
-#define LIN_ANG_CONVERSION_ANG_MULTIPLIER 125 / M_PI
+#define LIN_ANG_CONVERSION_ANG_MULTIPLIER 200 / M_PI
 #define LIN_ANG_CONVERSION_LIN_MULTIPLIER 125
 
 #define GOAL_POSE_X_OFFSET 0
@@ -83,7 +83,7 @@
 #define CAMERA_FY 630.0
 #define CAMERA_CX 342.0
 #define CAMERA_CY 231.0
-#else  // RPi
+#else // RPi
 #define CAMERA_FX 566.00012405
 #define CAMERA_FY 565.67175398
 #define CAMERA_CX 290.05594646

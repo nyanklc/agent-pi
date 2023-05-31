@@ -12,18 +12,21 @@
 #include "pid.h"
 #include "camera_controller.h"
 
-struct GoalPose {
+struct GoalPose
+{
     double x;
     double y;
     double yaw;
 
-    void print(std::string name) {
+    void print(std::string name)
+    {
         std::cout << name << " x: " << -x << " y: " << -y << " yaw: " << yaw << "\n";
     }
 };
 
-class Agent {
-   public:
+class Agent
+{
+public:
     Agent();
 
     std::vector<TagPose> process(cv::Mat &frame);
@@ -44,8 +47,7 @@ class Agent {
 
     void convertToMotorSpeeds(ArduinoCommands &commands, double linear_speed, double ang_magnitude);
 
-   private:
-
+private:
     std::shared_ptr<AprilTagDetector> mApriltagDetector;
 
     PIDController linear_controller_;

@@ -1,9 +1,11 @@
 #include "../include/topdown.h"
 
-cv::Mat TopDown::prepareView(std::vector<TopDownObject> &objects, cv::Size &window_size) {
+cv::Mat TopDown::prepareView(std::vector<TopDownObject> &objects, cv::Size &window_size)
+{
     cv::Mat view(window_size, CV_8UC4, cv::Scalar(255, 255, 255, 255));
 
-    for (auto &obj : objects) {
+    for (auto &obj : objects)
+    {
         cv::Scalar obj_color(0, 0, 0);
         if (obj.name == "apriltag")
             obj_color = cv::Scalar(255, 0, 0);
@@ -23,10 +25,13 @@ cv::Mat TopDown::prepareView(std::vector<TopDownObject> &objects, cv::Size &wind
     return view;
 }
 
-std::vector<TopDownObject> TopDown::convertToTopDown(std::vector<TagPose> &tag_objects) {
+std::vector<TopDownObject> TopDown::convertToTopDown(std::vector<TagPose> &tag_objects)
+{
     std::vector<TopDownObject> topdown_objects;
-    if (tag_objects.size() == 0) return topdown_objects;  // shouldn't happen
-    for (auto &obj : tag_objects) {
+    if (tag_objects.size() == 0)
+        return topdown_objects; // shouldn't happen
+    for (auto &obj : tag_objects)
+    {
         TopDownObject tdo(obj);
         topdown_objects.push_back(tdo);
     }

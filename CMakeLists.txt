@@ -68,5 +68,5 @@ target_link_libraries(camera_controller)
 # add_executable(apriltag_test2 test/apriltag/apriltag_test2.cpp)
 # target_link_libraries(apriltag_test2 ${OpenCV_LIBS} april_tag_detector)
 
-# add_executable(serial_test test/serial/serial_test.cpp)
-# target_link_libraries(serial_test serial_handler ${WIRINGPI_LIB} ${WIRINGPI_DEV_LIB} Threads::Threads m)
+add_executable(serial_test test/serial/serial_test.cpp)
+target_link_libraries(serial_test ${WIRINGPI_LIB} ${WIRINGPI_DEV_LIB})
