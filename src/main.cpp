@@ -13,11 +13,14 @@
 #include "../include/gui_handler.h"
 #include "../include/stream_getter.h"
 #include "../include/topdown.h"
+#include <chrono>
+#include <thread>
 
 // RPi I/O library
 #include <wiringSerial.h>
 
 int SERIAL = 0;
+bool first_run = true;
 
 void initSerial(std::string port, int baudrate)
 {
@@ -115,6 +118,73 @@ bool receiveMessage()
     return false;
 }
 
+ArduinoCommands getZeroCommand()
+{
+    ArduinoCommands com;
+    com.camera_step_count = 0;
+    com.left_motor_speed = 0;
+    com.right_motor_speed = 0;
+    return com;
+}
+
+void getFrame(StreamGetter &stream_getter, cv::Mat &frame)
+{
+    // get frame
+    // do not process the same frame again
+    if (!stream_getter.isUpdated())
+        continue;
+    // quit if stream wasn't read
+    if (!stream_getter.getRetrieved())
+        break;
+    frame = stream_getter.getFrameGray();
+    if (GUI_ON)
+        frame_colored = stream_getter.getFrame();
+    if (frame.empty())
+        break;
+}
+
+inline ArduinoCommands getOutput(std::vector<TagPose> &tag_objects, Agent &agent)
+{
+    return tag_objects.size() > 0 ? agent.getOutputCommands(tag_objects) : getZeroCommand();
+}
+
+void sendOutput(ArduinoCommands &arduino_commands)
+{
+    if (!SERIAL_ON)
+        return;
+
+    if (!first_run)
+    {
+        using namespace std::chrono_literals;
+        while(!receiveMessage()) std::this_thread::sleep_for(50ms);
+    }
+    sendMessage(arduino_commands);
+    first_run = false;
+}
+
+void showOnGUI(
+    Agent &agent,
+    GUIHandler &gui_handler,
+    cv::Mat &frame_colored,
+    TopDown &topdown,
+    GUIHandler &gui_handler_topdown)
+{
+    if (GUI_ON)
+    {
+        agent.drawDetections(frame_colored, DRAW_CUBES, DRAW_AXES);
+        cv::resize(frame_colored, frame_colored, cv::Size(), 2, 2);
+        gui_handler.setFrame(frame_colored);
+
+        if (tag_objects.size() != 0)
+        {
+            std::vector<TopDownObject> topdown_objects = TopDown::convertToTopDown(tag_objects);
+            auto window_size = frame_colored.size();
+            cv::Mat f = topdown.prepareView(topdown_objects, window_size);
+            gui_handler_topdown.setFrame(f);
+        }
+    }
+}
+
 int main(int argc, char **argv)
 {
     std::cout << "### INITIALIZING ###\n";
@@ -128,84 +198,27 @@ int main(int argc, char **argv)
 
     cv::Mat frame;
     cv::Mat frame_colored;
-    bool first_run = true;
     std::cout << "### LET'S GOOOOOOOOOOOOOOOOOOOOOOOOOOOOO ###\n";
     while (1)
     {
         // auto stream_start = cv::getTickCount();
         // std::cout << "start: " << stream_start << "\n";
 
-        // get frame
-        // do not process the same frame again
-        if (!stream_getter.isUpdated())
-            continue;
-
-        // quit if stream wasn't read
-        if (!stream_getter.getRetrieved())
-            break;
-
-        // auto stream_ready = cv::getTickCount();
-        // std::cout << "ready: " << stream_start << "\n";
-
-        frame = stream_getter.getFrameGray();
-        if (GUI_ON)
-            frame_colored = stream_getter.getFrame();
-
-        if (frame.empty())
-            break;
-        // std::cout << "start @ " << (cv::getTickCount() - stream_start)/ cv::getTickFrequency() << " fps\n";
-        // std::cout << "ready @ " << (cv::getTickCount() - stream_ready)/ cv::getTickFrequency() << "fps\n";
+        getFrame(stream_getter, frame);
 
         // process
         auto process_start_time = cv::getTickCount();
         std::vector<TagPose> tag_objects = agent.process(frame); // TODO: copying vector here, find a better way
         // std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - process_start_time) << "\n";
 
-        if (tag_objects.size() > 0)
-        {
-            std::cout << "detection\n";
-            // generate and send control commands
-            ArduinoCommands arduino_commands = agent.getOutputCommands(tag_objects);
+        // get output command
+        ArduinoCommands output = getOutput(tag_objects, agent);
 
-            if (!first_run)
-            {
-                while(!receiveMessage());
-            }
-            sendMessage(arduino_commands);
+        // send to Arduino
+        sendOutput(output);
 
-            first_run = false;
-        }
-        else
-        {
-            std::cout << "no detection\n";
-            ArduinoCommands arduino_commands;
-            arduino_commands.left_motor_speed = 0;
-            arduino_commands.right_motor_speed = 0;
-            arduino_commands.camera_step_count = 0;
-
-            if (!first_run)
-            {
-                while(!receiveMessage());
-            }
-            sendMessage(arduino_commands);
-
-            first_run = false;
-        }
-
-        if (GUI_ON)
-        {
-            agent.drawDetections(frame_colored, DRAW_CUBES, DRAW_AXES);
-            cv::resize(frame_colored, frame_colored, cv::Size(), 2, 2);
-            gui_handler.setFrame(frame_colored);
-
-            if (tag_objects.size() != 0)
-            {
-                std::vector<TopDownObject> topdown_objects = TopDown::convertToTopDown(tag_objects);
-                auto window_size = frame_colored.size();
-                cv::Mat f = topdown.prepareView(topdown_objects, window_size);
-                gui_handler_topdown.setFrame(f);
-            }
-        }
+        // debug
+        showOnGUI(agent, gui_handler, frame_colored, topdown, gui_handler_topdown);
     }
 
     // yes
