@@ -5,8 +5,8 @@
 
 #define VIDEO_SOURCE 0
 
-#define CAMERA_SIZE_X 640
-#define CAMERA_SIZE_Y 480
+#define CAMERA_SIZE_X 640 / 2  // / 2 since we resize the frame
+#define CAMERA_SIZE_Y 480 / 2  // / 2 since we resize the frame
 
 #define SERIAL_ON true
 #define SERIAL_PORT "/dev/ttyACM0"
@@ -24,7 +24,7 @@
 #define APRILTAG_QUAD_SIGMA 0.8
 #define APRILTAG_REFINE_EDGES 0
 
-#define APRILTAG_TAG_SIZE 0.055               // cm
+#define APRILTAG_TAG_SIZE 0.055 / 2              // cm (/ 2 since we resize the frame)
 #define APRILTAG_POSE_ERROR_THRESHOLD 1.0E-04 // idk
 
 // clockwise top view (back of master is id1)
@@ -67,7 +67,9 @@
 #define LIN_ANG_CONVERSION_LIN_MULTIPLIER 125
 
 #define GOAL_POSE_X_OFFSET 0
-#define GOAL_POSE_Y_OFFSET 0
+#define GOAL_POSE_Y_OFFSET 0.3
+
+#define MIMIC_RADIUS 0.1
 
 // robot base to camera transform definition
 #define AGENT_TO_CAMERA_X_OFFSET 0
@@ -86,8 +88,8 @@
 #else // RPi
 #define CAMERA_FX 566.00012405
 #define CAMERA_FY 565.67175398
-#define CAMERA_CX 290.05594646
-#define CAMERA_CY 245.42029208
+#define CAMERA_CX 290.05594646 / 2
+#define CAMERA_CY 245.42029208 / 2
 #endif
 
 #endif

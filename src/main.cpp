@@ -49,7 +49,7 @@ bool receiveMessage()
     // receive
     try
     {
-        std::cout << serialDataAvail(SERIAL) << std::endl;
+        // std::cout << serialDataAvail(SERIAL) << std::endl;
         if (serialDataAvail(SERIAL) == 0)
         {
             // std::cout << "haven't received any messages yet\n";
@@ -214,8 +214,8 @@ int main(int argc, char **argv)
     std::cout << "### LET'S GOOOOOOOOOOOOOOOOOOOOOOOOOOOOO ###\n";
     while (1)
     {
-        // auto stream_start = cv::getTickCount();
-        // std::cout << "start: " << stream_start << "\n";
+        auto loop_start_time = cv::getTickCount();
+        // std::cout << "start: " << loop_start_time << "\n";
 
         int error = 0;
         if (!getFrame(stream_getter, frame, frame_colored, error))
@@ -236,6 +236,8 @@ int main(int argc, char **argv)
 
         // debug
         showOnGUI(agent, gui_handler, frame_colored, topdown, gui_handler_topdown, tag_objects);
+
+        std::cout << "loop fps: " << cv::getTickFrequency() / (cv::getTickCount() - loop_start_time) << "\n";
     }
 
     // yes

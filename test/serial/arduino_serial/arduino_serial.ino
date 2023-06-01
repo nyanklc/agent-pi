@@ -103,8 +103,7 @@ void setup()
 void loop()
 {
   float values[3] = {0, 0, 0};
-  // RPi sends 9 characters
-  if (Serial.available() > 14)
+  if (Serial.available() > 0)
   {
     String inputString = Serial.readStringUntil('\n');
 

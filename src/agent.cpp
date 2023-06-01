@@ -41,10 +41,8 @@ std::vector<TagPose> Agent::process(cv::Mat &frame)
 
 void Agent::convertToMotorSpeeds(ArduinoCommands &commands, double linear_speed, double ang_magnitude)
 {
-    // commands.left_motor_speed = LIN_ANG_CONVERSION_LIN_MULTIPLIER * linear_speed + LIN_ANG_CONVERSION_ANG_MULTIPLIER * ang_magnitude;
-    commands.left_motor_speed = 0;
-    // commands.right_motor_speed = LIN_ANG_CONVERSION_LIN_MULTIPLIER * linear_speed - LIN_ANG_CONVERSION_ANG_MULTIPLIER * ang_magnitude;
-    commands.right_motor_speed = 0;
+    commands.left_motor_speed = LIN_ANG_CONVERSION_LIN_MULTIPLIER * linear_speed + LIN_ANG_CONVERSION_ANG_MULTIPLIER * ang_magnitude;
+    commands.right_motor_speed = LIN_ANG_CONVERSION_LIN_MULTIPLIER * linear_speed - LIN_ANG_CONVERSION_ANG_MULTIPLIER * ang_magnitude;
 }
 
 ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
@@ -53,15 +51,21 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
     int tag_center_average = 0;
     for (auto &tag : tag_objects)
     {
+        tag.print();
+        std::cout << std::endl;
         tag_center_average += tag.center_x_px;
     }
     tag_center_average /= tag_objects.size();
+    tag_center_average /= 2;  // since we resize the frame
+    std::cout << "tag center: " << tag_center_average << std::endl;
 
     goal_pose_ = getMasterPose(tag_objects);
+    double rotation_angle = CAMERA_YAW_INITIAL - camera_yaw_;
+    rotatePose(goal_pose_, -rotation_angle); // maybe -rotation_angle
 
     ArduinoCommands commands;
-    // commands.camera_step_count = -camera_angular_controller_.update(tag_center_average); // negative to fix direction
-    commands.camera_step_count = 0;
+    commands.camera_step_count = -camera_angular_controller_.update(tag_center_average); // negative to fix direction
+    // commands.camera_step_count = 0;
 
     // camera stuff
     camera_yaw_ -= commands.camera_step_count * CAMERA_STEP_ANGLE;
@@ -71,11 +75,8 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
         camera_yaw_ += 2 * M_PI;
 
     std::cout << "camera yaw: " << camera_yaw_ << std::endl;
-    double rotation_angle = CAMERA_YAW_INITIAL - camera_yaw_;
-    rotatePose(goal_pose_, -rotation_angle); // maybe -rotation_angle
 
     goal_pose_.print("MASTER POSE");
-
     goal_pose_.x -= GOAL_POSE_X_OFFSET;
     goal_pose_.y -= GOAL_POSE_Y_OFFSET;
     goal_pose_.print("MIMIC POSE");
@@ -84,16 +85,13 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
     double goal_vector_angle = std::atan2(goal_pose_.y, goal_pose_.x);
     double goal_vector_len = std::hypot(goal_pose_.x, goal_pose_.y);
 
-    bool backward_enable = (goal_pose_.y < GOAL_POSE_Y_OFFSET) && goal_vector_len < LINEAR_BACKWARD_RADIUS;
-    // bool backward_enable = false;
-    // double lin_magnitude =  (backward_enable ? -1 : 1) * std::hypot(goal_pose_.x, goal_pose_.y) * LINEAR_GOAL_MULTIPLIER;
-
     // ulas modification (perpendicular distance to the goal)
-    double lin_magnitude = (backward_enable ? -1 : 1) * (goal_vector_angle > M_PI / 4 ? std::fabs(goal_pose_.y) : std::fabs(goal_pose_.x)) * LINEAR_GOAL_MULTIPLIER;
+    double lin_magnitude = goal_pose_.y * LINEAR_GOAL_MULTIPLIER;
     // double linear_speed = 0;
+
     double yaw_should_be = 0;
     // turn towards the mimic point if we're not close enough, otherwise turn towards master's orientation
-    if (goal_vector_len < LINEAR_BACKWARD_RADIUS)
+    if (goal_vector_len < MIMIC_RADIUS)
     {
         yaw_should_be = goal_pose_.yaw;
     }
@@ -103,25 +101,19 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
     }
     double ang_magnitude = (M_PI / 2 - yaw_should_be) * ANGULAR_GOAL_MULTIPLIER; // check if this should be negated
 
-    // control current speeds
-    // linear_controller_.setGoal(lin_magnitude);
-    // linear_controller_.setGoal(0);
-    // angular_controller_.setGoal(ang_magnitude);
-    // angular_controller_.setGoal(0);
-    // std::chrono::duration<double, std::micro> dur = std::chrono::high_resolution_clock::now();
-    // double curr_time = dur.count();
-    // current_linear_speed_ += linear_controller_.update(current_linear_speed_, curr_time - last_controller_update_time_);
-    // current_angular_speed_ += angular_controller_.update(current_angular_speed_, curr_time - last_controller_update_time_);
-    // last_controller_update_time_ = curr_time;  // idk about this
+    std::cout << "yaw should be: " << yaw_should_be << std::endl;
 
     current_linear_speed_ = lin_magnitude;
     current_angular_speed_ = ang_magnitude;
-
-    std::cout << "current lin: " << current_linear_speed_ << ", current ang: " << current_angular_speed_ << std::endl;
-
     convertToMotorSpeeds(commands, current_linear_speed_, current_angular_speed_);
 
+    // test
+    std::cout << "current lin: " << current_linear_speed_ << ", current ang: " << current_angular_speed_ << std::endl;
     commands.print("commands");
+    commands.camera_step_count = 0;
+    commands.left_motor_speed = 0;
+    commands.right_motor_speed = 0;
+    camera_yaw_ = CAMERA_YAW_INITIAL;
 
     return commands;
 }
@@ -144,11 +136,10 @@ void Agent::rotatePose(GoalPose &pose, double angle)
 GoalPose Agent::getMasterPose(std::vector<TagPose> &tag_objects)
 {
     auto tag = tag_objects[0];
-    // std::cout << "BEFORE tagx: " << tag.x << " tagy: " << tag.y << " tagz: " << tag.z << " tagroll: " << tag.roll << " tagpitch: " << tag.pitch << " tagyaw: " << tag.yaw << std::endl;
     double pitch = -tag.pitch;
     pitch -= M_PI / 2;
 
-    double x = tag.x;
+    double x = tag.x * 2;  // * 2 lmao
     double y = tag.z;
     switch (tag.id)
     {
@@ -181,8 +172,10 @@ GoalPose Agent::getMasterPose(std::vector<TagPose> &tag_objects)
         break;
     }
     GoalPose gp;
-    gp.x = x + TAG_BOX_SIZE / 2 * std::cos(pitch);
-    gp.y = y + TAG_BOX_SIZE / 2 * std::sin(pitch);
+    gp.x = x; // + TAG_BOX_SIZE / 2 * std::cos(pitch);
+    gp.y = y; // + TAG_BOX_SIZE / 2 * std::sin(pitch);
+    gp.y *= -1;  // idk
+    gp.x *= -1;  // idk
     gp.yaw = pitch;
     return gp;
 }
