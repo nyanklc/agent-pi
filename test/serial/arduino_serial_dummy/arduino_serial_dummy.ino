@@ -1,7 +1,7 @@
 #include <Stepper.h>
 
 const int steps_per_rev = 200;
-const int camera_stepper_setspeed = 120; // ?
+const int camera_stepper_setspeed = 60; // ?
 
 // PINS
 const int camera_stepper_1 = 8;
@@ -77,12 +77,6 @@ void setup()
 {
   Serial.begin(9600);
 
-  // pins
-  pinMode(left_motor_1, OUTPUT);
-  pinMode(left_motor_2, OUTPUT);
-  pinMode(right_motor_1, OUTPUT);
-  pinMode(right_motor_2, OUTPUT);
-
   // stepper
   camera_stepper.setSpeed(camera_stepper_setspeed);
 
@@ -92,46 +86,8 @@ void setup()
 
 void loop()
 {
-  float values[3] = {0, 0, 0};
-  if (Serial.available() > 0)
-  {
-    String inputString = Serial.readStringUntil('\n');
-
-    inputString.trim();
-
-    int i = 0;
-    char *p = strtok((char *)inputString.c_str(), " ");
-    while (p != NULL && i < 3)
-    {
-      values[i++] = atof(p);
-      p = strtok(NULL, " ");
-    }
-  }
-  else
-  {
-    delay(10);
-    return;
-  }
-
-  // clear incoming buffer
-  while (Serial.available() > 0)
-  {
-    char _ = Serial.read();  // Read and discard incoming characters
-  }
-  Serial.flush();
-
+  // drive camera stepper
+  drive_camera_stepper(200);
   digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
 
-  // READ SPEED VALUES
-  double left_s = values[0];   // m/s
-  double right_s = values[1];  // rad/s
-  double camera_s = values[2]; // rad/s
-
-  // drive camera stepper
-  drive_camera_stepper(camera_s);
-
-  send_response('a'); // OK response
-
-  // drive motors
-  drive_motors(left_s, right_s);
 }

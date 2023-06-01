@@ -49,10 +49,11 @@ bool receiveMessage()
     // receive
     try
     {
+        std::cout << "eherehrher\n";
         // std::cout << serialDataAvail(SERIAL) << std::endl;
         if (serialDataAvail(SERIAL) == 0)
         {
-            // std::cout << "haven't received any messages yet\n";
+            std::cout << "haven't received any messages yet\n";
             return false;
         }
         if (serialDataAvail(SERIAL) == -1)
@@ -65,6 +66,7 @@ bool receiveMessage()
         if ((char)ch == 'a')
         {
             std::cout << "OK received.\n";
+            while (serialDataAvail(SERIAL)) char _ = serialGetchar(SERIAL);
             return true;
         }
         else
