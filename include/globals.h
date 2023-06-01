@@ -52,7 +52,7 @@
 #define ANGULAR_LIM_MIN 0.0
 #define ANGULAR_LIM_MAX 1.0
 
-#define CAMERA_CONTROLLER_TOLERANCE CAMERA_SIZE_X / 20 // px
+#define CAMERA_CONTROLLER_TOLERANCE CAMERA_SIZE_X / 10 // px
 #define CAMERA_CONTROLLER_LIMIT 5                      // steps
 #define CAMERA_CONTROLLER_MULTIPLIER 0.05              // steps / px
 // #define CAMERA_STEP_ANGLE 2 * M_PI / 200  // rad

@@ -12,12 +12,12 @@ public:
 
     void init(int goal, int multiplier, int tolerance);
 
-    double update(int current);
+    int update(int current);
 
 private:
-    double goal_;
+    int goal_;
     double multiplier_;
-    double tolerance_;
+    int tolerance_;
 };
 
 #endif

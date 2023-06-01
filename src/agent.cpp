@@ -56,7 +56,6 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
         tag_center_average += tag.center_x_px;
     }
     tag_center_average /= tag_objects.size();
-    tag_center_average /= 2;  // since we resize the frame
     std::cout << "tag center: " << tag_center_average << std::endl;
 
     goal_pose_ = getMasterPose(tag_objects);
@@ -85,6 +84,9 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
     double goal_vector_angle = std::atan2(goal_pose_.y, goal_pose_.x);
     double goal_vector_len = std::hypot(goal_pose_.x, goal_pose_.y);
 
+    std::cout << "goal_Vector_angle: " << goal_vector_angle << std::endl;
+    std::cout << "goal_vector_len: " << goal_vector_len << std::endl;
+
     // ulas modification (perpendicular distance to the goal)
     double lin_magnitude = goal_pose_.y * LINEAR_GOAL_MULTIPLIER;
     // double linear_speed = 0;
@@ -93,10 +95,12 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
     // turn towards the mimic point if we're not close enough, otherwise turn towards master's orientation
     if (goal_vector_len < MIMIC_RADIUS)
     {
+        std::cout << "yaw should be towards master's orientation\n";
         yaw_should_be = goal_pose_.yaw;
     }
     else
     {
+        std::cout << "yaw should be towards mimic point\n";
         yaw_should_be = goal_vector_angle;
     }
     double ang_magnitude = (M_PI / 2 - yaw_should_be) * ANGULAR_GOAL_MULTIPLIER; // check if this should be negated
@@ -108,6 +112,7 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
     convertToMotorSpeeds(commands, current_linear_speed_, current_angular_speed_);
 
     // test
+    std::cout << "linmag: " << lin_magnitude << ", angmag: " << ang_magnitude << std::endl;
     std::cout << "current lin: " << current_linear_speed_ << ", current ang: " << current_angular_speed_ << std::endl;
     commands.print("commands");
     commands.camera_step_count = 0;
@@ -172,10 +177,9 @@ GoalPose Agent::getMasterPose(std::vector<TagPose> &tag_objects)
         break;
     }
     GoalPose gp;
+    // TODO
     gp.x = x; // + TAG_BOX_SIZE / 2 * std::cos(pitch);
     gp.y = y; // + TAG_BOX_SIZE / 2 * std::sin(pitch);
-    gp.y *= -1;  // idk
-    gp.x *= -1;  // idk
     gp.yaw = pitch;
     return gp;
 }

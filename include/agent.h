@@ -20,7 +20,7 @@ struct GoalPose
 
     void print(std::string name)
     {
-        std::cout << name << " x: " << -x << " y: " << -y << " yaw: " << yaw << "\n";
+        std::cout << name << " x: " << x << " y: " << y << " yaw: " << yaw << "\n";
     }
 };
 

@@ -9,7 +9,7 @@ void CameraController::init(int goal, int multiplier, int tolerance)
     tolerance_ = tolerance;
 }
 
-double CameraController::update(int current)
+int CameraController::update(int current)
 {
     // std::cout << "goal: " << goal_ << ", current: " << current << std::endl;
     if (std::abs(goal_ - current) <= CAMERA_CONTROLLER_TOLERANCE)
