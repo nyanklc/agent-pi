@@ -32,42 +32,6 @@ void initSerial(std::string port, int baudrate)
     }
 }
 
-bool initSystem(StreamGetter &stream_getter, Agent &agent, GUIHandler &gui_handler, GUIHandler &gui_handler2)
-{
-    if (!stream_getter.getRetrieved())
-        return false;
-
-    if (!stream_getter.startStream())
-        return false;
-
-    // wait until the stream thread starts
-    while (!stream_getter.isReady())
-        ;
-
-    if (SERIAL_ON)
-    {
-        initSerial(SERIAL_PORT, SERIAL_BAUDRATE);
-    }
-
-    if (GUI_ON)
-    {
-        if (!gui_handler.start("agent-pi"))
-            return false;
-
-        while (!gui_handler.isReady())
-            ;
-
-        // topdown
-        if (!gui_handler2.start("topdown view"))
-            return false;
-
-        while (!gui_handler2.isReady())
-            ;
-    }
-
-    return true;
-}
-
 std::string constructFromCommands(const ArduinoCommands &commands)
 {
     return std::to_string(commands.left_motor_speed) + " " + std::to_string(commands.right_motor_speed) + " " + std::to_string(commands.camera_step_count) + '\n';
@@ -127,20 +91,25 @@ ArduinoCommands getZeroCommand()
     return com;
 }
 
-void getFrame(StreamGetter &stream_getter, cv::Mat &frame)
+bool getFrame(StreamGetter &stream_getter, cv::Mat &frame, cv::Mat &frame_colored, int &error)
 {
     // get frame
     // do not process the same frame again
     if (!stream_getter.isUpdated())
-        continue;
+        return false;
     // quit if stream wasn't read
     if (!stream_getter.getRetrieved())
-        break;
+    {
+        error = 1;
+    }
     frame = stream_getter.getFrameGray();
     if (GUI_ON)
         frame_colored = stream_getter.getFrame();
     if (frame.empty())
-        break;
+    {
+        error = 1;
+    }
+    return true;
 }
 
 inline ArduinoCommands getOutput(std::vector<TagPose> &tag_objects, Agent &agent)
@@ -167,7 +136,8 @@ void showOnGUI(
     GUIHandler &gui_handler,
     cv::Mat &frame_colored,
     TopDown &topdown,
-    GUIHandler &gui_handler_topdown)
+    GUIHandler &gui_handler_topdown,
+    std::vector<TagPose> &tag_objects)
 {
     if (GUI_ON)
     {
@@ -183,6 +153,49 @@ void showOnGUI(
             gui_handler_topdown.setFrame(f);
         }
     }
+}
+
+bool initSystem(StreamGetter &stream_getter, Agent &agent, GUIHandler &gui_handler, GUIHandler &gui_handler2)
+{
+    if (!stream_getter.getRetrieved())
+        return false;
+
+    if (!stream_getter.startStream())
+        return false;
+
+    // wait until the stream thread starts
+    while (!stream_getter.isReady())
+        ;
+
+    if (SERIAL_ON)
+    {
+        initSerial(SERIAL_PORT, SERIAL_BAUDRATE);
+    }
+
+    if (GUI_ON)
+    {
+        if (!gui_handler.start("agent-pi"))
+            return false;
+
+        while (!gui_handler.isReady())
+            ;
+
+        // topdown
+        if (!gui_handler2.start("topdown view"))
+            return false;
+
+        while (!gui_handler2.isReady())
+            ;
+    }
+
+    // Arduino resets after receiving first message??
+    std::cout << "resetting Arduino\n";
+    ArduinoCommands init_command = getZeroCommand();
+    sendMessage(init_command);
+    using namespace std::chrono_literals;
+    std::this_thread::sleep_for(5000ms);
+
+    return true;
 }
 
 int main(int argc, char **argv)
@@ -204,7 +217,11 @@ int main(int argc, char **argv)
         // auto stream_start = cv::getTickCount();
         // std::cout << "start: " << stream_start << "\n";
 
-        getFrame(stream_getter, frame);
+        int error = 0;
+        if (!getFrame(stream_getter, frame, frame_colored, error))
+            continue;
+        if (error)
+            break;
 
         // process
         auto process_start_time = cv::getTickCount();
@@ -218,7 +235,7 @@ int main(int argc, char **argv)
         sendOutput(output);
 
         // debug
-        showOnGUI(agent, gui_handler, frame_colored, topdown, gui_handler_topdown);
+        showOnGUI(agent, gui_handler, frame_colored, topdown, gui_handler_topdown, tag_objects);
     }
 
     // yes

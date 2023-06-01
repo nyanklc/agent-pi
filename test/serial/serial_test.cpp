@@ -69,25 +69,35 @@ bool receiveMessage()
     }
 }
 
+ArduinoCommands getZeroCommand()
+{
+    ArduinoCommands com;
+    com.camera_step_count = 0;
+    com.left_motor_speed = 0;
+    com.right_motor_speed = 0;
+    return com;
+}
+
 int main(int argc, char **argv)
 {
     using namespace std::chrono_literals;
 
     initSerial("/dev/ttyACM0", 9600);
 
+    ArduinoCommands init_command = getZeroCommand();
+    sendMessage(init_command);
+    std::this_thread::sleep_for(5000ms);
+
     bool first_run = true;
     while (1)
     {
-        ArduinoCommands commands;
-        commands.left_motor_speed = 0;
-        commands.right_motor_speed = 0;
-        commands.camera_step_count = 0;
+        ArduinoCommands command = getZeroCommand();
 
         if (!first_run)
         {
             while(!receiveMessage()) std::this_thread::sleep_for(2000ms);
         }
-        sendMessage(commands);
+        sendMessage(command);
 
         first_run = false;
     }
