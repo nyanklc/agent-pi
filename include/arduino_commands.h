@@ -6,9 +6,9 @@
 
 struct ArduinoCommands
 {
-    double left_motor_speed;
-    double right_motor_speed;
-    double camera_step_count;
+    int left_motor_speed;
+    int right_motor_speed;
+    int camera_step_count;
 
     void print(std::string msg = "")
     {

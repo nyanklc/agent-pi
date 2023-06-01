@@ -93,27 +93,6 @@ ArduinoCommands getZeroCommand()
     return com;
 }
 
-bool getFrame(StreamGetter &stream_getter, cv::Mat &frame, cv::Mat &frame_colored, int &error)
-{
-    // get frame
-    // do not process the same frame again
-    if (!stream_getter.isUpdated())
-        return false;
-    // quit if stream wasn't read
-    if (!stream_getter.getRetrieved())
-    {
-        error = 1;
-    }
-    frame = stream_getter.getFrameGray();
-    if (GUI_ON)
-        frame_colored = stream_getter.getFrame();
-    if (frame.empty())
-    {
-        error = 1;
-    }
-    return true;
-}
-
 inline ArduinoCommands getOutput(std::vector<TagPose> &tag_objects, Agent &agent)
 {
     return tag_objects.size() > 0 ? agent.getOutputCommands(tag_objects) : getZeroCommand();
@@ -157,18 +136,8 @@ void showOnGUI(
     }
 }
 
-bool initSystem(StreamGetter &stream_getter, Agent &agent, GUIHandler &gui_handler, GUIHandler &gui_handler2)
+bool initSystem(Agent &agent, GUIHandler &gui_handler, GUIHandler &gui_handler2)
 {
-    if (!stream_getter.getRetrieved())
-        return false;
-
-    if (!stream_getter.startStream())
-        return false;
-
-    // wait until the stream thread starts
-    while (!stream_getter.isReady())
-        ;
-
     if (SERIAL_ON)
     {
         initSerial(SERIAL_PORT, SERIAL_BAUDRATE);
@@ -200,30 +169,65 @@ bool initSystem(StreamGetter &stream_getter, Agent &agent, GUIHandler &gui_handl
     return true;
 }
 
+void readFrame(cv::VideoCapture &cvCap, cv::Mat &frame, cv::Mat &frame_colored, cv::Mat &last_frame)
+{
+    try
+    {
+        if(!cvCap.read(frame_colored)) throw;
+
+        cv::cvtColor(frame_colored, frame, cv::COLOR_BGRA2GRAY);
+        cv::resize(frame, frame, cv::Size(), 0.5, 0.5);
+
+        if (!first_run)
+        {
+            cv::Mat diff = frame - last_frame;
+            std::cout << "ASDKALKSD: " << cv::countNonZero(diff) << std::endl;
+            while (!cv::countNonZero(diff))
+            {
+                if(!cvCap.read(frame)) throw;
+                diff = frame - last_frame;
+            }
+        }
+        last_frame = frame;
+
+
+        if (GUI_ON)
+                cv::resize(frame_colored, frame_colored, cv::Size(), 0.5, 0.5);
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+}
+
 int main(int argc, char **argv)
 {
     std::cout << "### INITIALIZING ###\n";
-    StreamGetter stream_getter(0);
     Agent agent;
     GUIHandler gui_handler;
     GUIHandler gui_handler_topdown;
     TopDown topdown;
 
-    initSystem(stream_getter, agent, gui_handler, gui_handler_topdown);
+    cv::VideoCapture cvCap = cv::VideoCapture(VIDEO_SOURCE);
+
+    initSystem(agent, gui_handler, gui_handler_topdown);
 
     cv::Mat frame;
     cv::Mat frame_colored;
+    cv::Mat last_frame;
     std::cout << "### LET'S GOOOOOOOOOOOOOOOOOOOOOOOOOOOOO ###\n";
     while (1)
     {
         auto loop_start_time = cv::getTickCount();
         // std::cout << "start: " << loop_start_time << "\n";
 
-        int error = 0;
-        if (!getFrame(stream_getter, frame, frame_colored, error))
-            continue;
-        if (error)
-            break;
+        readFrame(cvCap, frame, frame_colored, last_frame);
+
+        // int error = 0;
+        // if (!getFrame(stream_getter, frame, frame_colored, error))
+        //     continue;
+        // if (error)
+        //     break;
 
         // process
         auto process_start_time = cv::getTickCount();
@@ -243,7 +247,6 @@ int main(int argc, char **argv)
     }
 
     // yes
-    stream_getter.stopStream();
     gui_handler.stop();
     gui_handler_topdown.stop();
 

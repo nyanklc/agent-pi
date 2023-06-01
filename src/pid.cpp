@@ -1,5 +1,7 @@
 #include "../include/pid.h"
 
+#include <iostream>
+
 PIDController::PIDController() {}
 
 void PIDController::init(double p, double i, double d, double goal_value, double last_error, double last_measurement, double lim_min, double lim_max)
@@ -25,9 +27,13 @@ void PIDController::init(double p, double i, double d, double goal_value, double
 double PIDController::update(double measurement, double dt)
 {
     double err = goal_ - measurement;
+    std::cout << "GOAL: " << goal_ << std::endl;
+    std::cout << "MEAS: " << measurement << std::endl;
+    std::cout << "ERR: " << err << std::endl;
 
     // proportional term
     double proportional = kp_ * err;
+    std::cout << "PROPROOPR: " << proportional << std::endl;
 
     // filtered integral term
     double integral = integrator_ + 0.5 * ki_ * dt * (err - last_error_);
@@ -62,8 +68,10 @@ double PIDController::update(double measurement, double dt)
 
     // derivative term (bandlimited differentiator) (derivative on measurement to prevent kick)
     // TODO: tau?
-    tau_ = 0.02;
+    tau_ = 2;
     double derivative = -(-2.0 * kd_ * (measurement - last_measurement_) + (2.0 * tau_ - dt) * differentiator_) / (2.0 * tau_ * dt);
+
+    derivative = 0;  // yes
 
     out_ = proportional + integral + derivative;
 
@@ -78,6 +86,8 @@ double PIDController::update(double measurement, double dt)
     last_measurement_ = measurement;
     integrator_ = integral;
     differentiator_ = derivative;
+
+    std::cout << "p: " << proportional << ", i: " << integral << ", d: " << derivative << ", output: " << out_ << std::endl;
 
     return out_;
 }

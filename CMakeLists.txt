@@ -35,7 +35,7 @@ add_dependencies(main ${OpenCV_LIBS} stream_getter agent serial_handler gui_hand
 target_link_libraries(main ${OpenCV_LIBS} stream_getter agent serial_handler gui_handler topdown)
 
 add_library(agent src/agent.cpp)
-target_link_libraries(agent ${OpenCV_LIBS} april_tag_detector pid camera_controller)
+target_link_libraries(agent ${OpenCV_LIBS} april_tag_detector pid camera_controller simple_controller)
 
 add_library(stream_getter src/stream_getter.cpp)
 target_link_libraries(stream_getter ${OpenCV_LIBS})
@@ -57,6 +57,9 @@ target_link_libraries(topdown ${OpenCV_LIBS})
 
 add_library(pid src/pid.cpp)
 target_link_libraries(pid)
+
+add_library(simple_controller src/simple_controller.cpp)
+target_link_libraries(simple_controller)
 
 add_library(camera_controller src/camera_controller.cpp)
 target_link_libraries(camera_controller)

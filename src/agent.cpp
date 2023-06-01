@@ -5,8 +5,8 @@ Agent::Agent()
     mApriltagDetector = std::make_shared<AprilTagDetector>();
     mApriltagDetector->init();
 
-    linear_controller_.init(LINEAR_P, LINEAR_I, LINEAR_D, 0, 0, 0, LINEAR_LIM_MAX, LINEAR_LIM_MIN);
-    angular_controller_.init(ANGULAR_P, ANGULAR_I, ANGULAR_D, 0, 0, 0, ANGULAR_LIM_MAX, ANGULAR_LIM_MIN);
+    linear_controller_.init(LINEAR_STEP_AMOUNT, LINEAR_TOLERANCE, LINEAR_MIN_LIMIT);
+    angular_controller_.init(ANGULAR_STEP_AMOUNT, ANGULAR_TOLERANCE, ANGULAR_MIN_LIMIT);
     camera_angular_controller_.init(CAMERA_SIZE_X / 2, 1, CAMERA_CONTROLLER_TOLERANCE);
 
     camera_yaw_ = CAMERA_YAW_INITIAL;
@@ -14,6 +14,9 @@ Agent::Agent()
     current_linear_speed_ = 0;
     current_angular_speed_ = 0;
     last_controller_update_time_ = 0;
+
+    goal_x_offset_ = GOAL_POSE_X_OFFSET;
+    goal_y_offset_ = GOAL_POSE_Y_OFFSET;
 }
 
 void Agent::drawDetections(cv::Mat &frame, bool cube_on, bool axes_on)
@@ -41,8 +44,35 @@ std::vector<TagPose> Agent::process(cv::Mat &frame)
 
 void Agent::convertToMotorSpeeds(ArduinoCommands &commands, double linear_speed, double ang_magnitude)
 {
-    commands.left_motor_speed = LIN_ANG_CONVERSION_LIN_MULTIPLIER * linear_speed + LIN_ANG_CONVERSION_ANG_MULTIPLIER * ang_magnitude;
-    commands.right_motor_speed = LIN_ANG_CONVERSION_LIN_MULTIPLIER * linear_speed - LIN_ANG_CONVERSION_ANG_MULTIPLIER * ang_magnitude;
+    // 0.8 m/s maximum (255)
+
+    double linear = LIN_ANG_CONVERSION_LIN_MULTIPLIER * linear_speed;
+    double angular = LIN_ANG_CONVERSION_ANG_MULTIPLIER * ang_magnitude;
+
+    if (linear < 0)
+        angular *= -1;
+
+    commands.left_motor_speed = linear + angular;
+    commands.right_motor_speed = linear - angular;
+
+    if (commands.left_motor_speed > 255)
+        commands.left_motor_speed = 255;
+    else if (commands.left_motor_speed < -255)
+        commands.left_motor_speed = -255;
+
+    if (commands.right_motor_speed > 255)
+        commands.right_motor_speed = 255;
+    else if (commands.right_motor_speed < -255)
+        commands.right_motor_speed = -255;
+}
+
+void rotate(double angle, double &x, double &y)
+{
+    double newx = x * std::cos(angle) - y * std::sin(angle);
+    double newy = x * std::sin(angle) + y * std::cos(angle);
+
+    x = newx;
+    y = newy;
 }
 
 ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
@@ -75,9 +105,11 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
     double rotation_angle = CAMERA_YAW_INITIAL - camera_yaw_;
     rotatePose(goal_pose_, -rotation_angle); // maybe -rotation_angle
 
+    rotate(camera_yaw_ - M_PI / 2, goal_x_offset_, goal_y_offset_);
+
     goal_pose_.print("MASTER POSE");
-    goal_pose_.x -= GOAL_POSE_X_OFFSET;
-    goal_pose_.y -= GOAL_POSE_Y_OFFSET;
+    goal_pose_.x -= goal_x_offset_;
+    goal_pose_.y -= goal_y_offset_;
     goal_pose_.print("MIMIC POSE");
 
     // calculate what current speeds should be
@@ -107,15 +139,22 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
 
     std::cout << "yaw should be: " << yaw_should_be << std::endl;
 
-    current_linear_speed_ = lin_magnitude;
-    current_angular_speed_ = ang_magnitude;
+    // controllers
+    linear_controller_.setGoal(lin_magnitude);
+    angular_controller_.setGoal(ang_magnitude);
+    std::cout << "BEFORE current lin: " << current_linear_speed_ << ", current ang: " << current_angular_speed_ << std::endl;
+    current_linear_speed_ += linear_controller_.update(current_linear_speed_);
+    current_angular_speed_ += angular_controller_.update(current_angular_speed_);
+    std::cout << "AFTER current lin: " << current_linear_speed_ << ", current ang: " << current_angular_speed_ << std::endl;
+
     convertToMotorSpeeds(commands, current_linear_speed_, current_angular_speed_);
 
     // test
     std::cout << "linmag: " << lin_magnitude << ", angmag: " << ang_magnitude << std::endl;
     std::cout << "current lin: " << current_linear_speed_ << ", current ang: " << current_angular_speed_ << std::endl;
-    commands.left_motor_speed = 0;
-    commands.right_motor_speed = 0;
+    // commands.left_motor_speed = 0;
+    // commands.right_motor_speed = 0;
+    // commands.camera_step_count = 0;
     commands.print("commands");
 
     return commands;

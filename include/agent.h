@@ -9,8 +9,8 @@
 #include "april_tag_detector.h"
 #include "arduino_commands.h"
 #include "globals.h"
-#include "pid.h"
 #include "camera_controller.h"
+#include "simple_controller.h"
 
 struct GoalPose
 {
@@ -50,8 +50,8 @@ public:
 private:
     std::shared_ptr<AprilTagDetector> mApriltagDetector;
 
-    PIDController linear_controller_;
-    PIDController angular_controller_;
+    SimpleController linear_controller_;
+    SimpleController angular_controller_;
     CameraController camera_angular_controller_;
 
     GoalPose goal_pose_;
@@ -62,6 +62,8 @@ private:
     double last_controller_update_time_;
 
     double camera_yaw_;
+    double goal_x_offset_;
+    double goal_y_offset_;
 };
 
 #endif
