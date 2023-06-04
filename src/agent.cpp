@@ -44,8 +44,6 @@ std::vector<TagPose> Agent::process(cv::Mat &frame)
 
 void Agent::convertToMotorSpeeds(ArduinoCommands &commands, double linear_speed, double ang_magnitude)
 {
-    // 0.8 m/s maximum (255)
-
     double linear = LIN_ANG_CONVERSION_LIN_MULTIPLIER * linear_speed;
     double angular = LIN_ANG_CONVERSION_ANG_MULTIPLIER * ang_magnitude;
 
@@ -66,10 +64,15 @@ void Agent::convertToMotorSpeeds(ArduinoCommands &commands, double linear_speed,
         commands.right_motor_speed = -255;
 }
 
-void rotate(double angle, double &x, double &y)
+void rotate(double angle, double &x, double &y, double prev_angle)
 {
-    double newx = x * std::cos(angle) - y * std::sin(angle);
-    double newy = x * std::sin(angle) + y * std::cos(angle);
+    // std::cout << "angle: " << angle << ", prev_angle: " << prev_angle << std::endl;
+
+    if (prev_angle == angle)
+        return;
+
+    double newx = x * std::cos(angle - prev_angle) - y * std::sin(angle - prev_angle);
+    double newy = x * std::sin(angle - prev_angle) + y * std::cos(angle - prev_angle);
 
     x = newx;
     y = newy;
@@ -85,7 +88,7 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
         tag_center_average += tag.center_x_px;
     }
     tag_center_average /= tag_objects.size();
-    std::cout << "tag center: " << tag_center_average << std::endl;
+    // std::cout << "tag center: " << tag_center_average << std::endl;
 
     goal_pose_ = getMasterPose(tag_objects);
 
@@ -94,6 +97,7 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
     // commands.camera_step_count = 0;
 
     // camera stuff
+    prev_camera_yaw_ = camera_yaw_;
     camera_yaw_ -= commands.camera_step_count * CAMERA_STEP_ANGLE;
     while (camera_yaw_ > M_PI)
         camera_yaw_ -= 2 * M_PI;
@@ -105,7 +109,8 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
     double rotation_angle = CAMERA_YAW_INITIAL - camera_yaw_;
     rotatePose(goal_pose_, -rotation_angle); // maybe -rotation_angle
 
-    rotate(camera_yaw_ - M_PI / 2, goal_x_offset_, goal_y_offset_);
+    rotate(camera_yaw_ - CAMERA_YAW_INITIAL, goal_x_offset_, goal_y_offset_, prev_camera_yaw_ - CAMERA_YAW_INITIAL);
+    // std::cout << "goal_x_offset: " << goal_x_offset_ << ", goal_y_offset: " << goal_y_offset_ << std::endl;
 
     goal_pose_.print("MASTER POSE");
     goal_pose_.x -= goal_x_offset_;
@@ -116,28 +121,28 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
     double goal_vector_angle = std::atan2(goal_pose_.y, goal_pose_.x);
     double goal_vector_len = std::hypot(goal_pose_.x, goal_pose_.y);
 
-    std::cout << "goal_Vector_angle: " << goal_vector_angle << std::endl;
-    std::cout << "goal_vector_len: " << goal_vector_len << std::endl;
+    // std::cout << "goal_Vector_angle: " << goal_vector_angle << std::endl;
+    // std::cout << "goal_vector_len: " << goal_vector_len << std::endl;
 
     // ulas modification (perpendicular distance to the goal)
-    double lin_magnitude = goal_pose_.y * LINEAR_GOAL_MULTIPLIER;
+    double lin_magnitude = goal_pose_.y;
     // double linear_speed = 0;
 
     double yaw_should_be = 0;
     // turn towards the mimic point if we're not close enough, otherwise turn towards master's orientation
     if (goal_vector_len < MIMIC_RADIUS)
     {
-        std::cout << "yaw should be towards master's orientation\n";
+        // std::cout << "yaw should be towards master's orientation\n";
         yaw_should_be = goal_pose_.yaw;
     }
     else
     {
-        std::cout << "yaw should be towards mimic point\n";
+        // std::cout << "yaw should be towards mimic point\n";
         yaw_should_be = goal_vector_angle;
     }
-    double ang_magnitude = (M_PI / 2 - yaw_should_be) * ANGULAR_GOAL_MULTIPLIER; // check if this should be negated
+    double ang_magnitude = (M_PI / 2 - yaw_should_be); // check if this should be negated
 
-    std::cout << "yaw should be: " << yaw_should_be << std::endl;
+    // std::cout << "yaw should be: " << yaw_should_be << std::endl;
 
     // controllers
     linear_controller_.setGoal(lin_magnitude);
@@ -152,10 +157,11 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
     // test
     std::cout << "linmag: " << lin_magnitude << ", angmag: " << ang_magnitude << std::endl;
     std::cout << "current lin: " << current_linear_speed_ << ", current ang: " << current_angular_speed_ << std::endl;
+    commands.print("commands");
+
     // commands.left_motor_speed = 0;
     // commands.right_motor_speed = 0;
     // commands.camera_step_count = 0;
-    commands.print("commands");
 
     return commands;
 }

@@ -64,6 +64,7 @@ private:
     double camera_yaw_;
     double goal_x_offset_;
     double goal_y_offset_;
+    double prev_camera_yaw_;
 };
 
 #endif

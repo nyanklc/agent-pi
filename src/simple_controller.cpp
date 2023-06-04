@@ -16,8 +16,8 @@ double SimpleController::update(double measurement)
             return -min_limit_ - measurement;
         else
             return -measurement;
-    
-    return (std::fabs(goal_ - measurement) > tolerance_) ? ((goal_ - measurement > 0) ? step_amount_ : -step_amount_*3) : 0;
+
+    return (std::fabs(goal_ - measurement) > tolerance_) ? ((goal_ - measurement > 0) ? step_amount_ : -step_amount_) : 0;
 }
 
 void SimpleController::setGoal(double new_goal)

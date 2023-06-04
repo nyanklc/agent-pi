@@ -41,7 +41,7 @@ void sendMessage(ArduinoCommands &commands)
 {
     std::string message = constructFromCommands(commands);
     serialPrintf(SERIAL, "%s\n", message.c_str());
-    std::cout << "serial sent: " << message << std::endl;
+    // std::cout << "serial sent: " << message << std::endl;
 }
 
 bool receiveMessage()
@@ -49,7 +49,6 @@ bool receiveMessage()
     // receive
     try
     {
-        std::cout << "eherehrher\n";
         // std::cout << serialDataAvail(SERIAL) << std::endl;
         if (serialDataAvail(SERIAL) == 0)
         {
@@ -65,7 +64,7 @@ bool receiveMessage()
         int ch = serialGetchar(SERIAL);
         if ((char)ch == 'a')
         {
-            std::cout << "OK received.\n";
+            // std::cout << "OK received.\n";
             while (serialDataAvail(SERIAL)) char _ = serialGetchar(SERIAL);
             return true;
         }
@@ -181,7 +180,6 @@ void readFrame(cv::VideoCapture &cvCap, cv::Mat &frame, cv::Mat &frame_colored, 
         if (!first_run)
         {
             cv::Mat diff = frame - last_frame;
-            std::cout << "ASDKALKSD: " << cv::countNonZero(diff) << std::endl;
             while (!cv::countNonZero(diff))
             {
                 if(!cvCap.read(frame)) throw;

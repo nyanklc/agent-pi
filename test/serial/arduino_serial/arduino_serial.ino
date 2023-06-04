@@ -1,18 +1,18 @@
 #include <Stepper.h>
 
 const int steps_per_rev = 200;
-const int camera_stepper_setspeed = 120; // ?
+const int camera_stepper_setspeed = 40; // ?
 
 // PINS
-const int camera_stepper_1 = 8;
-const int camera_stepper_2 = 10;
-const int camera_stepper_3 = 11;
-const int camera_stepper_4 = 12;
+const int camera_stepper_1 = 12;
+const int camera_stepper_2 = 11;
+const int camera_stepper_3 = 10;
+const int camera_stepper_4 = 8;
 
-const int left_motor_1 = 3;
-const int left_motor_2 = 5;
-const int right_motor_1 = 6;
-const int right_motor_2 = 9;
+const int left_motor_1 = 5;
+const int left_motor_2 = 3;
+const int right_motor_1 = 9;
+const int right_motor_2 = 6;
 
 Stepper camera_stepper(steps_per_rev, camera_stepper_1, camera_stepper_2, camera_stepper_3, camera_stepper_4);
 
@@ -34,7 +34,7 @@ void drive_motors(int left_s, int right_s)
     if (left_s < -255)
       left_s = -255;
     analogWrite(left_motor_1, 0);
-    analogWrite(left_motor_2, left_s);
+    analogWrite(left_motor_2, -left_s);
   }
   else
   {
@@ -54,7 +54,7 @@ void drive_motors(int left_s, int right_s)
     if (right_s < -255)
       right_s = -255;
     analogWrite(right_motor_1, 0);
-    analogWrite(right_motor_2, right_s);
+    analogWrite(right_motor_2, -right_s); 
   }
   else
   {
@@ -63,8 +63,21 @@ void drive_motors(int left_s, int right_s)
   }
 }
 
+void stop_stepper()
+{
+  digitalWrite(camera_stepper_1, LOW);
+  digitalWrite(camera_stepper_2, LOW);
+  digitalWrite(camera_stepper_3, LOW);
+  digitalWrite(camera_stepper_4, LOW);
+}
+
 void drive_camera_stepper(int camera_s)
 {
+  if (camera_s == 0)
+   {
+    stop_stepper();
+    return;
+   }
   camera_stepper.step(camera_s);
 }
 
