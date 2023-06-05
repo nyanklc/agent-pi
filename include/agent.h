@@ -11,6 +11,7 @@
 #include "globals.h"
 #include "camera_controller.h"
 #include "simple_controller.h"
+#include "pid.h"
 
 struct GoalPose
 {
@@ -47,11 +48,16 @@ public:
 
     void convertToMotorSpeeds(ArduinoCommands &commands, double linear_speed, double ang_magnitude);
 
+    void stopRobot();
+
 private:
     std::shared_ptr<AprilTagDetector> mApriltagDetector;
 
     SimpleController linear_controller_;
     SimpleController angular_controller_;
+
+    // PIDController linear_controller_;
+    // PIDController angular_controller_;
     CameraController camera_angular_controller_;
 
     GoalPose goal_pose_;

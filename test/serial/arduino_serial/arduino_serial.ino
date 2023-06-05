@@ -105,7 +105,7 @@ void setup()
 
 void loop()
 {
-  float values[3] = {0, 0, 0};
+  float values[3] = {-999, -999, -999};
   if (Serial.available() > 0)
   {
     String inputString = Serial.readStringUntil('\n');
@@ -119,6 +119,7 @@ void loop()
       values[i++] = atof(p);
       p = strtok(NULL, " ");
     }
+    
   }
   else
   {
@@ -134,6 +135,9 @@ void loop()
   Serial.flush();
 
   digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+
+  if (values[0] == -999 && values[1] == -999 && values[2] == -999)
+    return;
 
   // READ SPEED VALUES
   double left_s = values[0];   // m/s

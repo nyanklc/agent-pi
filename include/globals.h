@@ -40,38 +40,38 @@
 #define TAG_ID_3_TO_MASTER
 #define TAG_ID_4_TO_MASTER
 
-#define LINEAR_STEP_AMOUNT 0.01
-#define LINEAR_TOLERANCE 0.05
-#define LINEAR_MIN_LIMIT 0.1
+#define LIN_ANG_CONVERSION_ANG_MULTIPLIER 60 / M_PI
+#define LIN_ANG_CONVERSION_LIN_MULTIPLIER 180
 
-#define ANGULAR_STEP_AMOUNT 0.08
-#define ANGULAR_TOLERANCE 0.10
-#define ANGULAR_MIN_LIMIT 0.1
+#define LINEAR_STEP_AMOUNT 0.1
+#define LINEAR_TOLERANCE 0.25
+#define LINEAR_MIN_LIMIT 0.0
 
-// #define LINEAR_P 0.05
-// #define LINEAR_I 0.02
-// #define LINEAR_D 0.002
-// #define LINEAR_LIM_MIN -0.1
-// #define LINEAR_LIM_MAX 0.1
+#define ANGULAR_STEP_AMOUNT 0.2
+#define ANGULAR_TOLERANCE 0.45
+#define ANGULAR_MIN_LIMIT 0.0
 
-// #define ANGULAR_P 0.05
-// #define ANGULAR_I 0.02
-// #define ANGULAR_D 0.002
-// #define ANGULAR_LIM_MIN -0.1
-// #define ANGULAR_LIM_MAX 0.1
+#define LINEAR_P 0.4
+#define LINEAR_I 0.04
+#define LINEAR_D 0.00001
+#define LINEAR_LIM_MIN -0.1
+#define LINEAR_LIM_MAX 0.1
+
+#define ANGULAR_P 0.4
+#define ANGULAR_I 0.04
+#define ANGULAR_D 0.00001
+#define ANGULAR_LIM_MIN -0.1
+#define ANGULAR_LIM_MAX 0.1
 
 #define CAMERA_CONTROLLER_TOLERANCE CAMERA_SIZE_X / 10 // px
-#define CAMERA_CONTROLLER_LIMIT 5                      // steps
+#define CAMERA_CONTROLLER_LIMIT 15                     // steps
 #define CAMERA_CONTROLLER_MULTIPLIER 0.05              // steps / px
 // #define CAMERA_STEP_ANGLE 2 * M_PI / 200  // rad
 #define CAMERA_STEP_ANGLE 1.8 / 360 * 2 * M_PI // rad
 #define CAMERA_YAW_INITIAL M_PI / 2
 
-#define LIN_ANG_CONVERSION_ANG_MULTIPLIER 30 / M_PI * 10
-#define LIN_ANG_CONVERSION_LIN_MULTIPLIER 180 * 10
-
 #define GOAL_POSE_X_OFFSET 0
-#define GOAL_POSE_Y_OFFSET 0.3
+#define GOAL_POSE_Y_OFFSET 0.6
 
 #define MIMIC_RADIUS 0.1
 

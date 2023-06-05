@@ -5,8 +5,12 @@ Agent::Agent()
     mApriltagDetector = std::make_shared<AprilTagDetector>();
     mApriltagDetector->init();
 
-    linear_controller_.init(LINEAR_STEP_AMOUNT, LINEAR_TOLERANCE, LINEAR_MIN_LIMIT);
-    angular_controller_.init(ANGULAR_STEP_AMOUNT, ANGULAR_TOLERANCE, ANGULAR_MIN_LIMIT);
+    linear_controller_.init(LINEAR_STEP_AMOUNT, LINEAR_TOLERANCE, LINEAR_MIN_LIMIT);  // simple
+    angular_controller_.init(ANGULAR_STEP_AMOUNT, ANGULAR_TOLERANCE, ANGULAR_MIN_LIMIT);  // simple
+
+    // linear_controller_.init(LINEAR_P, LINEAR_I, LINEAR_D, 0, 0, 0, LINEAR_LIM_MIN, LINEAR_LIM_MAX);
+    // angular_controller_.init(ANGULAR_P, ANGULAR_I, ANGULAR_D, 0, 0, 0, ANGULAR_LIM_MIN, ANGULAR_LIM_MAX);
+
     camera_angular_controller_.init(CAMERA_SIZE_X / 2, 1, CAMERA_CONTROLLER_TOLERANCE);
 
     camera_yaw_ = CAMERA_YAW_INITIAL;
@@ -62,6 +66,53 @@ void Agent::convertToMotorSpeeds(ArduinoCommands &commands, double linear_speed,
         commands.right_motor_speed = 255;
     else if (commands.right_motor_speed < -255)
         commands.right_motor_speed = -255;
+
+    // eren scale modification
+    if (commands.left_motor_speed > 0)
+    {
+        int scaled_left = 100 + (int)(((float)commands.left_motor_speed / (float)255) * (float)155);
+        switch (scaled_left)
+        {
+            case 100: scaled_left = 0; break;
+            case 101: scaled_left = 0; break;
+            case 102: scaled_left = 0; break;
+        }
+        commands.left_motor_speed = scaled_left;
+    }
+    else
+    {
+        int scaled_left = -100 + (int)(((float)commands.left_motor_speed / (float)255) * (float)155);
+        switch (scaled_left)
+        {
+            case -100: scaled_left = 0; break;
+            case -101: scaled_left = 0; break;
+            case -102: scaled_left = 0; break;
+        }
+        commands.left_motor_speed = scaled_left;
+    }
+    if (commands.right_motor_speed > 0)
+    {
+        int scaled_right = 100 + (int)(((float)commands.right_motor_speed / (float)255) * (float)155);
+        switch (scaled_right)
+        {
+            case 100: scaled_right = 0; break;
+            case 101: scaled_right = 0; break;
+            case 102: scaled_right = 0; break;
+        }
+        commands.right_motor_speed = scaled_right;
+    }
+    else
+    {
+        int scaled_right = -100 + (int)(((float)commands.right_motor_speed / (float)255) * (float)155);
+        switch (scaled_right)
+        {
+            case -100: scaled_right = 0; break;
+            case -101: scaled_right = 0; break;
+            case -102: scaled_right = 0; break;
+        }
+        commands.right_motor_speed = scaled_right;
+
+    }
 }
 
 void rotate(double angle, double &x, double &y, double prev_angle)
@@ -76,6 +127,12 @@ void rotate(double angle, double &x, double &y, double prev_angle)
 
     x = newx;
     y = newy;
+}
+
+void Agent::stopRobot()
+{
+    current_linear_speed_ = 0;
+    current_angular_speed_ = 0;
 }
 
 ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
@@ -159,8 +216,8 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
     std::cout << "current lin: " << current_linear_speed_ << ", current ang: " << current_angular_speed_ << std::endl;
     commands.print("commands");
 
-    // commands.left_motor_speed = 0;
-    // commands.right_motor_speed = 0;
+    commands.left_motor_speed = 0;
+    commands.right_motor_speed = 0;
     // commands.camera_step_count = 0;
 
     return commands;
@@ -187,7 +244,7 @@ GoalPose Agent::getMasterPose(std::vector<TagPose> &tag_objects)
     double pitch = -tag.pitch;
     pitch -= M_PI / 2;
 
-    double x = tag.x * 2;  // * 2 lmao
+    double x = tag.x;
     double y = tag.z;
     switch (tag.id)
     {

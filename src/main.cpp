@@ -22,6 +22,10 @@
 int SERIAL = 0;
 bool first_run = true;
 
+std::string last_message = "";
+ArduinoCommands last_command;
+bool sent_message = false;
+
 void initSerial(std::string port, int baudrate)
 {
     SERIAL = serialOpen(port.c_str(), baudrate);
@@ -40,8 +44,28 @@ std::string constructFromCommands(const ArduinoCommands &commands)
 void sendMessage(ArduinoCommands &commands)
 {
     std::string message = constructFromCommands(commands);
-    serialPrintf(SERIAL, "%s\n", message.c_str());
-    // std::cout << "serial sent: " << message << std::endl;
+
+    if (message != last_message)
+    {
+        // send
+        serialPrintf(SERIAL, "%s\n", message.c_str());
+        std::cout << "serial sent: " << message << std::endl;
+        sent_message = true;
+
+    }
+    else if (commands.camera_step_count == last_command.camera_step_count)
+    {
+        if (commands.camera_step_count != 0)
+        {
+            // send
+            serialPrintf(SERIAL, "%s\n", message.c_str());
+            std::cout << "serial sent: " << message << std::endl;
+            sent_message = true;
+        }
+    }
+
+    last_command = commands;
+    last_message = message;
 }
 
 bool receiveMessage()
@@ -94,7 +118,17 @@ ArduinoCommands getZeroCommand()
 
 inline ArduinoCommands getOutput(std::vector<TagPose> &tag_objects, Agent &agent)
 {
-    return tag_objects.size() > 0 ? agent.getOutputCommands(tag_objects) : getZeroCommand();
+    ArduinoCommands ret;
+    if (tag_objects.size() > 0)
+    {
+        ret = agent.getOutputCommands(tag_objects);
+    }
+    else
+    {
+        ret = getZeroCommand();
+        agent.stopRobot();
+    }
+    return ret;
 }
 
 void sendOutput(ArduinoCommands &arduino_commands)
@@ -102,13 +136,14 @@ void sendOutput(ArduinoCommands &arduino_commands)
     if (!SERIAL_ON)
         return;
 
-    if (!first_run)
-    {
-        using namespace std::chrono_literals;
-        while(!receiveMessage()) std::this_thread::sleep_for(50ms);
-    }
     sendMessage(arduino_commands);
     first_run = false;
+
+    using namespace std::chrono_literals;
+    if (sent_message) {
+        while(!receiveMessage()) std::this_thread::sleep_for(50ms);
+        sent_message = false;
+    }
 }
 
 void showOnGUI(
@@ -165,6 +200,8 @@ bool initSystem(Agent &agent, GUIHandler &gui_handler, GUIHandler &gui_handler2)
     using namespace std::chrono_literals;
     std::this_thread::sleep_for(5000ms);
 
+    sent_message = false;
+
     return true;
 }
 
@@ -214,6 +251,13 @@ int main(int argc, char **argv)
     cv::Mat frame_colored;
     cv::Mat last_frame;
     std::cout << "### LET'S GOOOOOOOOOOOOOOOOOOOOOOOOOOOOO ###\n";
+
+    // ArduinoCommands com;
+    // com.left_motor_speed = 255;
+    // com.right_motor_speed = 255;
+    // com.camera_step_count = 0;
+    // sendMessage(com);
+
     while (1)
     {
         auto loop_start_time = cv::getTickCount();
