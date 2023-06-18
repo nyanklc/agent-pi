@@ -11,6 +11,15 @@
 
 int SERIAL = 0;
 
+ArduinoCommands hello()
+{
+    ArduinoCommands com;
+    com.camera_step_count = 0;
+    com.left_motor_speed = 0;
+    com.right_motor_speed = 0;
+    return com;
+}
+
 std::string constructFromCommands(const ArduinoCommands &commands)
 {
     std::string msg = "";
@@ -69,29 +78,20 @@ bool receiveMessage()
     }
 }
 
-ArduinoCommands getZeroCommand()
-{
-    ArduinoCommands com;
-    com.camera_step_count = 0;
-    com.left_motor_speed = 0;
-    com.right_motor_speed = 0;
-    return com;
-}
-
 int main(int argc, char **argv)
 {
     using namespace std::chrono_literals;
 
     initSerial("/dev/ttyACM0", 9600);
 
-    ArduinoCommands init_command = getZeroCommand();
+    ArduinoCommands init_command = hello();
     sendMessage(init_command);
     std::this_thread::sleep_for(5000ms);
 
     bool first_run = true;
     while (1)
     {
-        ArduinoCommands command = getZeroCommand();
+        ArduinoCommands command = hello();
 
         if (!first_run)
         {

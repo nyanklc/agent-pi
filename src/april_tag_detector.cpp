@@ -133,22 +133,22 @@ bool AprilTagDetector::poseEstimation(cv::Mat &frame)
         mInfo.det = det;
 
         apriltag_pose_t pose;
-        double err = estimate_tag_pose(&mInfo, &pose);
+        float err = estimate_tag_pose(&mInfo, &pose);
         poses.push_back(pose);
 
-        // test
-        apriltag_pose_t pose1;
-        apriltag_pose_t pose2;
-        double err1;
-        double err2;
-        estimate_tag_pose_orthogonal_iteration(&mInfo, &err1, &pose1, &err2, &pose2, 3);
+        // // test
+        // apriltag_pose_t pose1;
+        // apriltag_pose_t pose2;
+        // float err1;
+        // float err2;
+        // estimate_tag_pose_orthogonal_iteration(&mInfo, &err1, &pose1, &err2, &pose2, 3);
 
-        // sometimes orthogonal iteration doesn't return 2 solutions
-        if (pose2.R)
-        {
-            mPosesOrthogonal.clear();
-            mPosesOrthogonal.push_back(std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));
-        }
+        // // sometimes orthogonal iteration doesn't return 2 solutions
+        // if (pose2.R)
+        // {
+        //     mPosesOrthogonal.clear();
+        //     mPosesOrthogonal.push_back(std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));
+        // }
 
         // std::cout << "err: " << err << "\n";
         if (err > APRILTAG_POSE_ERROR_THRESHOLD)

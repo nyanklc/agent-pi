@@ -9,7 +9,6 @@
 #include <type_traits>
 
 #include "../include/agent.h"
-#include "../include/arduino_commands.h"
 #include "../include/globals.h"
 #include "../include/gui_handler.h"
 #include "../include/stream_getter.h"
@@ -52,8 +51,8 @@ void setRightSpeed(int output)
     last_command.right_motor_speed = output;
 }
 
-std::unique_ptr<PIDController<int>> left_controller_ = std::make_unique<PIDController<int>>(LEFT_MOTOR_P, LEFT_MOTOR_I, LEFT_MOTOR_D, getLeftSpeed, setLeftSpeed);
-std::unique_ptr<PIDController<int>> right_controller_ = std::make_unique<PIDController<int>>(RIGHT_MOTOR_P, RIGHT_MOTOR_I, RIGHT_MOTOR_D, getRightSpeed, setRightSpeed);
+auto left_controller_ = std::make_unique<PIDController<int>>(LEFT_MOTOR_P, LEFT_MOTOR_I, LEFT_MOTOR_D, getLeftSpeed, setLeftSpeed);
+auto right_controller_ = std::make_unique<PIDController<int>>(RIGHT_MOTOR_P, RIGHT_MOTOR_I, RIGHT_MOTOR_D, getRightSpeed, setRightSpeed);
 
 SimpleController left_controller_simple_;
 SimpleController right_controller_simple_;
@@ -131,27 +130,10 @@ bool receiveMessage()
     return false;
 }
 
-ArduinoCommands getZeroCommand()
-{
-    ArduinoCommands com;
-    com.camera_step_count = 0;
-    com.left_motor_speed = 0;
-    com.right_motor_speed = 0;
-    return com;
-}
-
 inline ArduinoCommands getOutput(std::vector<TagPose> &tag_objects, Agent &agent)
 {
     ArduinoCommands ret;
-    if (tag_objects.size() > 0)
-    {
-        ret = agent.getOutputCommands(tag_objects);
-    }
-    else
-    {
-        ret = getZeroCommand();
-        agent.stopRobot();
-    }
+    ret = agent.getOutputCommands(tag_objects);
     return ret;
 }
 
@@ -229,7 +211,10 @@ bool initSystem(Agent &agent, GUIHandler &gui_handler, GUIHandler &gui_handler2)
 
     // Arduino resets after receiving first message??
     std::cout << "resetting Arduino\n";
-    ArduinoCommands init_command = getZeroCommand();
+    ArduinoCommands init_command;
+    init_command.left_motor_speed = 0;
+    init_command.right_motor_speed = 0;
+    init_command.camera_step_count = 0;
     sendMessage(init_command);
     using namespace std::chrono_literals;
     std::this_thread::sleep_for(5000ms);

@@ -35,7 +35,7 @@ void printPoint2f(cv::Point2f m, std::string msg = "");
 
 cv::Mat getDistortionMatrix();
 
-cv::Mat getCameraMatrix(double fx, double fy, double cx, double cy);
+cv::Mat getCameraMatrix(float fx, float fy, float cx, float cy);
 
 std::vector<cv::Vec3f> convertToVec3fVec(std::vector<cv::Point3f> pVec);
 
@@ -53,11 +53,11 @@ cv::Mat fromRPY(float roll, float pitch, float yaw);
 
 cv::Vec3f convertToVec3f(matd_t *m);
 
-std::vector<cv::Point3f> defineCubeWithPoints(double size = APRILTAG_TAG_SIZE);
+std::vector<cv::Point3f> defineCubeWithPoints(float size = APRILTAG_TAG_SIZE);
 
-std::vector<cv::Vec3f> defineCubeWithVectors(double side_length);
+std::vector<cv::Vec3f> defineCubeWithVectors(float side_length);
 
-std::vector<cv::Point3f> defineAxesWithPoints(double size = APRILTAG_TAG_SIZE / 3);
+std::vector<cv::Point3f> defineAxesWithPoints(float size = APRILTAG_TAG_SIZE / 3);
 
 void drawCube(std::vector<cv::Point3f> &cube, cv::Mat &frame,
               cv::Mat &cameraMatrix, cv::Mat &distortionCoefficients,
@@ -78,7 +78,7 @@ Transform constructTransform(matd_t *R, matd_t *t);
 
 Transform constructTransform(cv::Mat R, cv::Mat t);
 
-cv::Mat getRotationMatrix(double roll, double pitch, double yaw);
+cv::Mat getRotationMatrix(float roll, float pitch, float yaw);
 
 cv::Mat getRotationFromTransform(Transform &tf);
 
@@ -86,10 +86,10 @@ cv::Mat getTranslationFromTransform(Transform &tf);
 
 void printTransform(Transform &tf, std::string msg = "");
 
-cv::Mat getTranslationMatrix(double x, double y, double z);
+cv::Mat getTranslationMatrix(float x, float y, float z);
 
-cv::Mat truncateVector(cv::Mat t, double fraction);
+cv::Mat truncateVector(cv::Mat t, float fraction);
 
-double getAngularDifference(double th1, double th2);
+float getAngularDifference(float th1, float th2);
 
 #endif

@@ -68,18 +68,20 @@
 
 /* Camera Controller */
 #define CAMERA_CONTROLLER_TOLERANCE CAMERA_SIZE_X / 4 // px
-#define CAMERA_CONTROLLER_LIMIT 20                  // steps
+#define CAMERA_CONTROLLER_LIMIT 1                  // steps
 #define CAMERA_CONTROLLER_MULTIPLIER 0.1              // steps / px
 #define CAMERA_MASTER_DISTANCE_MULTIPLIER 1
-// #define CAMERA_STEP_ANGLE 2 * M_PI / 200  // rad
-#define CAMERA_STEP_ANGLE 1.8 / 360 * 2 * M_PI // rad
+#define CAMERA_STEP_ANGLE 2 * M_PI / 200  // rad
+// #define CAMERA_STEP_ANGLE 1.8 / 360 * 2 * M_PI // rad
 #define CAMERA_YAW_INITIAL M_PI / 2
 
 /* Mimic */
-#define GOAL_POSE_X_OFFSET 0
-#define GOAL_POSE_Y_OFFSET 0.5
+#define GOAL_POSE_OFFSET 0.5
 
 #define MIMIC_RADIUS 0.20
+
+#define SEARCH_CAMERA_TOLERANCE CAMERA_STEP_ANGLE * 5
+#define WAIT_COUNTER_LIMIT 30
 
 /* Camera Physical */
 // robot base to camera transform definition
