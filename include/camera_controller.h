@@ -12,7 +12,7 @@ public:
 
     void init(int goal, int multiplier, int tolerance);
 
-    int update(int current);
+    int update(int current, double master_distance);
 
 private:
     int goal_;

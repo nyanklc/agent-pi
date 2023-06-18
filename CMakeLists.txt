@@ -32,7 +32,7 @@ include_directories("/usr/local/include/apriltag/")
 # means
 add_executable(main src/main.cpp)
 add_dependencies(main ${OpenCV_LIBS} stream_getter agent serial_handler gui_handler topdown)
-target_link_libraries(main ${OpenCV_LIBS} stream_getter agent serial_handler gui_handler topdown)
+target_link_libraries(main ${OpenCV_LIBS} stream_getter agent serial_handler gui_handler topdown PID_NEW)
 
 add_library(agent src/agent.cpp)
 target_link_libraries(agent ${OpenCV_LIBS} april_tag_detector pid camera_controller simple_controller)
@@ -57,6 +57,9 @@ target_link_libraries(topdown ${OpenCV_LIBS})
 
 add_library(pid src/pid.cpp)
 target_link_libraries(pid)
+
+add_library(PID_NEW include/external/PID.cpp)
+target_link_libraries(PID_NEW)
 
 add_library(simple_controller src/simple_controller.cpp)
 target_link_libraries(simple_controller)

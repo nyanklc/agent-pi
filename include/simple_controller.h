@@ -1,6 +1,7 @@
 #ifndef SIMPLE_CONTROLLER_H_
 #define SIMPLE_CONTROLLER_H_
 
+#include <iostream>
 #include <math.h>
 
 class SimpleController

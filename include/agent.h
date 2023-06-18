@@ -5,13 +5,14 @@
 #include <memory>
 #include <opencv2/opencv.hpp>
 #include <bits/stdc++.h>
+#include <chrono>
 
 #include "april_tag_detector.h"
 #include "arduino_commands.h"
 #include "globals.h"
 #include "camera_controller.h"
 #include "simple_controller.h"
-#include "pid.h"
+// #include "pid.h"  // old pid
 
 struct GoalPose
 {
@@ -53,11 +54,9 @@ public:
 private:
     std::shared_ptr<AprilTagDetector> mApriltagDetector;
 
-    SimpleController linear_controller_;
-    SimpleController angular_controller_;
+    // SimpleController linear_controller_;
+    // SimpleController angular_controller_;
 
-    // PIDController linear_controller_;
-    // PIDController angular_controller_;
     CameraController camera_angular_controller_;
 
     GoalPose goal_pose_;

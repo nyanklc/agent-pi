@@ -5,14 +5,6 @@ Agent::Agent()
     mApriltagDetector = std::make_shared<AprilTagDetector>();
     mApriltagDetector->init();
 
-    linear_controller_.init(LINEAR_STEP_AMOUNT, LINEAR_TOLERANCE, LINEAR_MIN_LIMIT);  // simple
-    angular_controller_.init(ANGULAR_STEP_AMOUNT, ANGULAR_TOLERANCE, ANGULAR_MIN_LIMIT);  // simple
-
-    // linear_controller_.init(LINEAR_P, LINEAR_I, LINEAR_D, 0, 0, 0, LINEAR_LIM_MIN, LINEAR_LIM_MAX);
-    // angular_controller_.init(ANGULAR_P, ANGULAR_I, ANGULAR_D, 0, 0, 0, ANGULAR_LIM_MIN, ANGULAR_LIM_MAX);
-
-    camera_angular_controller_.init(CAMERA_SIZE_X / 2, 1, CAMERA_CONTROLLER_TOLERANCE);
-
     camera_yaw_ = CAMERA_YAW_INITIAL;
 
     current_linear_speed_ = 0;
@@ -21,7 +13,29 @@ Agent::Agent()
 
     goal_x_offset_ = GOAL_POSE_X_OFFSET;
     goal_y_offset_ = GOAL_POSE_Y_OFFSET;
+
+    camera_angular_controller_.init(CAMERA_SIZE_X / 2, 1, CAMERA_CONTROLLER_TOLERANCE);
+
+    // linear_controller_.init(LINEAR_STEP_AMOUNT, LINEAR_TOLERANCE, LINEAR_MIN_LIMIT);  // simple
+    // angular_controller_.init(ANGULAR_STEP_AMOUNT, ANGULAR_TOLERANCE, ANGULAR_MIN_LIMIT);  // simple
+    // linear_controller_.init(LINEAR_P, LINEAR_I, LINEAR_D, 0, 0, 0, LINEAR_LIM_MIN, LINEAR_LIM_MAX);
+    // angular_controller_.init(ANGULAR_P, ANGULAR_I, ANGULAR_D, 0, 0, 0, ANGULAR_LIM_MIN, ANGULAR_LIM_MAX);
 }
+
+// void Agent::debugPIDOutput()
+// {
+//     myPIDController.getProportionalComponent();
+//     myPIDController.getIntegralComponent();
+//     myPIDController.getDerivativeComponent();
+//     myPIDController.getP(); // Returns P Gain
+//     myPIDController.getI(); // Returns I Gain
+//     myPIDController.getD(); // Returns D Gain
+//     myPIDController.getTarget();
+//     myPIDController.getFeedback();
+//     myPIDController.getOutput();
+//     myPIDController.getError();
+// }
+
 
 void Agent::drawDetections(cv::Mat &frame, bool cube_on, bool axes_on)
 {
@@ -70,48 +84,31 @@ void Agent::convertToMotorSpeeds(ArduinoCommands &commands, double linear_speed,
     // eren scale modification
     if (commands.left_motor_speed > 0)
     {
-        int scaled_left = 100 + (int)(((float)commands.left_motor_speed / (float)255) * (float)155);
-        switch (scaled_left)
-        {
-            case 100: scaled_left = 0; break;
-            case 101: scaled_left = 0; break;
-            case 102: scaled_left = 0; break;
-        }
+        int scaled_left = MIN_MOTOR_ANALOG + (int)(((float)commands.left_motor_speed / (float)MAX_MOTOR_ANALOG) * (float)(MAX_MOTOR_ANALOG-MIN_MOTOR_ANALOG));
+        if (scaled_left >= MIN_MOTOR_ANALOG && scaled_left < MIN_MOTOR_ANALOG)
+            scaled_left = 0;
         commands.left_motor_speed = scaled_left;
     }
     else
     {
-        int scaled_left = -100 + (int)(((float)commands.left_motor_speed / (float)255) * (float)155);
-        switch (scaled_left)
-        {
-            case -100: scaled_left = 0; break;
-            case -101: scaled_left = 0; break;
-            case -102: scaled_left = 0; break;
-        }
+        int scaled_left = -MIN_MOTOR_ANALOG + (int)(((float)commands.left_motor_speed / (float)MAX_MOTOR_ANALOG) * (float)(MAX_MOTOR_ANALOG-MIN_MOTOR_ANALOG));
+        if (scaled_left <= -MIN_MOTOR_ANALOG && scaled_left > -MIN_MOTOR_ANALOG)
+            scaled_left = 0;
         commands.left_motor_speed = scaled_left;
     }
     if (commands.right_motor_speed > 0)
     {
-        int scaled_right = 100 + (int)(((float)commands.right_motor_speed / (float)255) * (float)155);
-        switch (scaled_right)
-        {
-            case 100: scaled_right = 0; break;
-            case 101: scaled_right = 0; break;
-            case 102: scaled_right = 0; break;
-        }
+        int scaled_right = MIN_MOTOR_ANALOG + (int)(((float)commands.right_motor_speed / (float)MAX_MOTOR_ANALOG) * (float)(MAX_MOTOR_ANALOG-MIN_MOTOR_ANALOG));
+        if (scaled_right >= MIN_MOTOR_ANALOG && scaled_right < MIN_MOTOR_ANALOG)
+            scaled_right = 0;
         commands.right_motor_speed = scaled_right;
     }
     else
     {
-        int scaled_right = -100 + (int)(((float)commands.right_motor_speed / (float)255) * (float)155);
-        switch (scaled_right)
-        {
-            case -100: scaled_right = 0; break;
-            case -101: scaled_right = 0; break;
-            case -102: scaled_right = 0; break;
-        }
-        commands.right_motor_speed = scaled_right;
-
+        int scaled_right = -MIN_MOTOR_ANALOG + (int)(((float)commands.right_motor_speed / (float)MAX_MOTOR_ANALOG) * (float)(MAX_MOTOR_ANALOG-MIN_MOTOR_ANALOG));
+        if (scaled_right <= -MIN_MOTOR_ANALOG && scaled_right > -MIN_MOTOR_ANALOG)
+            scaled_right = 0;
+        commands.right_motor_speed = scaled_right; 
     }
 }
 
@@ -150,7 +147,8 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
     goal_pose_ = getMasterPose(tag_objects);
 
     ArduinoCommands commands;
-    commands.camera_step_count = -camera_angular_controller_.update(tag_center_average); // negative to fix direction
+
+    commands.camera_step_count = -camera_angular_controller_.update(tag_center_average, std::hypot(tag_objects[0].x, tag_objects[0].y)); // negative to fix direction
     // commands.camera_step_count = 0;
 
     // camera stuff
@@ -178,8 +176,8 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
     double goal_vector_angle = std::atan2(goal_pose_.y, goal_pose_.x);
     double goal_vector_len = std::hypot(goal_pose_.x, goal_pose_.y);
 
-    // std::cout << "goal_Vector_angle: " << goal_vector_angle << std::endl;
-    // std::cout << "goal_vector_len: " << goal_vector_len << std::endl;
+    std::cout << "goal_Vector_angle: " << goal_vector_angle << std::endl;
+    std::cout << "goal_vector_len: " << goal_vector_len << std::endl;
 
     // ulas modification (perpendicular distance to the goal)
     double lin_magnitude = goal_pose_.y;
@@ -187,37 +185,37 @@ ArduinoCommands Agent::getOutputCommands(std::vector<TagPose> &tag_objects)
 
     double yaw_should_be = 0;
     // turn towards the mimic point if we're not close enough, otherwise turn towards master's orientation
-    if (goal_vector_len < MIMIC_RADIUS)
+    if (std::fabs(goal_pose_.y) < MIMIC_RADIUS)
     {
-        // std::cout << "yaw should be towards master's orientation\n";
+        std::cout << "yaw should be towards master's orientation\n";
         yaw_should_be = goal_pose_.yaw;
     }
     else
     {
-        // std::cout << "yaw should be towards mimic point\n";
+        std::cout << "yaw should be towards mimic point\n";
         yaw_should_be = goal_vector_angle;
     }
     double ang_magnitude = (M_PI / 2 - yaw_should_be); // check if this should be negated
+    while (ang_magnitude > M_PI)
+        ang_magnitude -= 2 * M_PI;
+    while (ang_magnitude < -M_PI)
+        ang_magnitude += 2 * M_PI;
 
     // std::cout << "yaw should be: " << yaw_should_be << std::endl;
 
-    // controllers
-    linear_controller_.setGoal(lin_magnitude);
-    angular_controller_.setGoal(ang_magnitude);
-    std::cout << "BEFORE current lin: " << current_linear_speed_ << ", current ang: " << current_angular_speed_ << std::endl;
-    current_linear_speed_ += linear_controller_.update(current_linear_speed_);
-    current_angular_speed_ += angular_controller_.update(current_angular_speed_);
-    std::cout << "AFTER current lin: " << current_linear_speed_ << ", current ang: " << current_angular_speed_ << std::endl;
+    if (std::fabs(ang_magnitude) < 0.5)
+        ang_magnitude = 0;
 
-    convertToMotorSpeeds(commands, current_linear_speed_, current_angular_speed_);
+    // controllers
+    // TODO: use PID controllers to update current linear and angular speeds
+    convertToMotorSpeeds(commands, lin_magnitude, ang_magnitude);
 
     // test
     std::cout << "linmag: " << lin_magnitude << ", angmag: " << ang_magnitude << std::endl;
-    std::cout << "current lin: " << current_linear_speed_ << ", current ang: " << current_angular_speed_ << std::endl;
     commands.print("commands");
 
-    commands.left_motor_speed = 0;
-    commands.right_motor_speed = 0;
+    // commands.left_motor_speed = 0;
+    // commands.right_motor_speed = 0;
     // commands.camera_step_count = 0;
 
     return commands;

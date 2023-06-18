@@ -17,6 +17,8 @@ double SimpleController::update(double measurement)
         else
             return -measurement;
 
+    // std::cout << "goal: " << goal_ << ", measurement: " << measurement << ", tolerance: " << tolerance_ << std::endl;
+
     return (std::fabs(goal_ - measurement) > tolerance_) ? ((goal_ - measurement > 0) ? step_amount_ : -step_amount_) : 0;
 }
 

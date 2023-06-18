@@ -1,5 +1,6 @@
 #include <chrono>
 #include <iostream>
+#include <memory>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -13,17 +14,55 @@
 #include "../include/gui_handler.h"
 #include "../include/stream_getter.h"
 #include "../include/topdown.h"
+#include "../include/arduino_commands.h"
+#include "../include/external/PID.h"
+#include "../include/simple_controller.h"
 #include <chrono>
 #include <thread>
 
 // RPi I/O library
 #include <wiringSerial.h>
 
+// Agent & Controllers
+Agent agent;
+ArduinoCommands last_command;
+bool commands_updated = false;
+
+int getLeftSpeed()
+{
+    return last_command.left_motor_speed;
+}
+
+int getRightSpeed()
+{
+    return last_command.right_motor_speed;
+}
+
+void setLeftSpeed(int output)
+{
+    if (output != last_command.left_motor_speed)
+        commands_updated = true;
+    last_command.left_motor_speed = output;
+}
+
+void setRightSpeed(int output)
+{
+    if (output != last_command.right_motor_speed)
+        commands_updated = true;
+    last_command.right_motor_speed = output;
+}
+
+std::unique_ptr<PIDController<int>> left_controller_ = std::make_unique<PIDController<int>>(LEFT_MOTOR_P, LEFT_MOTOR_I, LEFT_MOTOR_D, getLeftSpeed, setLeftSpeed);
+std::unique_ptr<PIDController<int>> right_controller_ = std::make_unique<PIDController<int>>(RIGHT_MOTOR_P, RIGHT_MOTOR_I, RIGHT_MOTOR_D, getRightSpeed, setRightSpeed);
+
+SimpleController left_controller_simple_;
+SimpleController right_controller_simple_;
+
 int SERIAL = 0;
 bool first_run = true;
 
 std::string last_message = "";
-ArduinoCommands last_command;
+
 bool sent_message = false;
 
 void initSerial(std::string port, int baudrate)
@@ -43,29 +82,14 @@ std::string constructFromCommands(const ArduinoCommands &commands)
 
 void sendMessage(ArduinoCommands &commands)
 {
+    // if (commands.left_motor_speed < MIN_MOTOR_ANALOG && commands.left_motor_speed > -MIN_MOTOR_ANALOG)
+    //     commands.left_motor_speed = 0;
+    // if (commands.right_motor_speed < MIN_MOTOR_ANALOG && commands.right_motor_speed > -MIN_MOTOR_ANALOG)
+    //     commands.right_motor_speed = 0;
     std::string message = constructFromCommands(commands);
 
-    if (message != last_message)
-    {
-        // send
-        serialPrintf(SERIAL, "%s\n", message.c_str());
-        std::cout << "serial sent: " << message << std::endl;
-        sent_message = true;
-
-    }
-    else if (commands.camera_step_count == last_command.camera_step_count)
-    {
-        if (commands.camera_step_count != 0)
-        {
-            // send
-            serialPrintf(SERIAL, "%s\n", message.c_str());
-            std::cout << "serial sent: " << message << std::endl;
-            sent_message = true;
-        }
-    }
-
-    last_command = commands;
-    last_message = message;
+    serialPrintf(SERIAL, "%s\n", message.c_str());
+    std::cout << "serial sent: " << message << std::endl;
 }
 
 bool receiveMessage()
@@ -140,10 +164,7 @@ void sendOutput(ArduinoCommands &arduino_commands)
     first_run = false;
 
     using namespace std::chrono_literals;
-    if (sent_message) {
-        while(!receiveMessage()) std::this_thread::sleep_for(50ms);
-        sent_message = false;
-    }
+    while(!receiveMessage()) std::this_thread::sleep_for(50ms);
 }
 
 void showOnGUI(
@@ -168,6 +189,19 @@ void showOnGUI(
             gui_handler_topdown.setFrame(f);
         }
     }
+}
+
+long unsigned int getTime()
+{
+    // auto currentTime = std::chrono::system_clock::now();
+    // auto timeInSeconds = std::chrono::time_point_cast<std::chrono::seconds>(currentTime);
+    // int timeAsInt = timeInSeconds.time_since_epoch().count();
+    // std::cout << "Current time as an integer: " << timeAsInt << std::endl;
+
+    auto x = cv::getTickCount() / cv::getTickFrequency();
+    long unsigned int int_x = (int)x * 100;
+
+    return int_x;
 }
 
 bool initSystem(Agent &agent, GUIHandler &gui_handler, GUIHandler &gui_handler2)
@@ -201,6 +235,18 @@ bool initSystem(Agent &agent, GUIHandler &gui_handler, GUIHandler &gui_handler2)
     std::this_thread::sleep_for(5000ms);
 
     sent_message = false;
+    last_command.left_motor_speed = 0;
+    last_command.right_motor_speed = 0;
+    last_command.camera_step_count = 0;
+
+    left_controller_->registerTimeFunction(getTime);
+    right_controller_->registerTimeFunction(getTime);
+
+    left_controller_->setFeedbackWrapped(false);
+    right_controller_->setFeedbackWrapped(false);
+
+    left_controller_simple_.init(LEFT_STEP_AMOUNT, LEFT_TOLERANCE, MIN_MOTOR_ANALOG);
+    right_controller_simple_.init(RIGHT_STEP_AMOUNT, RIGHT_TOLERANCE, MIN_MOTOR_ANALOG);
 
     return true;
 }
@@ -235,10 +281,39 @@ void readFrame(cv::VideoCapture &cvCap, cv::Mat &frame, cv::Mat &frame_colored, 
     }
 }
 
+void tickControllers(ArduinoCommands &output)
+{
+    left_controller_->setTarget(output.left_motor_speed);
+    left_controller_->tick();
+    right_controller_->setTarget(output.right_motor_speed);
+    right_controller_->tick();
+}
+
+void tickSimpleControllers(ArduinoCommands &output)
+{
+    left_controller_simple_.setGoal(output.left_motor_speed);
+    last_command.left_motor_speed += left_controller_simple_.update(last_command.left_motor_speed);
+    right_controller_simple_.setGoal(output.right_motor_speed);
+    last_command.right_motor_speed += right_controller_simple_.update(last_command.right_motor_speed);
+}
+
+bool areArduinoCommandsSame(ArduinoCommands &output, ArduinoCommands &last_command)
+{
+    if (output.camera_step_count == last_command.camera_step_count)
+        if (output.left_motor_speed == last_command.left_motor_speed)
+            if (output.right_motor_speed == last_command.right_motor_speed)
+                return true;
+    return false;
+}
+
+bool shouldCameraTurn(ArduinoCommands &output)
+{
+    return output.camera_step_count != 0;
+}
+
 int main(int argc, char **argv)
 {
     std::cout << "### INITIALIZING ###\n";
-    Agent agent;
     GUIHandler gui_handler;
     GUIHandler gui_handler_topdown;
     TopDown topdown;
@@ -260,6 +335,8 @@ int main(int argc, char **argv)
 
     while (1)
     {
+        std::cout << "time: " << getTime() << std::endl;
+
         auto loop_start_time = cv::getTickCount();
         // std::cout << "start: " << loop_start_time << "\n";
 
@@ -276,11 +353,43 @@ int main(int argc, char **argv)
         std::vector<TagPose> tag_objects = agent.process(frame); // TODO: copying vector here, find a better way
         // std::cout << "processing fps: " << cv::getTickFrequency() / (cv::getTickCount() - process_start_time) << "\n";
 
-        // get output command
+        // output
         ArduinoCommands output = getOutput(tag_objects, agent);
+        output.print("COMMANDS OUTPUT");
+        if (!areArduinoCommandsSame(output, last_command))
+        {
+            last_command.camera_step_count = output.camera_step_count;
 
-        // send to Arduino
-        sendOutput(output);
+            /* TO CHANGE CONTROLLER, UNCOMMENT DESIRED ONE */
+
+            /* PID External */
+            // std::cout << "HEYHEY BEFORE: " << std::endl;
+            // last_command.print("BEFORE");
+            // tickControllers(output);
+            // std::cout << "HEYHEY AFTER: " << std::endl;
+            // last_command.print("AFTER");
+
+            /* Simple Controller */
+            std::cout << "HEYHEY BEFORE: " << std::endl;
+            last_command.print("BEFORE");
+            tickSimpleControllers(output);
+            std::cout << "HEYHEY AFTER: " << std::endl;
+            last_command.print("BEFORE");
+
+            /* no controller */
+            // last_command.left_motor_speed = output.left_motor_speed;
+            // last_command.right_motor_speed = output.right_motor_speed;
+
+            sendOutput(last_command);
+        }
+        else
+        {
+            if (shouldCameraTurn(output))
+            {
+                last_command.camera_step_count = output.camera_step_count;
+                sendOutput(last_command);
+            }
+        }
 
         // debug
         showOnGUI(agent, gui_handler, frame_colored, topdown, gui_handler_topdown, tag_objects);

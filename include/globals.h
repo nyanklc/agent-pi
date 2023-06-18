@@ -17,14 +17,21 @@
 #define DRAW_AXES true
 
 #define APRILTAG_ENABLED true
-#define APRILTAG_THREAD_COUNT 8 // 4 for rpi
+#define APRILTAG_THREAD_COUNT 4  // 4 for rpi
 #define APRILTAG_FAMILY_BIT_COUNT 2
 #define APRILTAG_DEBUG_ON false
-#define APRILTAG_QUAD_DECIMATE 0.8
+#define APRILTAG_QUAD_DECIMATE 1.0
 #define APRILTAG_QUAD_SIGMA 0.8
 #define APRILTAG_REFINE_EDGES 0
 
-#define APRILTAG_TAG_SIZE 0.055 / 2              // cm (/ 2 since we resize the frame)
+// #define APRILTAG_THREAD_COUNT 8 // 4 for rpi
+// #define APRILTAG_FAMILY_BIT_COUNT 2
+// #define APRILTAG_DEBUG_ON false
+// #define APRILTAG_QUAD_DECIMATE 0.8
+// #define APRILTAG_QUAD_SIGMA 0.8
+// #define APRILTAG_REFINE_EDGES 0
+
+#define APRILTAG_TAG_SIZE 0.04 / 2              // cm (/ 2 since we resize the frame)
 #define APRILTAG_POSE_ERROR_THRESHOLD 1.0E-04 // idk
 
 // clockwise top view (back of master is id1)
@@ -33,48 +40,48 @@
 #define TAG_ID_3 1
 #define TAG_ID_4 5
 
-#define TAG_BOX_SIZE 0.12
+#define TAG_BOX_SIZE 0.085
 
-#define TAG_ID_1_TO_MASTER
-#define TAG_ID_2_TO_MASTER
-#define TAG_ID_3_TO_MASTER
-#define TAG_ID_4_TO_MASTER
+/* LIN_ANG Conversion */
+#define LIN_ANG_CONVERSION_ANG_MULTIPLIER 90 / M_PI
+#define LIN_ANG_CONVERSION_LIN_MULTIPLIER 120
 
-#define LIN_ANG_CONVERSION_ANG_MULTIPLIER 60 / M_PI
-#define LIN_ANG_CONVERSION_LIN_MULTIPLIER 180
+// eren
+#define MIN_MOTOR_ANALOG 60
+#define MAX_MOTOR_ANALOG 140
 
-#define LINEAR_STEP_AMOUNT 0.1
-#define LINEAR_TOLERANCE 0.25
-#define LINEAR_MIN_LIMIT 0.0
+/* Simple Controller */
+#define LEFT_STEP_AMOUNT 3
+#define LEFT_TOLERANCE 6
 
-#define ANGULAR_STEP_AMOUNT 0.2
-#define ANGULAR_TOLERANCE 0.45
-#define ANGULAR_MIN_LIMIT 0.0
+#define RIGHT_STEP_AMOUNT 3
+#define RIGHT_TOLERANCE 6
 
-#define LINEAR_P 0.4
-#define LINEAR_I 0.04
-#define LINEAR_D 0.00001
-#define LINEAR_LIM_MIN -0.1
-#define LINEAR_LIM_MAX 0.1
+/* PID External */
+#define LEFT_MOTOR_P 0.25
+#define LEFT_MOTOR_I 0
+#define LEFT_MOTOR_D 0
 
-#define ANGULAR_P 0.4
-#define ANGULAR_I 0.04
-#define ANGULAR_D 0.00001
-#define ANGULAR_LIM_MIN -0.1
-#define ANGULAR_LIM_MAX 0.1
+#define RIGHT_MOTOR_P 0.25
+#define RIGHT_MOTOR_I 0
+#define RIGHT_MOTOR_D 0
 
-#define CAMERA_CONTROLLER_TOLERANCE CAMERA_SIZE_X / 10 // px
-#define CAMERA_CONTROLLER_LIMIT 15                     // steps
-#define CAMERA_CONTROLLER_MULTIPLIER 0.05              // steps / px
+/* Camera Controller */
+#define CAMERA_CONTROLLER_TOLERANCE CAMERA_SIZE_X / 4 // px
+#define CAMERA_CONTROLLER_LIMIT 20                  // steps
+#define CAMERA_CONTROLLER_MULTIPLIER 0.1              // steps / px
+#define CAMERA_MASTER_DISTANCE_MULTIPLIER 1
 // #define CAMERA_STEP_ANGLE 2 * M_PI / 200  // rad
 #define CAMERA_STEP_ANGLE 1.8 / 360 * 2 * M_PI // rad
 #define CAMERA_YAW_INITIAL M_PI / 2
 
+/* Mimic */
 #define GOAL_POSE_X_OFFSET 0
-#define GOAL_POSE_Y_OFFSET 0.6
+#define GOAL_POSE_Y_OFFSET 0.5
 
-#define MIMIC_RADIUS 0.1
+#define MIMIC_RADIUS 0.20
 
+/* Camera Physical */
 // robot base to camera transform definition
 #define AGENT_TO_CAMERA_X_OFFSET 0
 #define AGENT_TO_CAMERA_Y_OFFSET 0

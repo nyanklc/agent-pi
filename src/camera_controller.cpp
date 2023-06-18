@@ -9,7 +9,7 @@ void CameraController::init(int goal, int multiplier, int tolerance)
     tolerance_ = tolerance;
 }
 
-int CameraController::update(int current)
+int CameraController::update(int current, double master_distance)
 {
     // std::cout << "goal: " << goal_ << ", current: " << current << std::endl;
     if (std::abs(goal_ - current) <= CAMERA_CONTROLLER_TOLERANCE)
@@ -24,6 +24,8 @@ int CameraController::update(int current)
             val = CAMERA_CONTROLLER_LIMIT;
         else if (val < -CAMERA_CONTROLLER_LIMIT)
             val = -CAMERA_CONTROLLER_LIMIT;
+
+        // val *= (int)(1 / master_distance * CAMERA_MASTER_DISTANCE_MULTIPLIER);
 
         return val;
     }

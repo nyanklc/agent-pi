@@ -14,6 +14,9 @@ const int left_motor_2 = 3;
 const int right_motor_1 = 9;
 const int right_motor_2 = 6;
 
+int last_left_s = 0;
+int last_right_s = 0;
+
 Stepper camera_stepper(steps_per_rev, camera_stepper_1, camera_stepper_2, camera_stepper_3, camera_stepper_4);
 
 void drive_motors(int left_s, int right_s)
@@ -26,40 +29,72 @@ void drive_motors(int left_s, int right_s)
   {
     if (left_s > 255)
       left_s = 255;
+    if (last_left_s == 0)
+    {
+      analogWrite(left_motor_1, 255);
+      analogWrite(left_motor_2, 0);
+      delay(1);
+    }
     analogWrite(left_motor_1, left_s);
     analogWrite(left_motor_2, 0);
+    last_left_s = left_s;
   }
   else if (left_s < 0)
   {
     if (left_s < -255)
       left_s = -255;
+    if (last_left_s == 0)
+    {
+      analogWrite(left_motor_1, 0);
+      analogWrite(left_motor_2, -255);
+      delay(1);
+    }
     analogWrite(left_motor_1, 0);
     analogWrite(left_motor_2, -left_s);
+    last_left_s = left_s;
   }
   else
   {
     analogWrite(left_motor_1, 0);
     analogWrite(left_motor_2, 0);
+    last_left_s = 0;
+    last_right_s = 0;
   }
 
   if (right_s > 0)
   {
     if (right_s > 255)
       right_s = 255;
+    if (last_right_s == 0)
+    {
+      analogWrite(right_motor_1, 255);
+      analogWrite(right_motor_2, 0);
+      delay(1);
+    }
     analogWrite(right_motor_1, right_s);
     analogWrite(right_motor_2, 0);
+    last_right_s = right_s;
   }
   else if (right_s < 0)
   {
     if (right_s < -255)
       right_s = -255;
+    if (last_right_s == 0)
+    {
+      analogWrite(right_motor_1, 0);
+      analogWrite(right_motor_2, -255);
+      delay(1);
+    }
     analogWrite(right_motor_1, 0);
-    analogWrite(right_motor_2, -right_s); 
+    analogWrite(right_motor_2, -right_s);
+    last_right_s = right_s;
   }
   else
   {
     analogWrite(right_motor_1, 0);
     analogWrite(right_motor_2, 0);
+    last_left_s = 0;
+    last_right_s = 0;
   }
 }
 
