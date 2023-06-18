@@ -1,7 +1,7 @@
 #include <Stepper.h>
 
 const int steps_per_rev = 200;
-const int camera_stepper_setspeed = 40; // ?
+const int camera_stepper_setspeed = 120; // ?
 
 // PINS
 const int camera_stepper_1 = 12;
